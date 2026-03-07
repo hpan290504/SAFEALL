@@ -1,0 +1,151 @@
+/* admin.css - Admin Dashboard Styling */
+
+body.admin-page {
+    background-color: #f8f9fa;
+    color: #5a5c69;
+}
+
+.bg-white {
+    background-color: #ffffff;
+}
+
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+}
+
+.shadow {
+    box-shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
+}
+
+.rounded {
+    border-radius: .35rem;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid #e3e6f0;
+}
+
+.card-header {
+    padding: .75rem 1.25rem;
+    margin-bottom: 0;
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.text-gray-800 {
+    color: #5a5c69;
+}
+
+.text-primary-blue {
+    color: #0055aa;
+}
+
+.badge {
+    display: inline-block;
+    padding: .25em .4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .35rem;
+}
+
+.badge-warning {
+    background-color: #f6c23e;
+    color: #fff;
+}
+
+.badge-info {
+    background-color: #36b9cc;
+    color: #fff;
+}
+
+.badge-success {
+    background-color: #1cc88a;
+    color: #fff;
+}
+
+.badge-primary {
+    background-color: #4e73df;
+    color: #fff;
+}
+
+.badge-secondary {
+    background-color: #858796;
+    color: #fff;
+}
+
+.badge-dark {
+    background-color: #5a5c69;
+    color: #fff;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1050;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-modal-content {
+    background: #fff;
+    border-radius: .5rem;
+    width: 90%;
+    max-width: 600px;
+    padding: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Tables */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.btn-outline-primary {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--primary-blue);
+}

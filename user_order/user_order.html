@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SAFEALL - My Purchases</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "accent-red": "#e11d48",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+<!-- Logo & Brand -->
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<div class="text-primary size-8 flex items-center justify-center">
+<img alt="SAFEALL Logo" class="h-8" data-alt="SAFEALL geometric professional blue and red logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCW6lH1-pbLXybD1YJtsDxj90MX2a44TKmWi49KxrmLG8QblVNCrfJVyj5l35y9HZsL2sWcBKg5auOe8VT1ahSyHjCNMS6ZXkhDf4FG3KkN9VwQX7d3xuBWY4OsbrIx0xOLBZkE6mrPCn0hqcYE0AbDuLLksBRDrNMTIlqy1Jqfe6w3j7C1wFuSSPaxs-8AXLsge_SfWP4MzCmrTeosgQu_zY8d-OqYqiXmV1s-rEodkKpxAwByWUwWagn32JI7BL8KSt5DLt8v4A"/>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">SAFEALL</h1>
+</div>
+<!-- Search Bar -->
+<div class="hidden md:flex flex-1 min-w-[300px]">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search orders, products, or brands" type="text"/>
+</div>
+</div>
+</div>
+<!-- User Actions -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 size-2 bg-accent-red rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<div class="h-8 w-px bg-slate-200 dark:border-slate-800 mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="size-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border border-slate-200">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="User profile photo showing a friendly person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDluy98Snw7-mw0k2hY2NC29JSmoWa34gUPcBWRaA_-dashiUN-9turPxIIiIU_0J2GqOo_rIDWj9_bEBxYukRiJpVq6Dqb86n-xuiMpMhXTaxFTSbcK4ghw0OhFuSEN_aOkV2BG5X2ZEg9Xy7ZUNuIqAvDnyXuAlmaZOUlWdJapVK-PLQoExGvdf5dXZ7-0E3KsN9Lw0c41oWJT2XwcbNhc4BRHK6HddH0mlnOdELAas0nxxn5cyNJpxPbi7J_pSQculyQxlJXJA"/>
+</div>
+<div class="hidden sm:block">
+<p class="text-xs font-semibold leading-tight">Alex Smith</p>
+<p class="text-[10px] text-slate-500">Gold Member</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 py-8">
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Sidebar Navigation -->
+<aside class="w-full lg:w-64 flex-shrink-0">
+<div class="flex items-center gap-4 mb-8">
+<div class="size-12 rounded-full border-2 border-primary/20 p-0.5">
+<img alt="Profile" class="rounded-full w-full h-full object-cover" data-alt="Circular profile picture for user avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYogKfn8S1v0Fx9xwzszjbqmUbPgbqG8vzOLpiG6Nr-6HXd0fhkhb01qk9lTdooDz6FWubgUAMSnGaGKrC7lI1AOG1-3hi01S8-T-SrT19a_Vs_qdTKvKXqFEHh9K5xRqLvBmod1vct7SCEypTuPNukFNYScLuDBueXBjLXOXkbCCY8QT5aMgFdneHAMxE7JoYozwt1kumThMmpb_IyGb63joDRSkLsNHn0lN0MGcQTLaCsiDGgzkOBbRyPlkv1KL6nLjxZdBAcA"/>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white truncate">alex_smith_2024</h3>
+<a class="text-xs text-slate-500 hover:text-primary flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[14px]">edit</span> Edit Profile
+                        </a>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">person</span>
+<span class="text-sm font-medium">My Account</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-sm font-bold">My Purchase</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">notifications_active</span>
+<span class="text-sm font-medium">Notifications</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">confirmation_number</span>
+<span class="text-sm font-medium">My Vouchers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg group" href="#">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary">payments</span>
+<span class="text-sm font-medium">SAFEALL Coins</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content -->
+<section class="flex-1 min-w-0">
+<!-- Status Tabs -->
+<div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-xl mb-6 overflow-x-auto">
+<div class="flex min-w-max">
+<a class="px-6 py-4 text-sm font-bold border-b-2 border-primary text-primary whitespace-nowrap" href="#">All</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">To Pay</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">To Ship</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">To Receive</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">Completed</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">Cancelled</a>
+<a class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-white whitespace-nowrap" href="#">Return/Refund</a>
+</div>
+</div>
+<!-- Search within purchases -->
+<div class="relative mb-6">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-lg pl-12 pr-4 py-4 text-sm focus:ring-primary/20" placeholder="You can search by Order ID or Product Name" type="text"/>
+</div>
+<!-- Order List -->
+<div class="space-y-4">
+<!-- Order Item 1 -->
+<div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+<div class="flex items-center gap-2">
+<span class="bg-accent-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">MALL</span>
+<span class="text-sm font-bold text-slate-900 dark:text-white">SAFEALL Official Store</span>
+<button class="flex items-center gap-1 bg-primary text-white text-xs px-2 py-1 rounded ml-2">
+<span class="material-symbols-outlined text-xs">chat</span> Chat
+                                </button>
+<button class="flex items-center gap-1 border border-slate-300 dark:border-slate-700 text-xs px-2 py-1 rounded">
+<span class="material-symbols-outlined text-xs">store</span> View Shop
+                                </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-primary uppercase font-bold tracking-wider">COMPLETED</span>
+</div>
+</div>
+<div class="p-4 flex flex-col md:flex-row gap-4">
+<div class="size-20 bg-slate-100 dark:bg-slate-800 rounded-lg flex-shrink-0">
+<img alt="Product" class="w-full h-full object-cover rounded-lg" data-alt="High quality wireless active noise canceling headphones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2-XcucmHIA_tCdfseAOdl2h1TK7ncHR4hVtC08B4KTbf3Cq2jTb3T6qoJNlDe2ch9kN5Rpvp3qBkISRFdnAIEusYoVBYOA7PMXDej1IdlvrCA9bE1-_JIjUM8tWvaZhpu0Y-wSR_eEjcIB-QT9ljQm7L_e2ilIjPF2hk-QehvlvoNbwSdRrQRSfjGaUL9RtX_SF9drYE5kjNxe4XLiIfPqB4uhKYchD48J5Jok0geeEoks1MM8WMx6wu8PaophUBbr-OEdPZbmQ"/>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">SAFEALL Pro Ultra Wireless Earbuds with Active Noise Cancellation, Bluetooth 5.3, 40h Playtime</h4>
+<p class="text-xs text-slate-500 mt-1">Variation: Midnight Black</p>
+<p class="text-xs text-slate-500 mt-0.5">x1</p>
+</div>
+<div class="text-right">
+<span class="text-primary font-bold">₱1,299</span>
+</div>
+</div>
+<div class="p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-end gap-4 bg-slate-50/30">
+<div class="flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-primary text-lg">verified_user</span>
+<span class="text-slate-600 dark:text-slate-400">Order Total:</span>
+<span class="text-xl font-bold text-primary">₱1,299</span>
+</div>
+<div class="flex gap-2">
+<button class="px-6 py-2 bg-primary text-white text-sm font-bold rounded hover:bg-primary/90">Buy Again</button>
+<button class="px-6 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium rounded hover:bg-slate-50 dark:hover:bg-slate-800">Contact Seller</button>
+</div>
+</div>
+</div>
+<!-- Order Item 2 -->
+<div class="bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+<div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+<div class="flex items-center gap-2">
+<span class="text-sm font-bold text-slate-900 dark:text-white">TechGadget Store</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">local_shipping</span>
+<span class="text-xs text-primary font-medium">Parcel is being delivered by courier</span>
+<div class="w-px h-3 bg-slate-300 mx-1"></div>
+<span class="text-xs text-accent-red uppercase font-bold tracking-wider">TO RECEIVE</span>
+</div>
+</div>
+<div class="p-4 flex flex-col md:flex-row gap-4">
+<div class="size-20 bg-slate-100 dark:bg-slate-800 rounded-lg flex-shrink-0">
+<img alt="Product" class="w-full h-full object-cover rounded-lg" data-alt="Ergonomic mechanical gaming keyboard with RGB lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADAvrHfodSVcOI8pMA8cDENbvSShuxJFVCLcajV-WoWNGudI67yAgI0cj93zx01DJeWbwCH-nhGA3D24tcsCIIwQ9941vQL3tvDmJvd7-WD5fE6moy3dsFcPH-Y1FWoPMpf9bTktQm6djZhkccf4G8tdBZqo4_7lPbcIqqN8xcl8OmE8MTMA5_MElvHv-wD9Gh5ucAukN5SNvtSUmMa7UlqLXdRpEtje2ACvj3f2yofQilpEMZXf-Ddo_IYIL06qRGfbT8FuEM7g"/>
+</div>
+<div class="flex-1">
+<h4 class="text-sm font-medium text-slate-900 dark:text-white line-clamp-2">Mechanical Gaming Keyboard - RGB Backlit, Blue Switch, 104 Keys Anti-ghosting</h4>
+<p class="text-xs text-slate-500 mt-1">Variation: White/Silver</p>
+<p class="text-xs text-slate-500 mt-0.5">x1</p>
+</div>
+<div class="text-right">
+<span class="text-primary font-bold">₱850</span>
+</div>
+</div>
+<div class="p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col items-end gap-4 bg-slate-50/30">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-slate-600 dark:text-slate-400">Order Total:</span>
+<span class="text-xl font-bold text-primary">₱850</span>
+</div>
+<div class="flex gap-2">
+<button class="px-6 py-2 bg-primary text-white text-sm font-bold rounded hover:bg-primary/90">Order Received</button>
+<button class="px-6 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-sm font-medium rounded hover:bg-slate-50 dark:hover:bg-slate-800">Track Parcel</button>
+</div>
+</div>
+</div>
+<!-- Empty State Example (Hidden by default but structured) -->
+<div class="hidden bg-white dark:bg-background-dark border border-dashed border-slate-300 dark:border-slate-700 rounded-xl py-20 flex flex-col items-center justify-center text-center">
+<div class="size-24 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-5xl text-slate-300">shopping_basket</span>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">No orders yet</h3>
+<p class="text-slate-500 max-w-xs mx-auto mt-2">When you buy something, it will appear here. Start shopping our great deals!</p>
+<button class="mt-6 px-8 py-3 bg-primary text-white font-bold rounded-lg hover:shadow-lg transition-all">Go Shopping</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<footer class="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark py-12">
+<div class="max-w-7xl mx-auto px-4">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+<div class="col-span-2 lg:col-span-1">
+<h5 class="font-bold text-slate-900 dark:text-white mb-4 uppercase text-xs tracking-wider">Customer Service</h5>
+<ul class="space-y-2 text-sm text-slate-500">
+<li><a class="hover:text-primary" href="#">Help Centre</a></li>
+<li><a class="hover:text-primary" href="#">SAFEALL Cares</a></li>
+<li><a class="hover:text-primary" href="#">Payment Methods</a></li>
+<li><a class="hover:text-primary" href="#">Return &amp; Refund</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-white mb-4 uppercase text-xs tracking-wider">About SAFEALL</h5>
+<ul class="space-y-2 text-sm text-slate-500">
+<li><a class="hover:text-primary" href="#">About Us</a></li>
+<li><a class="hover:text-primary" href="#">SAFEALL Blog</a></li>
+<li><a class="hover:text-primary" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-white mb-4 uppercase text-xs tracking-wider">Payment</h5>
+<div class="flex flex-wrap gap-2">
+<div class="h-6 w-10 bg-slate-100 rounded border border-slate-200"></div>
+<div class="h-6 w-10 bg-slate-100 rounded border border-slate-200"></div>
+<div class="h-6 w-10 bg-slate-100 rounded border border-slate-200"></div>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-white mb-4 uppercase text-xs tracking-wider">Follow Us</h5>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer">social_leaderboard</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer">camera_alt</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-primary cursor-pointer">alternate_email</span>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-slate-900 dark:text-white mb-4 uppercase text-xs tracking-wider">Download App</h5>
+<img alt="App Store" class="mb-2" data-alt="App Store download button badge" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsHs6zFIyPN01uJ0FkK2fiPTGV1arEpefQwrJyDYVws8gtIGfHP6FomRNBsDfbfymBmO-N2mfPMkAopoIapS1IhEUcP844h4Qn3qmDhihghu4qvpMx75ifoEp4we30617KJJVnIWkZiRDkPvsrph4aHhGwZ57xRSrIzRyXYXj8K1zqNKtJql4_NFzlwf-Bg6rKb5oIJ7tq-_KE1cWOtBB3ZmR8HT6_BQ52ShsHJDlLPUI1F1LLAMkkVuG2iTJj1GjOIJMKSSIoFg"/>
+<img alt="Google Play" data-alt="Google Play download button badge" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChcWybghd3IZOMUXAOtbB5x6wZRi-ClOwFet6JRsZoLWLWytv4HYGfm2Y1RWzUSM0AL87Ne4KM3oAWDSpeusK92BsE7m58IkQ88AJOIWNs5r3JDf2pzoDiRgfy_0RzQyWepmex4eF19Bkh65Cc476BIhzCdWT0-WDCmsgHzmhiiC7ED6QBJCJ4X-x8Ak1JWBTWzicAqIXpLVGqGOt4AT27o8ibRmz7C91aq_GeE-WXdcOuN-SIi-PJru32mCFLGU6J38YazODiCA"/>
+</div>
+</div>
+<div class="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center text-xs text-slate-400">
+                © 2024 SAFEALL. All Rights Reserved.
+            </div>
+</div>
+</footer>
+</body></html>

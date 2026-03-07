@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#d0021b",
+                        "primary-blue": "#135bec",
+                        "brand-red": "#ef4444",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: { "display": ["Inter"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Status select auto-color */
+        select.status-select {
+            appearance: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: none;
+            outline: none;
+        }
+
+        select.status-select.s-pending {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        select.status-select.s-shipping {
+            background: #f0f9ff;
+            color: #0284c7;
+        }
+
+        select.status-select.s-delivering {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+        select.status-select.s-completed {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        select.status-select.s-cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        select.status-select.s-returned {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+    </style>
+    <title>SAFEALL - Quản lý đơn hàng</title>
+</head>
+
+<body class="bg-background-light text-slate-900 antialiased">
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+            <a href="index.html"
+                class="p-6 flex flex-col border-b border-slate-100 hover:bg-slate-50 transition-colors group">
+                <h1 class="text-2xl font-black tracking-tighter leading-none">
+                    <span class="text-primary-blue">SAFE</span><span class="text-primary">ALL</span>
+                </h1>
+                <p class="text-xs text-slate-500 font-medium mt-1">Bảng quản trị</p>
+            </a>
+            <nav class="flex-1 px-4 space-y-1 mt-4 overflow-y-auto">
+                <a class="flex items-center gap-3 px-3 py-2.5 bg-primary/10 text-primary rounded-lg border-l-4 border-primary"
+                    href="#">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <span class="font-semibold text-sm">Đơn hàng</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    href="index.html">
+                    <span class="material-symbols-outlined">storefront</span>
+                    <span class="font-medium text-sm">Về cửa hàng</span>
+                </a>
+                <div class="pt-4 mt-4 border-t border-slate-100">
+                    <a onclick="adminLogout()"
+                        class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span class="font-medium text-sm">Đăng xuất</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="p-4 border-t border-slate-200">
+                <div class="flex items-center gap-3 p-2 bg-slate-50 rounded-xl">
+                    <img src="assets/avt_nam.jpg" alt="Admin" class="size-9 rounded-full object-cover bg-slate-200" />
+                    <div class="flex-1 overflow-hidden">
+                        <p id="adminName" class="text-sm font-semibold truncate">Admin</p>
+                        <p class="text-xs text-slate-500 truncate">Quản trị viên</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header
+                class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10 flex-shrink-0">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="relative w-full max-w-md">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+                        <input id="adminSearch"
+                            class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                            placeholder="Tìm theo Mã đơn, SĐT hoặc Tên sản phẩm..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span
+                            class="absolute top-2 right-2 size-2 bg-brand-red rounded-full border-2 border-white"></span>
+                    </button>
+                    <button onclick="renderTable()"
+                        class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors mr-1"
+                        title="Làm mới dữ liệu">
+                        <span class="material-symbols-outlined">refresh</span>
+                    </button>
+                    <button onclick="exportCSV()"
+                        class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors">
+                        <span class="material-symbols-outlined text-lg">download</span>
+                        Xuất CSV
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Body -->
+            <div class="flex-1 overflow-y-auto p-8 space-y-6">
+
+                <!-- Title -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Quản lý đơn hàng</h2>
+                        <p class="text-slate-500 text-sm mt-1">Xem và xử lý tất cả đơn hàng trong hệ thống.</p>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <select id="filterStatus" onchange="renderTable()"
+                            class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:outline-none">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="pending">Chờ thanh toán</option>
+                            <option value="shipping">Vận chuyển</option>
+                            <option value="delivering">Chờ giao hàng</option>
+                            <option value="completed">Hoàn thành</option>
+                            <option value="cancelled">Đã hủy</option>
+                            <option value="returned">Trả hàng / Hoàn tiền</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tổng đơn hàng</p>
+                        <div class="flex items-end justify-between mt-2">
+                            <h3 id="statTotal" class="text-2xl font-bold">0</h3>
+                            <span class="material-symbols-outlined text-slate-300">receipt_long</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Chờ xử lý</p>
+                        <div class="flex items-end justify-between mt-2">
+                            <h3 id="statPending" class="text-2xl font-bold text-amber-500">0</h3>
+                            <span class="text-xs font-medium text-amber-500 px-1.5 py-0.5 bg-amber-50 rounded">Cần xử
+                                lý</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Doanh thu</p>
+                        <div class="flex items-end justify-between mt-2">
+                            <h3 id="statRevenue" class="text-2xl font-bold text-emerald-600">0đ</h3>
+                            <span class="material-symbols-outlined text-emerald-300">payments</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Đã hủy</p>
+                        <div class="flex items-end justify-between mt-2">
+                            <h3 id="statCancelled" class="text-2xl font-bold text-red-500">0</h3>
+                            <span class="material-symbols-outlined text-red-300">cancel</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200">
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Mã
+                                        đơn</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Khách hàng</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Ngày
+                                        đặt</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Sản
+                                        phẩm</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng
+                                        tiền</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        Trạng thái</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Thao
+                                        tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersList" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyOrdersMsg" class="hidden py-20 flex flex-col items-center justify-center text-center">
+                        <div class="size-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                            <span class="material-symbols-outlined text-slate-300" style="font-size:40px">inbox</span>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-700">Chưa có đơn hàng nào</h3>
+                        <p class="text-slate-400 text-sm mt-1">Đơn hàng mới sẽ xuất hiện tại đây sau khi khách đặt mua.
+                        </p>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="paginationBar"
+                        class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+                        <p id="paginationInfo" class="text-sm text-slate-500"></p>
+                        <div class="flex gap-2">
+                            <button id="btnPrev" onclick="changePage(-1)"
+                                class="px-3 py-1 border border-slate-200 rounded bg-white text-sm disabled:opacity-40"
+                                disabled>← Trước</button>
+                            <button id="btnNext" onclick="changePage(1)"
+                                class="px-3 py-1 border border-slate-200 rounded bg-white text-sm disabled:opacity-40"
+                                disabled>Tiếp →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== ORDER DETAIL MODAL ===== -->
+    <div id="orderDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4"
+        style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <div>
+                    <h4 class="text-lg font-bold text-slate-900">Chi tiết đơn hàng</h4>
+                    <p id="detailOrderId" class="text-sm text-primary font-mono mt-0.5"></p>
+                </div>
+                <button onclick="closeModal()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500 mb-1">Khách hàng</p>
+                        <p id="detailCustomerName" class="font-semibold text-sm"></p>
+                        <p id="detailCustomerPhone" class="text-xs text-slate-500 mt-0.5"></p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl">
+                        <p class="text-xs text-slate-500 mb-1">Địa chỉ giao hàng</p>
+                        <p id="detailCustomerAddress" class="text-sm text-slate-700"></p>
+                    </div>
+                </div>
+                <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm">
+                    <span class="font-semibold text-amber-700">Lời nhắn: </span>
+                    <span id="detailOrderNote" class="text-amber-900">Không có lời nhắn.</span>
+                </div>
+                <div>
+                    <h6 class="font-bold text-slate-700 mb-2 text-sm uppercase tracking-wider">Sản phẩm</h6>
+                    <table class="w-full text-sm border border-slate-100 rounded-xl overflow-hidden">
+                        <thead class="bg-slate-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs text-slate-500">Tên SP</th>
+                                <th class="px-4 py-2 text-center text-xs text-slate-500">SL</th>
+                                <th class="px-4 py-2 text-right text-xs text-slate-500">Giá</th>
+                                <th class="px-4 py-2 text-right text-xs text-slate-500">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailProductsList" class="divide-y divide-slate-50"></tbody>
+                    </table>
+                </div>
+                <div class="text-right border-t border-slate-100 pt-4 space-y-1">
+                    <p class="text-sm text-slate-600">Tạm tính: <span id="detailSubtotal" class="font-semibold"></span>
+                    </p>
+                    <p class="text-sm text-slate-600">Phí vận chuyển: <span id="detailShipping"
+                            class="font-semibold"></span></p>
+                    <p class="text-xl font-bold text-primary mt-1">Tổng cộng: <span id="detailTotal"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== Config =====
+        const PAGE_SIZE = 15;
+        let currentPage = 1;
+        let filteredOrders = [];
+
+        // ===== Helpers =====
+        function formatCurrency(n) { return new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ'; }
+
+        const STATUS_LABELS = {
+            pending: 'Chờ thanh toán',
+            shipping: 'Vận chuyển',
+            delivering: 'Chờ giao hàng',
+            completed: 'Hoàn thành',
+            cancelled: 'Đã hủy',
+            returned: 'Trả hàng / Hoàn tiền',
+        };
+
+        // ===== Auth Guard =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const session = JSON.parse(localStorage.getItem('safeall_active_user'));
+            if (!session || session.role !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('adminName').textContent = session.identifier || 'Admin';
+
+            renderTable();
+
+            document.getElementById('adminSearch').addEventListener('input', () => { currentPage = 1; renderTable(); });
+            document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; renderTable(); });
+
+            // Real-time Update Listener
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'safeall_orders') {
+                    const oldVal = JSON.parse(e.oldValue || '[]');
+                    const newVal = JSON.parse(e.newValue || '[]');
+
+                    if (newVal.length > oldVal.length) {
+                        showToast('Có đơn hàng mới vừa được đặt!', 'success');
+                    }
+                    renderTable();
+                }
+            });
+        });
+
+        // Simple Toast Notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-8 right-8 px-6 py-3 rounded-xl shadow-2xl z-[100] transition-all transform translate-y-10 opacity-0 flex items-center gap-3 border ${type === 'success' ? 'bg-emerald-600 text-white border-emerald-500' : 'bg-slate-800 text-white border-slate-700'
+                }`;
+            toast.innerHTML = `
+                <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'info'}</span>
+                <span class="font-medium text-sm">${message}</span>
+            `;
+            document.body.appendChild(toast);
+
+            // Animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+
+        // ===== Stats =====
+        function updateStats() {
+            try {
+                const ordersStr = localStorage.getItem('safeall_orders');
+                let allOrders = JSON.parse(ordersStr || '[]');
+                if (!Array.isArray(allOrders)) {
+                    console.error("Admin Dashboard - Dữ liệu safeall_orders không phải là mảng, đang reset...");
+                    allOrders = [];
+                }
+                const total = allOrders.length;
+                const pending = allOrders.filter(o => o.status === 'pending' || o.status === 'delivering').length;
+                const revenue = allOrders.filter(o => o.status === 'completed').reduce((s, o) => s + (o.total || 0), 0);
+                const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statPending').textContent = pending;
+                document.getElementById('statRevenue').textContent = formatCurrency(revenue);
+                document.getElementById('statCancelled').textContent = cancelled;
+            } catch (error) {
+                console.error("Admin Dashboard - Lỗi khi load stats:", error);
+            }
+        }
+
+        // ===== Render Table =====
+        function renderTable() {
+            let allOrders = JSON.parse(localStorage.getItem('safeall_orders') || '[]');
+            if (!Array.isArray(allOrders)) allOrders = [];
+
+            const query = document.getElementById('adminSearch').value.toLowerCase().trim();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            updateStats(); // stats logic based on all data
+
+            const cleanQuery = query.startsWith('#') ? query.slice(1) : query;
+
+            filteredOrders = allOrders.filter(o => {
+                const matchStatus = statusFilter === 'all' || o.status === statusFilter;
+                const matchSearch = !cleanQuery ||
+                    (o.id && o.id.toLowerCase().includes(cleanQuery)) ||
+                    (o.customer && o.customer.phone && o.customer.phone.includes(cleanQuery)) ||
+                    (o.items && o.items.some(i => i.title.toLowerCase().includes(cleanQuery)));
+                return matchStatus && matchSearch;
+            }).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            // Diagnostic: Check for specific missing orders (like user mentioned)
+            const missingTarget = allOrders.find(o => o.id && o.id.toUpperCase() === 'SADKYS33');
+            if (missingTarget && !filteredOrders.includes(missingTarget)) {
+                console.warn("DIAGNOSTIC: Đơn hàng SADKYS33 tồn tại nhưng bị lọc mất bởi filter hiện tại!", {
+                    status: missingTarget.status,
+                    currentFilter: statusFilter,
+                    currentQuery: query
+                });
+                showToast(`Đơn hàng #SADKYS33 đang bị ẩn do bộ lọc ${STATUS_LABELS[statusFilter] || 'hiện tại'}.`, 'info');
+            }
+
+            const tbody = document.getElementById('ordersList');
+            const emptyMsg = document.getElementById('emptyOrdersMsg');
+            const paginationBar = document.getElementById('paginationBar');
+
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                paginationBar.classList.add('hidden');
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            paginationBar.classList.remove('hidden');
+
+            const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const pageOrders = filteredOrders.slice(start, start + PAGE_SIZE);
+
+            document.getElementById('paginationInfo').textContent =
+                `Hiển thị ${start + 1}–${Math.min(start + PAGE_SIZE, filteredOrders.length)} / ${filteredOrders.length} đơn hàng`;
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnNext').disabled = currentPage === totalPages;
+
+            tbody.innerHTML = pageOrders.map(order => {
+                const dateStr = order.date ? new Date(order.date).toLocaleString('vi-VN') : '--';
+                const phone = order.customer?.phone || '--';
+                const itemsSummary = order.items ? order.items.map(i => `${i.title} (x${i.qty})`).join(', ') : '--';
+                const statusClass = `s-${order.status || 'pending'}`;
+                const statusLabel = STATUS_LABELS[order.status] || order.status || 'Chờ xử lý';
+
+                return `
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="px-5 py-4">
+                <span class="font-mono text-sm font-semibold text-primary">#${(order.id || '').toUpperCase()}</span>
+            </td>
+            <td class="px-5 py-4">
+                <div class="flex items-center gap-2">
+                    <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                        ${phone.slice(-2)}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">${order.customer?.name || 'Khách hàng'}</p>
+                        <p class="text-xs text-slate-500">${phone}</p>
+                    </div>
+                </div>
+            </td>
+            <td class="px-5 py-4 text-sm text-slate-600">${dateStr}</td>
+            <td class="px-5 py-4 text-sm text-slate-600 max-w-[200px] truncate" title="${itemsSummary}">${itemsSummary}</td>
+            <td class="px-5 py-4 text-sm font-semibold">${formatCurrency(order.total)}</td>
+            <td class="px-5 py-4">
+                <select class="status-select ${statusClass}" onchange="updateOrderStatus('${order.id}', this)">
+                    ${Object.entries(STATUS_LABELS).map(([val, label]) =>
+                    `<option value="${val}" ${order.status === val ? 'selected' : ''}>${label}</option>`
+                ).join('')}
+                </select>
+            </td>
+            <td class="px-5 py-4">
+                <button onclick="showDetail('${order.id}')" class="text-slate-400 hover:text-primary transition-colors p-1 rounded-lg hover:bg-primary/10" title="Xem chi tiết">
+                    <span class="material-symbols-outlined">open_in_new</span>
+                </button>
+            </td>
+        </tr>`;
+            }).join('');
+        }
+
+        // ===== Pagination =====
+        function changePage(dir) {
+            currentPage += dir;
+            renderTable();
+        }
+
+        // ===== Update Status =====
+        function updateOrderStatus(orderId, selectEl) {
+            const newStatus = selectEl.value;
+            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
+            const idx = allOrders.findIndex(o => o.id === orderId);
+            if (idx !== -1) {
+                allOrders[idx].status = newStatus;
+                localStorage.setItem('safeall_orders', JSON.stringify(allOrders));
+            }
+            // Update select color class
+            selectEl.className = `status-select s-${newStatus}`;
+            updateStats();
+        }
+
+        // ===== Order Detail Modal =====
+        function showDetail(orderId) {
+            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('detailOrderId').textContent = '#' + orderId.toUpperCase();
+            document.getElementById('detailCustomerName').textContent = order.customer?.name || 'Khách hàng';
+            document.getElementById('detailCustomerPhone').textContent = 'SĐT: ' + (order.customer?.phone || '--');
+            document.getElementById('detailCustomerAddress').textContent = order.customer?.address || 'Không có địa chỉ';
+            document.getElementById('detailOrderNote').textContent = order.note || 'Không có lời nhắn.';
+
+            const items = order.items || [];
+            document.getElementById('detailProductsList').innerHTML = items.map(item => `
+        <tr>
+            <td class="px-4 py-2">${item.title}</td>
+            <td class="px-4 py-2 text-center">${item.qty}</td>
+            <td class="px-4 py-2 text-right">${item.price ? formatCurrency(item.price) : '--'}</td>
+            <td class="px-4 py-2 text-right font-semibold">${item.price ? formatCurrency(item.price * item.qty) : '--'}</td>
+        </tr>
+    `).join('');
+
+            const subtotal = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
+            const shipping = (order.total || 0) - subtotal;
+            document.getElementById('detailSubtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('detailShipping').textContent = shipping > 0 ? formatCurrency(shipping) : 'Miễn phí';
+            document.getElementById('detailTotal').textContent = formatCurrency(order.total);
+
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('orderDetailModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ===== Export CSV =====
+        function exportCSV() {
+            const orders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
+            if (!orders.length) { alert('Không có đơn hàng để xuất.'); return; }
+
+            const headers = ['Mã đơn', 'Ngày đặt', 'SĐT', 'Địa chỉ', 'Sản phẩm', 'Tổng tiền', 'Trạng thái'];
+            const rows = orders.map(o => [
+                o.id || '',
+                o.date ? new Date(o.date).toLocaleString('vi-VN') : '',
+                o.customer?.phone || '',
+                o.customer?.address || '',
+                (o.items || []).map(i => `${i.title} x${i.qty}`).join(' | '),
+                o.total || 0,
+                STATUS_LABELS[o.status] || o.status || '',
+            ]);
+
+            const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'safeall_orders.csv'; a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ===== Logout =====
+        function adminLogout() {
+            localStorage.removeItem('safeall_active_user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

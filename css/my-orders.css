@@ -1,0 +1,246 @@
+/* my-orders.css - Shopee Style User Dashboard */
+
+body.bg-gray {
+    background-color: #f5f5f5;
+}
+
+/* Header */
+.shopee-header {
+    background: var(--primary-blue);
+    color: #fff;
+    width: 100%;
+}
+
+.shopee-header .container-fluid {
+    width: 1200px;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
+.shopee-top-bar {
+    font-size: 13px;
+    padding: 8px 0;
+}
+
+.top-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.top-links a {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.2s;
+}
+
+.top-links a:hover {
+    opacity: 0.8;
+}
+
+.top-links .divider {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.connect-social a {
+    display: inline-flex;
+    margin-left: 4px;
+    font-weight: bold;
+}
+
+.shopee-middle-bar {
+    padding: 16px 0;
+}
+
+.shopee-search-container {
+    max-width: 800px;
+}
+
+/* Auth Section Overrides for Shopee Header */
+.shopee-header .user-profile-nav {
+    color: white;
+}
+
+.shopee-header .nav-username {
+    color: white !important;
+}
+
+.shopee-header .guest-nav .auth-btn {
+    color: white;
+}
+
+.shopee-header .lang-switch button {
+    color: white;
+}
+
+/* Layout Grid */
+.layout-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 1200px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.sidebar {
+    width: 190px;
+    flex-shrink: 0;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Sidebar Styling */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 15px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(0, 0, 0, .87);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.sidebar-menu a:hover {
+    color: var(--primary-blue);
+}
+
+.sidebar-menu a.active {
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+
+/* Tabs */
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.order-tabs {
+    border-bottom: 1px solid rgba(0, 0, 0, .09);
+    gap: 12px;
+}
+
+.order-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 16px 0;
+    color: rgba(0, 0, 0, .8);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.order-tab:hover {
+    color: var(--primary-blue);
+    text-shadow: 0 0 8px rgba(0, 85, 170, 0.4);
+}
+
+.order-tab.active {
+    color: var(--primary-blue);
+    border-bottom-color: var(--primary-blue);
+    text-shadow: 0 0 8px rgba(0, 85, 170, 0.4);
+}
+
+/* Search Bar */
+.order-search-bar {
+    padding: 12px 16px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, .09);
+    background-color: #eaeaea;
+}
+
+.order-search-bar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+/* Data Table Styling */
+.orders-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.orders-table th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.orders-table td {
+    padding: 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+    color: #212529;
+}
+
+.orders-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.orders-table .status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.orders-table .payment-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.orders-table .btn-detail {
+    color: var(--primary-blue);
+    font-weight: 600;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.orders-table .btn-detail:hover {
+    text-decoration: underline;
+}
+
+.text-success {
+    color: #26aa99 !important;
+}
