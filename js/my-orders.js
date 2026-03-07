@@ -98,9 +98,10 @@ function loadMyOrders(userPhone, filterStatus, searchQuery = '') {
     emptyMsg.style.display = 'none';
     tableEl.style.display = 'table';
 
-    const activeSession = JSON.parse(localStorage.getItem('safeall_active_user')) || { identifier: 'Guest', phone: '0767036143' };
-    const userName = activeSession.identifier;
-    const userPhone = activeSession.phone || '0767036143';
+    const session = JSON.parse(localStorage.getItem('safeall_active_user'));
+    if (!session) return;
+    const userName = session.name || session.identifier;
+    const currentPhone = session.identifier;
 
     // Generate Table Rows
     const html = myOrders.map(order => {

@@ -543,9 +543,15 @@
         const savedDataStr = localStorage.getItem('safeall_checkout_form');
         const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
 
-        if (activeSession && activeSession.identifier) {
-            const phoneEl = document.getElementById('phoneNumber');
-            if (phoneEl) phoneEl.value = activeSession.identifier;
+        if (activeSession) {
+            if (activeSession.identifier) {
+                const phoneEl = document.getElementById('phoneNumber');
+                if (phoneEl) phoneEl.value = activeSession.identifier;
+            }
+            if (activeSession.name) {
+                const nameEl = document.getElementById('fullName');
+                if (nameEl) nameEl.value = activeSession.name;
+            }
         }
 
         if (savedDataStr) {

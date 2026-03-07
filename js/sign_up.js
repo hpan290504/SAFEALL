@@ -83,11 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Save back to localStorage
         localStorage.setItem('safeall_users', JSON.stringify(users));
 
-        showSuccess('Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...');
+        // Auto-login: Create an active session immediately
+        localStorage.setItem('safeall_active_user', JSON.stringify({
+            role: 'user',
+            identifier: phone,
+            name: name,
+            gender: 'male'
+        }));
 
-        // Redirect after a short delay
+        showSuccess('Đăng ký thành công! Đang chuyển hướng đến trang cá nhân...');
+
+        // Redirect to my-orders instead of login
         setTimeout(() => {
-            window.location.href = '../login.html';
-        }, 2000);
+            window.location.href = '../my-orders.html';
+        }, 1500);
     });
 });
