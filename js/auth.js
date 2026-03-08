@@ -8,7 +8,7 @@ function initAuthUI() {
     const authSection = document.getElementById('authSection');
     if (!authSection) return;
 
-    const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
+    const activeSession = window.SAFEALL_API.getActiveUser();
 
     if (activeSession) {
         // User logged in
@@ -56,6 +56,6 @@ function initAuthUI() {
 
 window.logoutUser = function (e) {
     if (e) e.preventDefault();
-    localStorage.removeItem('safeall_active_user');
+    window.SAFEALL_API.logout();
     window.location.href = 'index.html';
 }

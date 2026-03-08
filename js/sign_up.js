@@ -61,41 +61,36 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Get existing users
-        const users = JSON.parse(localStorage.getItem('safeall_users')) || [];
+        // Register via API
+        (async () => {
+            const userData = {
+                name,
+                phone,
+                password,
+                gender: 'male' // Mặc định như login.js đã thiết lập
+            };
 
-        // Check if phone already exists
-        if (users.find(u => u.phone === phone)) {
-            showError('Số điện thoại này đã được đăng ký.');
-            return;
-        }
+            const result = await window.SAFEALL_API.registerUser(userData);
 
-        // Add new user
-        users.push({
-            name,
-            phone,
-            password,
-            role: 'user',
-            gender: 'male', // Mặc định như login.js đã thiết lập
-            createdAt: new Date().toISOString()
-        });
+            if (!result.success) {
+                showError(result.message);
+                return;
+            }
 
-        // Save back to localStorage
-        localStorage.setItem('safeall_users', JSON.stringify(users));
+            // Auto-login: Create an active session immediately via API
+            window.SAFEALL_API.setActiveUser({
+                role: 'user',
+                identifier: phone,
+                name: name,
+                gender: 'male'
+            });
 
-        // Auto-login: Create an active session immediately
-        localStorage.setItem('safeall_active_user', JSON.stringify({
-            role: 'user',
-            identifier: phone,
-            name: name,
-            gender: 'male'
-        }));
+            showSuccess('Đăng ký thành công! Đang chuyển hướng đến trang cá nhân...');
 
-        showSuccess('Đăng ký thành công! Đang chuyển hướng đến trang cá nhân...');
-
-        // Redirect to my-orders instead of login
-        setTimeout(() => {
-            window.location.href = '../my-orders.html';
-        }, 1500);
+            // Redirect to my-orders instead of login
+            setTimeout(() => {
+                window.location.href = '../my-orders.html';
+            }, 1500);
+        })();
     });
 });

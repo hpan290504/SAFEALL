@@ -11,13 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!username) return;
 
-        // Hiển thị lỗi lên UI nếu có
-        const errorEl = document.getElementById('loginError');
-        const showError = (msg) => {
-            if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); }
-        };
-        const clearError = () => { if (errorEl) errorEl.classList.add('hidden'); };
-
         // Validate: nếu không phải admin thì bắt buộc là số điện thoại 10 số
         if (!(username === 'admin' && password === 'admin')) {
             const phoneRegex = /^[0-9]{10}$/;
@@ -28,54 +21,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         clearError();
 
-        // Admin Auth Flow
-        if (username === 'admin' && password === 'admin') {
-            localStorage.setItem('safeall_active_user', JSON.stringify({
-                role: 'admin',
-                identifier: 'admin',
-                gender: 'male'
-            }));
-            window.location.href = 'admin.html';
-            return;
-        }
+        // Admin Auth Flow is handled inside API.login
 
-        // User Auth Flow - Check against registered users
-        const users = JSON.parse(localStorage.getItem('safeall_users')) || [];
-        const foundUser = users.find(u => u.phone === username);
+        // User Auth Flow - Check against registered users via API
+        const errorEl = document.getElementById('loginError');
+        const showError = (msg) => {
+            if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); }
+        };
 
-        if (!foundUser) {
-            showError('Số điện thoại chưa được đăng ký.');
-            return;
-        }
+        (async () => {
+            const result = await window.SAFEALL_API.login(username, password);
 
-        if (foundUser.password !== password) {
-            showError('Mật khẩu không chính xác.');
-            return;
-        }
+            if (!result.success) {
+                showError(result.message);
+                return;
+            }
 
-        // Login success
-        localStorage.setItem('safeall_active_user', JSON.stringify({
-            role: 'user',
-            identifier: foundUser.phone,
-            name: foundUser.name,
-            gender: foundUser.gender || 'male'
-        }));
+            // Login success
+            window.SAFEALL_API.setActiveUser(result.data);
 
-        // Handle redirect
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
+            // Handle redirect
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
 
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        } else if (username === 'admin' && password === 'admin') {
-            window.location.href = 'admin.html';
-        } else {
-            window.location.href = 'my-orders.html';
-        }
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else if (result.data.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'my-orders.html';
+            }
+        })();
     });
 
     // Auto redirect if already logged in
-    const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
+    const activeSession = window.SAFEALL_API.getActiveUser();
     if (activeSession) {
         const urlParams = new URLSearchParams(window.location.search);
         const redirectUrl = urlParams.get('redirect');
