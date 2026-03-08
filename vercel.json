@@ -19,30 +19,6 @@
     ],
     "rewrites": [
         {
-            "source": "/api/ping",
-            "destination": "/api/ping.js"
-        },
-        {
-            "source": "/api/auth/me",
-            "destination": "/api/auth/me.js"
-        },
-        {
-            "source": "/api/auth/login",
-            "destination": "/api/auth/login.js"
-        },
-        {
-            "source": "/api/auth/register",
-            "destination": "/api/auth/register.js"
-        },
-        {
-            "source": "/api/orders/my",
-            "destination": "/api/orders/my.js"
-        },
-        {
-            "source": "/api/orders/create",
-            "destination": "/api/orders/create.js"
-        },
-        {
             "source": "/",
             "destination": "/index.html"
         },
