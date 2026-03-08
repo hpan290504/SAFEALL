@@ -1,14 +1,12 @@
--- SAFEALL Data Cleanup Script
--- Use this to clear all test data before final verification
+-- SAFEALL Data Cleanup Script (Absolute Wipe)
+-- Note: Ensure `users.phone` has a UNIQUE constraint to prevent duplicate registrations.
+-- Lệnh này sẽ xóa sạch user/order cũ để bạn test từ đầu 100%.
 
--- 1. Wipe all orders
-DELETE FROM orders;
+-- 1. Xóa sạch bảng và reset số thứ tự (ID)
+TRUNCATE TABLE orders, users RESTART IDENTITY CASCADE;
 
--- 2. Wipe all users (except specific admin if you want to keep them, but cleaner to wipe all)
-DELETE FROM users;
+-- 2. (Tùy chọn) Kiểm tra lại
+-- SELECT count(*) FROM users;
+-- SELECT count(*) FROM orders;
 
--- 3. Reset auto-incrementing IDs (optional but nice for clean logs)
-ALTER SEQUENCE IF EXISTS orders_id_seq RESTART WITH 1;
-ALTER SEQUENCE IF EXISTS users_id_seq RESTART WITH 1;
-
--- After running this, register a FRESH account on Device A.
+-- Sau khi chạy lệnh này, hãy thực hiện Đăng ký mới trên máy A và Đăng nhập trên máy B.

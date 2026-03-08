@@ -25,7 +25,7 @@ function initAuthUI() {
         authSection.innerHTML = `
             <div class="user-profile-nav">
                 <img src="${avatarSrc}" alt="Avatar" class="nav-avatar">
-                <span class="nav-username">${activeSession.identifier}</span>
+                <span class="nav-username">${activeSession.name}</span>
                 <div class="user-dropdown">
                     <a href="my-orders.html" data-i18n="nav_profile">Hồ sơ</a>
                     ${activeSession.role === 'admin' ? '<a href="admin.html" data-i18n="nav_admin">Quản trị</a>' : '<a href="my-orders.html" data-i18n="nav_orders">Đơn hàng</a>'}

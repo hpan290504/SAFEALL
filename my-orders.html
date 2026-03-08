@@ -444,13 +444,19 @@
                 return;
             }
 
-            const userPhone = activeSession.identifier;
+            const userName = activeSession.name;
 
             // Set user info
-            document.getElementById('sidebarUserName').textContent = userPhone;
-            document.getElementById('headerUsername').textContent = userPhone;
-            document.getElementById('sidebarAvatar').src = 'assets/avt_nam.jpg';
-            document.getElementById('headerAvatar').innerHTML = `<img src="assets/avt_nam.jpg" alt="Avatar" class="w-full h-full object-cover"/>`;
+            document.getElementById('sidebarUserName').textContent = userName;
+            document.getElementById('headerUsername').textContent = userName;
+
+            let avatarSrc = 'assets/avt_nam.jpg';
+            if (activeSession.gender === 'female') {
+                avatarSrc = 'assets/avt_nu.png';
+            }
+
+            document.getElementById('sidebarAvatar').src = avatarSrc;
+            document.getElementById('headerAvatar').innerHTML = `<img src="${avatarSrc}" alt="Avatar" class="w-full h-full object-cover"/>`;
 
             // Load all orders
             loadAllOrders('all');

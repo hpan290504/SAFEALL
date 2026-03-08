@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         if (decoded.id === 'admin') {
             return res.status(200).json({
                 success: true,
-                user: { identifier: 'admin', role: 'admin', name: 'Administrator', gender: 'male' }
+                user: { phone: 'admin', name: 'Administrator', role: 'admin', gender: 'male' }
             });
         }
 
@@ -35,9 +35,9 @@ export default async function handler(req, res) {
         return res.status(200).json({
             success: true,
             user: {
-                identifier: user.phone,
-                role: user.role,
+                phone: user.phone,
                 name: user.name,
+                role: user.role,
                 gender: user.gender
             }
         });

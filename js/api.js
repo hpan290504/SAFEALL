@@ -54,8 +54,8 @@ const API = {
     logout() {
         this._session = null;
         localStorage.removeItem('safeall_token');
-        localStorage.removeItem('safeall_active_user'); // EXPLICIT PURGE
-        localStorage.removeItem('safeall_orders');      // EXPLICIT PURGE
+        localStorage.removeItem('safeall_active_user'); // EXPLICIT PURGE for legacy
+        localStorage.removeItem('safeall_orders');      // EXPLICIT PURGE for legacy
     },
 
     // --- Auth ---

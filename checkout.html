@@ -552,9 +552,9 @@
                 return;
             }
 
-            if (activeSession.identifier) {
+            if (activeSession.phone) {
                 const phoneEl = document.getElementById('phoneNumber');
-                if (phoneEl) phoneEl.value = activeSession.identifier;
+                if (phoneEl) phoneEl.value = activeSession.phone;
             }
             if (activeSession.name) {
                 const nameEl = document.getElementById('fullName');
@@ -604,7 +604,7 @@
 
             // Đảm bảo lấy SĐT định danh từ session
             const activeSession = window.SAFEALL_API.getActiveUser();
-            const phone = (activeSession && activeSession.identifier) ? activeSession.identifier : document.getElementById('phoneNumber').value.trim();
+            const phone = (activeSession && activeSession.phone) ? activeSession.phone : document.getElementById('phoneNumber').value.trim();
 
 
             let hasItems = false;
