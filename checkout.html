@@ -425,6 +425,7 @@
     </div>
 
     <script src="js/lang.js"></script>
+    <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/script.js"></script>
     <script>
@@ -541,7 +542,7 @@
 
         // Restore saved data
         const savedDataStr = localStorage.getItem('safeall_checkout_form');
-        const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
+        const activeSession = window.SAFEALL_API.getActiveUser();
 
         if (activeSession) {
             if (activeSession.identifier) {
@@ -558,7 +559,7 @@
             try {
                 const savedData = JSON.parse(savedDataStr);
                 formFields.forEach(id => {
-                    if (id === 'phoneNumber') return; // Không ghi đè SĐT đã định danh
+                    if (id === 'phoneNumber' || id === 'fullName') return; // Không ghi đè thông tin định danh
                     const el = document.getElementById(id);
                     if (el && savedData[id]) {
                         el.value = savedData[id];
@@ -595,7 +596,7 @@
             const note = document.getElementById('orderNote').value.trim();
 
             // Đảm bảo lấy SĐT định danh từ session
-            const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
+            const activeSession = window.SAFEALL_API.getActiveUser();
             const phone = (activeSession && activeSession.identifier) ? activeSession.identifier : document.getElementById('phoneNumber').value.trim();
 
 
@@ -649,27 +650,31 @@
             // Create Order Object
             const orderId = 'SA' + Math.random().toString(36).substr(2, 6).toUpperCase();
             const newOrder = {
-                id: orderId,
-                date: new Date().toISOString(),
+                orderId: orderId,
                 customer: { name, phone, address: addr },
                 items: orderItems,
                 note: note,
                 subtotal: subtotal,
                 shippingFee: feeItem,
                 total: total,
-                status: 'pending',
                 paymentMethod: document.querySelector('.payment-tab.active')?.getAttribute('data-method') || 'cod'
             };
 
-            // Save to localStorage
-            let orders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
-            orders.unshift(newOrder); // Add to beginning
-            localStorage.setItem('safeall_orders', JSON.stringify(orders));
+            // Save to Backend via API
+            (async () => {
+                const result = await window.SAFEALL_API.createOrder(newOrder);
 
-            // Clear saved form data after successful order
-            localStorage.removeItem('safeall_checkout_form');
+                if (!result.success) {
+                    alert("Lỗi khi đặt hàng: " + result.message);
+                    this.innerText = originalText;
+                    this.disabled = false;
+                    isSubmitting = false;
+                    return;
+                }
 
-            setTimeout(() => {
+                // Clear saved form data after successful order
+                localStorage.removeItem('safeall_checkout_form');
+
                 // Show modal
                 document.getElementById('modalOrderId').innerText = orderId;
                 document.getElementById('orderSuccessModal').style.display = 'flex';
@@ -677,7 +682,7 @@
                 this.innerText = originalText;
                 this.disabled = false;
                 isSubmitting = false;
-            }, 800);
+            })();
         });
     </script>
 </body>

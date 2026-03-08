@@ -77,20 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Auto-login: Create an active session immediately via API
-            window.SAFEALL_API.setActiveUser({
-                role: 'user',
-                identifier: phone,
-                name: name,
-                gender: 'male'
-            });
+            showSuccess('Đăng ký thành công! Hãy đăng nhập để tiếp tục.');
 
-            showSuccess('Đăng ký thành công! Đang chuyển hướng đến trang cá nhân...');
-
-            // Redirect to my-orders instead of login
+            // Redirect to login page for real session establishment
             setTimeout(() => {
-                window.location.href = '../my-orders.html';
-            }, 1500);
+                window.location.href = '../login.html';
+            }, 2000);
         })();
     });
 });

@@ -1,6 +1,8 @@
 // js/auth.js - Global Authentication UI Logic
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Sync session with server source of truth
+    await window.SAFEALL_API.initSession();
     initAuthUI();
 });
 

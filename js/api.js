@@ -1,10 +1,12 @@
 /**
  * js/api.js - Production Centralized Data Access Layer
  * 
- * This module connects to the Vercel Serverless Backend.
+ * Vercel Serverless Backend + PostgreSQL
  */
 
 const API = {
+    _session: null,
+
     // Helper for fetch with logging
     async _fetch(endpoint, options = {}) {
         const url = `/api/${endpoint}`;
@@ -40,13 +42,41 @@ const API = {
         }
     },
 
+    // --- Session Management ---
+
+    async initSession() {
+        if (!localStorage.getItem('safeall_token')) {
+            this._session = null;
+            localStorage.removeItem('safeall_active_user');
+            return null;
+        }
+
+        try {
+            const result = await this._fetch('auth/me');
+            if (result.success) {
+                this._session = result.user;
+                // Sync to localStorage for legacy code compatibility, but API._session is the real truth
+                localStorage.setItem('safeall_active_user', JSON.stringify(result.user));
+                return result.user;
+            }
+        } catch (error) {
+            this.logout();
+            return null;
+        }
+    },
+
+    getActiveUser() {
+        return this._session || JSON.parse(localStorage.getItem('safeall_active_user'));
+    },
+
+    logout() {
+        this._session = null;
+        localStorage.removeItem('safeall_active_user');
+        localStorage.removeItem('safeall_token');
+    },
+
     // --- User Operations ---
 
-    /**
-     * Register a new user
-     * @param {Object} userData 
-     * @returns {Promise<{success: boolean, message: string}>}
-     */
     async registerUser(userData) {
         try {
             const result = await this._fetch('auth/register', {
@@ -59,12 +89,6 @@ const API = {
         }
     },
 
-    /**
-     * Login user
-     * @param {string} phone 
-     * @param {string} password 
-     * @returns {Promise<{success: boolean, data?: Object, message?: string}>}
-     */
     async login(phone, password) {
         try {
             const result = await this._fetch('auth/login', {
@@ -73,8 +97,9 @@ const API = {
             });
 
             if (result.success) {
-                // Store token for subsequent requests
                 localStorage.setItem('safeall_token', result.token);
+                this._session = result.user;
+                localStorage.setItem('safeall_active_user', JSON.stringify(result.user));
                 return { success: true, data: result.user };
             }
             return { success: false, message: 'Login failed' };
@@ -83,29 +108,27 @@ const API = {
         }
     },
 
-    // --- Session Management ---
+    // --- Order Operations ---
 
-    setActiveUser(userData) {
-        localStorage.setItem('safeall_active_user', JSON.stringify(userData));
-    },
-
-    getActiveUser() {
-        return JSON.parse(localStorage.getItem('safeall_active_user'));
-    },
-
-    async checkSession() {
+    async createOrder(orderData) {
         try {
-            const result = await this._fetch('auth/me');
-            return result.success;
-        } catch {
-            this.logout();
-            return false;
+            const result = await this._fetch('orders/create', {
+                method: 'POST',
+                body: JSON.stringify(orderData)
+            });
+            return { success: true, orderId: result.orderId };
+        } catch (error) {
+            return { success: false, message: error.message };
         }
     },
 
-    logout() {
-        localStorage.removeItem('safeall_active_user');
-        localStorage.removeItem('safeall_token');
+    async getMyOrders() {
+        try {
+            const result = await this._fetch('orders/my');
+            return { success: true, orders: result.orders };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     }
 };
 
