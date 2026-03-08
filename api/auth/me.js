@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const db = require('../utils/db');
+import jwt from 'jsonwebtoken';
+import * as db from '../utils/db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {

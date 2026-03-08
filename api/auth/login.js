@@ -1,6 +1,6 @@
-const db = require('../utils/db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+import * as db from '../utils/db.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {

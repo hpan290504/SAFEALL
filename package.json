@@ -2,6 +2,7 @@
   "name": "safeall",
   "version": "1.0.0",
   "description": "SafeAll - Startup for Safety",
+  "type": "module",
   "engines": {
     "node": "24.x"
   },

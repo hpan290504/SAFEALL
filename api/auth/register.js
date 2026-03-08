@@ -1,5 +1,5 @@
-const db = require('../utils/db');
-const bcrypt = require('bcryptjs');
+import * as db from '../utils/db.js';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {

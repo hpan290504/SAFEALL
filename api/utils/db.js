@@ -1,4 +1,5 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
 
 // Basic Pool configuration using connection string from environment variable
 const pool = new Pool({
@@ -8,6 +9,4 @@ const pool = new Pool({
     }
 });
 
-module.exports = {
-    query: (text, params) => pool.query(text, params),
-};
+export const query = (text, params) => pool.query(text, params);
