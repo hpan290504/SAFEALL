@@ -1,6 +1,8 @@
-// sign_up.js - Registration logic for SAFEALL
+// js/sign_up.js - Registration logic (v2)
 document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signupForm');
+    if (!signupForm) return;
+
     const errorEl = document.getElementById('signupError');
     const successEl = document.getElementById('signupSuccess');
 
@@ -8,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (errorEl) {
             errorEl.textContent = msg;
             errorEl.classList.remove('hidden');
-            setTimeout(() => errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
     };
 
@@ -19,70 +20,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const clearMessages = () => {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         if (errorEl) errorEl.classList.add('hidden');
         if (successEl) successEl.classList.add('hidden');
-    };
-
-    signupForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        clearMessages();
 
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value.trim();
-        const confirmPassword = document.getElementById('confirmPassword').value.trim();
-        const terms = document.getElementById('terms').checked;
+        const confirmPw = document.getElementById('confirmPassword').value.trim();
 
         // Validation
-        if (!name || !phone || !password || !confirmPassword) {
+        if (!name || !phone || !password) {
             showError('Vui lòng điền đầy đủ thông tin.');
             return;
         }
 
-        const phoneRegex = /^[0-9]{10}$/;
-        if (!phoneRegex.test(phone)) {
-            showError('Số điện thoại phải gồm đúng 10 chữ số.');
-            return;
-        }
-
-        if (password.length < 6) {
-            showError('Mật khẩu phải có ít nhất 6 ký tự.');
-            return;
-        }
-
-        if (password !== confirmPassword) {
+        if (password !== confirmPw) {
             showError('Mật khẩu xác nhận không khớp.');
             return;
         }
 
-        if (!terms) {
-            showError('Bạn cần đồng ý với điều khoản dịch vụ.');
+        const userData = { name, phone, password, gender: 'male' };
+
+        // CALL SERVER API (The ONLY source of truth)
+        const result = await window.SAFEALL_API.registerUser(userData);
+
+        if (!result.success) {
+            showError(result.message);
             return;
         }
 
-        // Register via API
-        (async () => {
-            const userData = {
-                name,
-                phone,
-                password,
-                gender: 'male' // Mặc định như login.js đã thiết lập
-            };
+        showSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
 
-            const result = await window.SAFEALL_API.registerUser(userData);
-
-            if (!result.success) {
-                showError(result.message);
-                return;
-            }
-
-            showSuccess('Đăng ký thành công! Hãy đăng nhập để tiếp tục.');
-
-            // Redirect to login page for real session establishment
-            setTimeout(() => {
-                window.location.href = '../login.html';
-            }, 2000);
-        })();
+        // IMPORTANT: We DO NOT set any local session here.
+        // The user MUST log in through the backend to establish a real session.
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 1500);
     });
 });

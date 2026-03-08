@@ -1,17 +1,18 @@
 /**
- * js/api.js - Production Centralized Data Access Layer
+ * js/api.js - Production Centralized Data Access Layer (v2)
  * 
- * Vercel Serverless Backend + PostgreSQL
  * SOURCE OF TRUTH: Server-side Session (validated via JWT)
+ * NO user data is stored in localStorage.
  */
 
 const API = {
+    // AUTHORITATIVE SESSION STATE (In-memory only)
     _session: null,
 
     // Helper for fetch with logging
     async _fetch(endpoint, options = {}) {
         const url = `/api/${endpoint}`;
-        const token = localStorage.getItem('safeall_token');
+        const token = localStorage.getItem('safeall_token'); // Only token allowed in local storage
 
         const defaultHeaders = {
             'Content-Type': 'application/json',
@@ -20,8 +21,6 @@ const API = {
         if (token) {
             defaultHeaders['Authorization'] = `Bearer ${token}`;
         }
-
-        console.log(`[API Request] ${options.method || 'GET'} ${url}`);
 
         try {
             const response = await fetch(url, {
@@ -32,8 +31,7 @@ const API = {
             const data = await response.json();
 
             if (!response.ok) {
-                console.error(`[API Error] ${url}:`, data.message || response.statusText);
-                throw new Error(data.message || 'Something went wrong');
+                throw new Error(data.message || 'Server returned error');
             }
 
             return data;
@@ -45,11 +43,9 @@ const API = {
 
     // --- Session Management ---
 
-    /**
-     * ALWAYS call this on page load to sync with server
-     */
     async initSession() {
-        if (!localStorage.getItem('safeall_token')) {
+        const token = localStorage.getItem('safeall_token');
+        if (!token) {
             this._session = null;
             return null;
         }
@@ -61,14 +57,16 @@ const API = {
                 return result.user;
             }
         } catch (error) {
-            this.logout();
+            // If token is invalid or server is down, treat as logged out
+            this._session = null;
             return null;
         }
+        return null;
     },
 
     /**
-     * ONLY returns in-memory session. 
-     * If null, user is not logged in on THIS session.
+     * getActiveUser() - Returns the in-memory session.
+     * Use ONLY for UI rendering checks.
      */
     getActiveUser() {
         return this._session;
@@ -77,8 +75,9 @@ const API = {
     logout() {
         this._session = null;
         localStorage.removeItem('safeall_token');
-        // Clear old legacy keys just in case
+        // Purge ALL legacy keys to prevent cross-device persistence bugs
         localStorage.removeItem('safeall_active_user');
+        localStorage.removeItem('safeall_orders');
     },
 
     // --- User Operations ---
@@ -103,11 +102,13 @@ const API = {
             });
 
             if (result.success) {
+                // Save ONLY the token
                 localStorage.setItem('safeall_token', result.token);
+                // Set in-memory session
                 this._session = result.user;
                 return { success: true, data: result.user };
             }
-            return { success: false, message: 'Login failed' };
+            return { success: false, message: 'Invalid credentials' };
         } catch (error) {
             return { success: false, message: error.message };
         }
@@ -137,5 +138,4 @@ const API = {
     }
 };
 
-// Export to window
 window.SAFEALL_API = API;

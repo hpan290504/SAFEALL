@@ -1,29 +1,22 @@
-// my-orders.js - Production Ready (Backend Sync)
+// my-orders.js - Production Ready (v2)
 document.addEventListener('DOMContentLoaded', async () => {
-    // Sync session first
+    // 1. Sync session with server (Source of Truth)
     const activeSession = await window.SAFEALL_API.initSession();
 
-    // Auth Guard
-    if (!activeSession || activeSession.role !== 'user') {
+    // 2. Auth Guard - No local session = redirect to login
+    if (!activeSession) {
         window.location.href = 'login.html';
         return;
     }
 
-    // Set greeting & Avatar
+    // 3. UI Setup
     document.getElementById('sidebarUserName').innerText = activeSession.identifier;
 
-    let avatarSrc = 'assets/avt_nam.jpg'; // default
-    if (activeSession.gender === 'female') {
-        avatarSrc = 'assets/avt_nu.png';
-    }
+    // Legacy Cleanup: ensure no localStorage orders are being read
+    localStorage.removeItem('safeall_orders');
 
-    const avatarContainer = document.getElementById('sidebarAvatarContainer');
-    if (avatarContainer) {
-        avatarContainer.innerHTML = `<img src="${avatarSrc}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">`;
-    }
-
-    // Load initial orders
-    loadMyOrders(activeSession.identifier, 'all');
+    // 4. Load Orders from API
+    loadMyOrdersFromServer('all');
 
     // Tab Logic
     const tabs = document.querySelectorAll('.order-tab');
@@ -31,96 +24,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         tab.addEventListener('click', () => {
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            const status = tab.getAttribute('data-status');
-            loadMyOrders(activeSession.identifier, status);
+            loadMyOrdersFromServer(tab.getAttribute('data-status'));
         });
-    });
-
-    // Basic search functionality
-    document.getElementById('orderSearch').addEventListener('input', function (e) {
-        const query = e.target.value.toLowerCase();
-        const activeTabStatus = document.querySelector('.order-tab.active').getAttribute('data-status');
-        loadMyOrders(activeSession.identifier, activeTabStatus, query);
     });
 });
 
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
-}
-
-async function loadMyOrders(userPhone, filterStatus, searchQuery = '') {
+async function loadMyOrdersFromServer(filterStatus) {
     const container = document.getElementById('userOrdersList');
-    const emptyMsg = document.getElementById('emptyOrdersMsg');
-    const tableEl = document.getElementById('ordersTable');
+    if (!container) return;
 
-    // Show loading state if needed
-    container.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center;">Đang tải đơn hàng...</td></tr>';
+    container.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Đang tải đơn hàng...</td></tr>';
 
     const result = await window.SAFEALL_API.getMyOrders();
 
     if (!result.success) {
-        container.innerHTML = `<tr><td colspan="6" style="padding: 20px; text-align: center; color: red;">Lỗi: ${result.message}</td></tr>`;
+        container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Lỗi tải đơn hàng: ${result.message}</td></tr>`;
         return;
     }
 
-    let myOrders = result.orders;
-
-    // Apply Tab Filter
+    let orders = result.orders;
     if (filterStatus !== 'all') {
-        myOrders = myOrders.filter(o => o.status === filterStatus ||
-            (filterStatus === 'delivering' && o.status === 'pending') // Keep legacy visual mapping
-        );
+        orders = orders.filter(o => o.status === filterStatus);
     }
 
-    // Apply Search Query
-    if (searchQuery) {
-        myOrders = myOrders.filter(o => {
-            const matchesId = o.id.toLowerCase().includes(searchQuery);
-            const matchesItems = o.items.some(i => i.title.toLowerCase().includes(searchQuery));
-            return matchesId || matchesItems;
-        });
-    }
-
-    if (myOrders.length === 0) {
-        tableEl.style.display = 'none';
-        emptyMsg.style.display = 'block';
+    if (orders.length === 0) {
+        container.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Chưa có đơn hàng nào.</td></tr>';
         return;
     }
 
-    emptyMsg.style.display = 'none';
-    tableEl.style.display = 'table';
-
-    // Generate Table Rows
-    const html = myOrders.map(order => {
-        const statusMap = {
-            'pending': { text: 'Chờ xử lý', color: 'bg-warning text-dark', bgColor: '#ffc107' },
-            'shipping': { text: 'Đang giao', color: 'bg-info text-white', bgColor: '#17a2b8' },
-            'delivering': { text: 'Chờ giao hàng', color: 'bg-info text-white', bgColor: '#17a2b8' },
-            'completed': { text: 'Hoàn thành', color: 'bg-success text-white', bgColor: '#28a745' },
-            'cancelled': { text: 'Đã hủy', color: 'bg-danger text-white', bgColor: '#dc3545' },
-            'returned': { text: 'Đã trả hàng', color: 'bg-danger text-white', bgColor: '#dc3545' }
-        };
-
-        const statusInfo = statusMap[order.status] || { text: order.status, color: 'bg-secondary text-white', bgColor: '#6c757d' };
-        const dateStr = order.date ? new Date(order.date).toLocaleString('vi-VN') : 'Unknown';
-        const itemsSummary = order.items.map(i => `${i.title} (x${i.qty})`).join(', ');
-
-        return `
-            <tr style="border-bottom: 1px solid #efefef;">
-                <td style="padding: 15px; font-weight: 600; color: #444;">#${order.id.toUpperCase()}</td>
-                <td style="padding: 15px; color: #666;">${dateStr}</td>
-                <td style="padding: 15px; color: #666; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${itemsSummary}">${itemsSummary}</td>
-                <td style="padding: 15px;"><span style="background: var(--primary-blue, #0055aa); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 600;">${order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}</span></td>
-                <td style="padding: 15px; color: #666;">${formatCurrency(order.total)}</td>
-                <td style="padding: 15px;"><span style="background: ${statusInfo.bgColor}; color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 600;">${statusInfo.text}</span></td>
-            </tr>
-        `;
-    }).join('');
-
-    container.innerHTML = html;
-}
-
-function logout() {
-    window.SAFEALL_API.logout();
-    window.location.href = 'login.html';
+    container.innerHTML = orders.map(order => `
+        <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding:15px;">#${order.id.toUpperCase()}</td>
+            <td style="padding:15px;">${new Date(order.date).toLocaleDateString('vi-VN')}</td>
+            <td style="padding:15px;">${order.items.map(i => i.title).join(', ')}</td>
+            <td style="padding:15px;">${order.paymentMethod === 'cod' ? 'COD' : 'Online'}</td>
+            <td style="padding:15px; font-weight:bold;">${new Intl.NumberFormat('vi-VN').format(order.total)}đ</td>
+            <td style="padding:15px;"><span class="status-badge ${order.status}">${order.status}</span></td>
+        </tr>
+    `).join('');
 }

@@ -1,7 +1,7 @@
-// js/auth.js - Global Authentication UI Logic
+// js/auth.js - Global Authentication UI Logic (v2)
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Sync session with server source of truth
+    // ALWAYS sync with server before rendering ANY auth-dependent UI
     await window.SAFEALL_API.initSession();
     initAuthUI();
 });
@@ -10,6 +10,7 @@ function initAuthUI() {
     const authSection = document.getElementById('authSection');
     if (!authSection) return;
 
+    // Source of truth: in-memory session from server validation
     const activeSession = window.SAFEALL_API.getActiveUser();
 
     if (activeSession) {
@@ -18,7 +19,7 @@ function initAuthUI() {
         if (activeSession.gender === 'female') {
             avatarSrc = 'assets/avt_nu.png';
         } else if (activeSession.role === 'admin') {
-            avatarSrc = 'assets/avt_nam.jpg'; // default admin
+            avatarSrc = 'assets/avt_nam.jpg';
         }
 
         authSection.innerHTML = `
@@ -33,7 +34,7 @@ function initAuthUI() {
             </div>
         `;
     } else {
-        // Guest
+        // Guest - No session in memory
         const currentParams = window.location.pathname.includes('login') ? '' : `?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 
         authSection.innerHTML = `
@@ -45,7 +46,6 @@ function initAuthUI() {
         `;
     }
 
-    // Retrigger language update if function exists to translate dynamically added elements
     if (typeof langData !== 'undefined' && typeof currentLang !== 'undefined' && document.documentElement.lang) {
         document.querySelectorAll('#authSection [data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
