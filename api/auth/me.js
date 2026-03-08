@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const db = require('../utils/db');
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
