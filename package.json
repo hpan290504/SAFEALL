@@ -2,9 +2,10 @@
   "name": "safeall",
   "version": "1.0.0",
   "description": "SafeAll - Startup for Safety",
-  "main": "index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
-    "start": "node index.js",
     "dev": "vercel dev"
   },
   "dependencies": {
