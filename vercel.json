@@ -14,12 +14,15 @@
     ],
     "rewrites": [
         {
+            "handle": "filesystem"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/$1"
         },
         {
             "source": "/((?!api/).*)",
-            "destination": "/$1.html"
+            "destination": "/$1"
         }
     ]
 }

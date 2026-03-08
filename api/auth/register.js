@@ -1,7 +1,7 @@
 const db = require('../utils/db');
 const bcrypt = require('bcryptjs');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
     }
@@ -38,4 +38,4 @@ export default async function handler(req, res) {
         console.error('[Register] Error:', error);
         return res.status(500).json({ message: 'Internal server error', error: error.message });
     }
-}
+};
