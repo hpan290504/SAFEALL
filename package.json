@@ -2,6 +2,14 @@
   "name": "safeall",
   "version": "1.0.0",
   "description": "SafeAll - Startup for Safety",
-  "author": "ADMIN",
-  "license": "ISC"
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "pg": "^8.11.0"
+  }
 }

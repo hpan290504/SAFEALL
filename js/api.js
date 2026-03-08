@@ -1,27 +1,46 @@
 /**
- * js/api.js - Centralized Data Access Layer
+ * js/api.js - Production Centralized Data Access Layer
  * 
- * This module abstracts data storage operations. 
- * Currently it uses localStorage for demonstration, 
- * but can be easily swapped for Firebase, Supabase, or any REST API.
+ * This module connects to the Vercel Serverless Backend.
  */
 
 const API = {
-    // --- User Operations ---
+    // Helper for fetch with logging
+    async _fetch(endpoint, options = {}) {
+        const url = `/api/${endpoint}`;
+        const token = localStorage.getItem('safeall_token');
 
-    /**
-     * Get all registered users
-     * @returns {Promise<Array>}
-     */
-    async getUsers() {
-        // Simulate network delay
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                const users = JSON.parse(localStorage.getItem('safeall_users')) || [];
-                resolve(users);
-            }, 300);
-        });
+        const defaultHeaders = {
+            'Content-Type': 'application/json',
+        };
+
+        if (token) {
+            defaultHeaders['Authorization'] = `Bearer ${token}`;
+        }
+
+        console.log(`[API Request] ${options.method || 'GET'} ${url}`);
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: { ...defaultHeaders, ...options.headers }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error(`[API Error] ${url}:`, data.message || response.statusText);
+                throw new Error(data.message || 'Something went wrong');
+            }
+
+            return data;
+        } catch (error) {
+            console.error(`[API Fetch Failure] ${url}:`, error.message);
+            throw error;
+        }
     },
+
+    // --- User Operations ---
 
     /**
      * Register a new user
@@ -29,23 +48,15 @@ const API = {
      * @returns {Promise<{success: boolean, message: string}>}
      */
     async registerUser(userData) {
-        return new Promise(async (resolve) => {
-            const users = await this.getUsers();
-
-            if (users.find(u => u.phone === userData.phone)) {
-                resolve({ success: false, message: 'Số điện thoại này đã được đăng ký.' });
-                return;
-            }
-
-            users.push({
-                ...userData,
-                role: 'user',
-                createdAt: new Date().toISOString()
+        try {
+            const result = await this._fetch('auth/register', {
+                method: 'POST',
+                body: JSON.stringify(userData)
             });
-
-            localStorage.setItem('safeall_users', JSON.stringify(users));
-            resolve({ success: true, message: 'Đăng ký thành công!' });
-        });
+            return { success: true, message: result.message };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     },
 
     /**
@@ -55,41 +66,21 @@ const API = {
      * @returns {Promise<{success: boolean, data?: Object, message?: string}>}
      */
     async login(phone, password) {
-        return new Promise(async (resolve) => {
-            // Admin default check
-            if (phone === 'admin' && password === 'admin') {
-                const adminData = {
-                    role: 'admin',
-                    identifier: 'admin',
-                    gender: 'male',
-                    name: 'Administrator'
-                };
-                resolve({ success: true, data: adminData });
-                return;
+        try {
+            const result = await this._fetch('auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ phone, password })
+            });
+
+            if (result.success) {
+                // Store token for subsequent requests
+                localStorage.setItem('safeall_token', result.token);
+                return { success: true, data: result.user };
             }
-
-            const users = await this.getUsers();
-            const foundUser = users.find(u => u.phone === phone);
-
-            if (!foundUser) {
-                resolve({ success: false, message: 'Số điện thoại chưa được đăng ký.' });
-                return;
-            }
-
-            if (foundUser.password !== password) {
-                resolve({ success: false, message: 'Mật khẩu không chính xác.' });
-                return;
-            }
-
-            const sessData = {
-                role: foundUser.role,
-                identifier: foundUser.phone,
-                name: foundUser.name,
-                gender: foundUser.gender || 'male'
-            };
-
-            resolve({ success: true, data: sessData });
-        });
+            return { success: false, message: 'Login failed' };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
     },
 
     // --- Session Management ---
@@ -102,10 +93,21 @@ const API = {
         return JSON.parse(localStorage.getItem('safeall_active_user'));
     },
 
+    async checkSession() {
+        try {
+            const result = await this._fetch('auth/me');
+            return result.success;
+        } catch {
+            this.logout();
+            return false;
+        }
+    },
+
     logout() {
         localStorage.removeItem('safeall_active_user');
+        localStorage.removeItem('safeall_token');
     }
 };
 
-// Export to window for access in other scripts without ES modules (for simplicity in current architecture)
+// Export to window
 window.SAFEALL_API = API;
