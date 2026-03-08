@@ -14,12 +14,12 @@
     ],
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/api/$1"
+            "source": "/",
+            "destination": "/index.html"
         },
         {
             "source": "/((?!api/).*)",
-            "destination": "/$1"
+            "destination": "/$1.html"
         }
     ]
 }
