@@ -1,72 +1,49 @@
-// login.js - Unified Form Authentication
+// js/login.js - Production Authentication (Stateless)
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('unifiedLoginForm');
+    if (!loginForm) return;
 
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const username = document.getElementById('loginUsername').value.trim();
         const password = document.getElementById('loginPassword').value.trim();
-        const gender = 'male'; // avatar mặc định avt_nam.jpg
+        if (!username || !password) return;
 
-        if (!username) return;
-
-        // Validate: nếu không phải admin thì bắt buộc là số điện thoại 10 số
-        if (!(username === 'admin' && password === 'admin')) {
-            const phoneRegex = /^[0-9]{10}$/;
-            if (!phoneRegex.test(username)) {
-                showError('Số điện thoại phải gồm đúng 10 chữ số.');
-                return;
-            }
-        }
-        clearError();
-
-        // Admin Auth Flow is handled inside API.login
-
-        // User Auth Flow - Check against registered users via API
         const errorEl = document.getElementById('loginError');
         const showError = (msg) => {
             if (errorEl) { errorEl.textContent = msg; errorEl.classList.remove('hidden'); }
         };
 
-        (async () => {
-            const result = await window.SAFEALL_API.login(username, password);
+        // CALL API - Only the token is persisted by the API module
+        const result = await window.SAFEALL_API.login(username, password);
 
-            if (!result.success) {
-                showError(result.message);
-                return;
-            }
+        if (!result.success) {
+            showError(result.message);
+            return;
+        }
 
-            // Login success (API.login already handles token and session)
+        // REDIRECT based on server-returned role
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectUrl = urlParams.get('redirect');
 
-            // Handle redirect
-            const urlParams = new URLSearchParams(window.location.search);
-            const redirectUrl = urlParams.get('redirect');
-
-            if (redirectUrl) {
-                window.location.href = redirectUrl;
-            } else if (result.data.role === 'admin') {
-                window.location.href = 'admin.html';
-            } else {
-                window.location.href = 'my-orders.html';
-            }
-        })();
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        } else if (result.data.role === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'my-orders.html';
+        }
     });
 
-    // Sync session and auto redirect if already logged in
+    // Auto-redirect if already synced
     (async () => {
-        const activeSession = await window.SAFEALL_API.initSession();
-        if (activeSession) {
+        const user = await window.SAFEALL_API.initSession();
+        if (user) {
             const urlParams = new URLSearchParams(window.location.search);
             const redirectUrl = urlParams.get('redirect');
-
-            if (redirectUrl) {
-                window.location.href = redirectUrl;
-            } else if (activeSession.role === 'admin') {
-                window.location.href = 'admin.html';
-            } else {
-                window.location.href = 'my-orders.html';
-            }
+            if (redirectUrl) window.location.href = redirectUrl;
+            else window.location.href = (user.role === 'admin') ? 'admin.html' : 'my-orders.html';
         }
     })();
 });

@@ -1,24 +1,10 @@
-// js/sign_up.js - Registration logic (v2)
+// js/sign_up.js - Registration logic (Absolute Stateless)
 document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signupForm');
     if (!signupForm) return;
 
     const errorEl = document.getElementById('signupError');
     const successEl = document.getElementById('signupSuccess');
-
-    const showError = (msg) => {
-        if (errorEl) {
-            errorEl.textContent = msg;
-            errorEl.classList.remove('hidden');
-        }
-    };
-
-    const showSuccess = (msg) => {
-        if (successEl) {
-            successEl.textContent = msg;
-            successEl.classList.remove('hidden');
-        }
-    };
 
     signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -28,35 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value.trim();
-        const confirmPw = document.getElementById('confirmPassword').value.trim();
 
-        // Validation
         if (!name || !phone || !password) {
-            showError('Vui lòng điền đầy đủ thông tin.');
+            if (errorEl) { errorEl.textContent = "Vui lòng điền đủ thông tin"; errorEl.classList.remove('hidden'); }
             return;
         }
 
-        if (password !== confirmPw) {
-            showError('Mật khẩu xác nhận không khớp.');
-            return;
-        }
-
-        const userData = { name, phone, password, gender: 'male' };
-
-        // CALL SERVER API (The ONLY source of truth)
-        const result = await window.SAFEALL_API.registerUser(userData);
+        // AUTHENTIC API CALL
+        const result = await window.SAFEALL_API.registerUser({ name, phone, password, gender: 'male' });
 
         if (!result.success) {
-            showError(result.message);
+            if (errorEl) { errorEl.textContent = result.message; errorEl.classList.remove('hidden'); }
             return;
         }
 
-        showSuccess('Đăng ký thành công! Đang chuyển đến trang đăng nhập...');
+        if (successEl) { successEl.textContent = "Đăng ký thành công! Hãy đăng nhập."; successEl.classList.remove('hidden'); }
 
-        // IMPORTANT: We DO NOT set any local session here.
-        // The user MUST log in through the backend to establish a real session.
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1500);
+        // REDIRECT TO LOGIN (FORCE REAL AUTH)
+        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
     });
 });

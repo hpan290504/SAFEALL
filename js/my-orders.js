@@ -1,65 +1,61 @@
-// my-orders.js - Production Ready (v2)
+// my-orders.js - Absolute Backend Sync (v2)
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Sync session with server (Source of Truth)
-    const activeSession = await window.SAFEALL_API.initSession();
+    const user = await window.SAFEALL_API.initSession();
 
-    // 2. Auth Guard - No local session = redirect to login
-    if (!activeSession) {
+    // 2. Auth Guard
+    if (!user) {
         window.location.href = 'login.html';
         return;
     }
 
     // 3. UI Setup
-    document.getElementById('sidebarUserName').innerText = activeSession.identifier;
+    document.getElementById('sidebarUserName').innerText = user.identifier;
 
-    // Legacy Cleanup: ensure no localStorage orders are being read
+    // 4. Force Cleanup of legacy local data (just in case)
     localStorage.removeItem('safeall_orders');
+    localStorage.removeItem('safeall_active_user');
 
-    // 4. Load Orders from API
-    loadMyOrdersFromServer('all');
+    // 5. Fetch and Render
+    loadOrdersFromServer('all');
 
-    // Tab Logic
-    const tabs = document.querySelectorAll('.order-tab');
-    tabs.forEach(tab => {
+    // Tabs
+    document.querySelectorAll('.order-tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.order-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            loadMyOrdersFromServer(tab.getAttribute('data-status'));
+            loadOrdersFromServer(tab.getAttribute('data-status'));
         });
     });
 });
 
-async function loadMyOrdersFromServer(filterStatus) {
-    const container = document.getElementById('userOrdersList');
-    if (!container) return;
+async function loadOrdersFromServer(status) {
+    const list = document.getElementById('userOrdersList');
+    if (!list) return;
+    list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Đang tải từ máy chủ...</td></tr>';
 
-    container.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Đang tải đơn hàng...</td></tr>';
-
-    const result = await window.SAFEALL_API.getMyOrders();
-
-    if (!result.success) {
-        container.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Lỗi tải đơn hàng: ${result.message}</td></tr>`;
+    const res = await window.SAFEALL_API.getMyOrders();
+    if (!res.success) {
+        list.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:red;">Lỗi: ${res.message}</td></tr>`;
         return;
     }
 
-    let orders = result.orders;
-    if (filterStatus !== 'all') {
-        orders = orders.filter(o => o.status === filterStatus);
-    }
+    let orders = res.orders;
+    if (status !== 'all') orders = orders.filter(o => o.status === status);
 
     if (orders.length === 0) {
-        container.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Chưa có đơn hàng nào.</td></tr>';
+        list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Không có đơn hàng nào.</td></tr>';
         return;
     }
 
-    container.innerHTML = orders.map(order => `
-        <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding:15px;">#${order.id.toUpperCase()}</td>
-            <td style="padding:15px;">${new Date(order.date).toLocaleDateString('vi-VN')}</td>
-            <td style="padding:15px;">${order.items.map(i => i.title).join(', ')}</td>
-            <td style="padding:15px;">${order.paymentMethod === 'cod' ? 'COD' : 'Online'}</td>
-            <td style="padding:15px; font-weight:bold;">${new Intl.NumberFormat('vi-VN').format(order.total)}đ</td>
-            <td style="padding:15px;"><span class="status-badge ${order.status}">${order.status}</span></td>
+    list.innerHTML = orders.map(o => `
+        <tr style="border-bottom:1px solid #eee;">
+            <td style="padding:15px;">#${o.id.toUpperCase()}</td>
+            <td style="padding:15px;">${new Date(o.date).toLocaleDateString('vi-VN')}</td>
+            <td style="padding:15px;">${o.items.map(i => i.title).join(', ')}</td>
+            <td style="padding:15px;">${o.paymentMethod.toUpperCase()}</td>
+            <td style="padding:15px; font-weight:bold;">${new Intl.NumberFormat('vi-VN').format(o.total)}đ</td>
+            <td style="padding:15px;"><span class="status-badge ${o.status}">${o.status}</span></td>
         </tr>
     `).join('');
 }

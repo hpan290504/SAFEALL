@@ -1,47 +1,32 @@
 /**
- * js/api.js - Production Centralized Data Access Layer (v2)
+ * js/api.js - Absolute Production Centralized Data Access Layer
  * 
- * SOURCE OF TRUTH: Server-side Session (validated via JWT)
- * NO user data is stored in localStorage.
+ * SOURCE OF TRUTH: Server-side (JWT + PostgreSQL)
  */
 
 const API = {
-    // AUTHORITATIVE SESSION STATE (In-memory only)
+    // AUTHORITATIVE STATE IN-MEMORY
     _session: null,
 
-    // Helper for fetch with logging
     async _fetch(endpoint, options = {}) {
         const url = `/api/${endpoint}`;
-        const token = localStorage.getItem('safeall_token'); // Only token allowed in local storage
+        const token = localStorage.getItem('safeall_token');
 
-        const defaultHeaders = {
-            'Content-Type': 'application/json',
-        };
-
-        if (token) {
-            defaultHeaders['Authorization'] = `Bearer ${token}`;
-        }
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['Authorization'] = `Bearer ${token}`;
 
         try {
-            const response = await fetch(url, {
-                ...options,
-                headers: { ...defaultHeaders, ...options.headers }
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Server returned error');
-            }
-
+            const resp = await fetch(url, { ...options, headers: { ...headers, ...options.headers } });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.message || 'Server Error');
             return data;
-        } catch (error) {
-            console.error(`[API Fetch Failure] ${url}:`, error.message);
-            throw error;
+        } catch (e) {
+            console.error(`[API FAIL] ${url}:`, e.message);
+            throw e;
         }
     },
 
-    // --- Session Management ---
+    // --- Session ---
 
     async initSession() {
         const token = localStorage.getItem('safeall_token');
@@ -49,25 +34,19 @@ const API = {
             this._session = null;
             return null;
         }
-
         try {
-            const result = await this._fetch('auth/me');
-            if (result.success) {
-                this._session = result.user;
-                return result.user;
+            const res = await this._fetch('auth/me');
+            if (res.success) {
+                this._session = res.user;
+                return res.user;
             }
-        } catch (error) {
-            // If token is invalid or server is down, treat as logged out
-            this._session = null;
+        } catch (e) {
+            this.logout();
             return null;
         }
         return null;
     },
 
-    /**
-     * getActiveUser() - Returns the in-memory session.
-     * Use ONLY for UI rendering checks.
-     */
     getActiveUser() {
         return this._session;
     },
@@ -75,65 +54,61 @@ const API = {
     logout() {
         this._session = null;
         localStorage.removeItem('safeall_token');
-        // Purge ALL legacy keys to prevent cross-device persistence bugs
-        localStorage.removeItem('safeall_active_user');
-        localStorage.removeItem('safeall_orders');
+        localStorage.removeItem('safeall_active_user'); // EXPLICIT PURGE
+        localStorage.removeItem('safeall_orders');      // EXPLICIT PURGE
     },
 
-    // --- User Operations ---
-
-    async registerUser(userData) {
-        try {
-            const result = await this._fetch('auth/register', {
-                method: 'POST',
-                body: JSON.stringify(userData)
-            });
-            return { success: true, message: result.message };
-        } catch (error) {
-            return { success: false, message: error.message };
-        }
-    },
+    // --- Auth ---
 
     async login(phone, password) {
         try {
-            const result = await this._fetch('auth/login', {
+            const res = await this._fetch('auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ phone, password })
             });
-
-            if (result.success) {
-                // Save ONLY the token
-                localStorage.setItem('safeall_token', result.token);
-                // Set in-memory session
-                this._session = result.user;
-                return { success: true, data: result.user };
+            if (res.success) {
+                localStorage.setItem('safeall_token', res.token);
+                this._session = res.user;
+                return { success: true, data: res.user };
             }
-            return { success: false, message: 'Invalid credentials' };
-        } catch (error) {
-            return { success: false, message: error.message };
+            return { success: false, message: 'Sai thông tin đăng nhập' };
+        } catch (e) {
+            return { success: false, message: e.message };
         }
     },
 
-    // --- Order Operations ---
+    async registerUser(userData) {
+        try {
+            const res = await this._fetch('auth/register', {
+                method: 'POST',
+                body: JSON.stringify(userData)
+            });
+            return { success: true, message: res.message };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
+    // --- Orders ---
 
     async createOrder(orderData) {
         try {
-            const result = await this._fetch('orders/create', {
+            const res = await this._fetch('orders/create', {
                 method: 'POST',
                 body: JSON.stringify(orderData)
             });
-            return { success: true, orderId: result.orderId };
-        } catch (error) {
-            return { success: false, message: error.message };
+            return { success: true, orderId: res.orderId };
+        } catch (e) {
+            return { success: false, message: e.message };
         }
     },
 
     async getMyOrders() {
         try {
-            const result = await this._fetch('orders/my');
-            return { success: true, orders: result.orders };
-        } catch (error) {
-            return { success: false, message: error.message };
+            const res = await this._fetch('orders/my');
+            return { success: true, orders: res.orders };
+        } catch (e) {
+            return { success: false, message: e.message };
         }
     }
 };
