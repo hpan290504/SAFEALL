@@ -1,6 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Sync session with server source of truth
+    const activeSession = await window.SAFEALL_API.initSession();
+
     // Auth Guard
-    const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
     if (!activeSession || activeSession.role !== 'admin') {
         window.location.href = 'login.html';
         return;
@@ -18,16 +20,28 @@ function formatDate(isoString) {
     return `${d.toLocaleDateString('vi-VN')} ${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
-function loadOrders() {
-    const orders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
+let currentOrders = [];
+
+async function loadOrders() {
     const tbody = document.getElementById('ordersList');
     const emptyMsg = document.getElementById('emptyOrdersMsg');
     const table = document.getElementById('ordersTable');
     const totalCount = document.getElementById('totalOrderCount');
 
-    totalCount.innerText = orders.length;
+    // Loading state
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">Đang tải dữ liệu từ máy chủ...</td></tr>';
 
-    if (orders.length === 0) {
+    const result = await window.SAFEALL_API.getMyOrders();
+
+    if (!result.success) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: red;">Lỗi: ${result.message}</td></tr>`;
+        return;
+    }
+
+    currentOrders = result.orders;
+    totalCount.innerText = currentOrders.length;
+
+    if (currentOrders.length === 0) {
         table.style.display = 'none';
         emptyMsg.style.display = 'block';
         return;
@@ -37,14 +51,15 @@ function loadOrders() {
     emptyMsg.style.display = 'none';
     tbody.innerHTML = '';
 
-    orders.forEach((order, index) => {
+    currentOrders.forEach((order, index) => {
         const tr = document.createElement('tr');
 
         // Status Badge Logic
         let statusBadge = '';
         if (order.status === 'pending') statusBadge = '<span class="badge badge-warning">Chờ xử lý</span>';
-        else if (order.status === 'shipped') statusBadge = '<span class="badge badge-info">Đang giao</span>';
+        else if (order.status === 'shipping' || order.status === 'delivering') statusBadge = '<span class="badge badge-info">Đang giao</span>';
         else if (order.status === 'completed') statusBadge = '<span class="badge badge-success">Đã hoàn thành</span>';
+        else statusBadge = `<span class="badge badge-secondary">${order.status}</span>`;
 
         let paymentBadge = '';
         if (order.paymentMethod === 'cod') paymentBadge = '<span class="badge badge-secondary">COD</span>';
@@ -55,7 +70,7 @@ function loadOrders() {
         const itemsSummary = order.items.map(i => `${i.title} (x${i.qty})`).join(', ');
 
         tr.innerHTML = `
-            <td><strong>#${order.id}</strong></td>
+            <td><strong>#${order.id.toUpperCase()}</strong></td>
             <td>${formatDate(order.date)}</td>
             <td>${order.customer.name}</td>
             <td>${order.customer.phone}</td>
@@ -71,12 +86,11 @@ function loadOrders() {
     });
 }
 
-function viewOrder(index) {
-    const orders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
-    const order = orders[index];
+window.viewOrder = function (index) {
+    const order = currentOrders[index];
     if (!order) return;
 
-    document.getElementById('detailOrderId').innerText = '#' + order.id;
+    document.getElementById('detailOrderId').innerText = '#' + order.id.toUpperCase();
     document.getElementById('detailCustomerName').innerText = order.customer.name;
     document.getElementById('detailCustomerPhone').innerText = order.customer.phone;
     document.getElementById('detailCustomerAddress').innerText = order.customer.address;
@@ -102,11 +116,11 @@ function viewOrder(index) {
     document.getElementById('orderDetailModal').style.display = 'flex';
 }
 
-function closeModal() {
+window.closeModal = function () {
     document.getElementById('orderDetailModal').style.display = 'none';
 }
 
-function logout() {
-    localStorage.removeItem('safeall_active_user');
+window.logout = function () {
+    window.SAFEALL_API.logout();
     window.location.href = 'login.html';
 }

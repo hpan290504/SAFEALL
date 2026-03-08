@@ -321,11 +321,13 @@
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         // ===== Config =====
         const PAGE_SIZE = 15;
         let currentPage = 1;
         let filteredOrders = [];
+        let allOrders = []; // Cached from API
 
         // ===== Helpers =====
         function formatCurrency(n) { return new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ'; }
@@ -339,33 +341,35 @@
             returned: 'Trả hàng / Hoàn tiền',
         };
 
-        // ===== Auth Guard =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const session = JSON.parse(localStorage.getItem('safeall_active_user'));
+        // ===== Auth Guard & Init =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Sync session with server source of truth
+            const session = await window.SAFEALL_API.initSession();
+
             if (!session || session.role !== 'admin') {
                 window.location.href = 'login.html';
                 return;
             }
             document.getElementById('adminName').textContent = session.identifier || 'Admin';
 
-            renderTable();
+            await refreshData();
 
             document.getElementById('adminSearch').addEventListener('input', () => { currentPage = 1; renderTable(); });
             document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; renderTable(); });
-
-            // Real-time Update Listener
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'safeall_orders') {
-                    const oldVal = JSON.parse(e.oldValue || '[]');
-                    const newVal = JSON.parse(e.newValue || '[]');
-
-                    if (newVal.length > oldVal.length) {
-                        showToast('Có đơn hàng mới vừa được đặt!', 'success');
-                    }
-                    renderTable();
-                }
-            });
         });
+
+        async function refreshData() {
+            const tbody = document.getElementById('ordersList');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-slate-400">Đang tải dữ liệu...</td></tr>';
+
+            const result = await window.SAFEALL_API.getMyOrders();
+            if (result.success) {
+                allOrders = result.orders;
+                renderTable();
+            } else {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-red-500">Lỗi: ${result.message}</td></tr>`;
+            }
+        }
 
         // Simple Toast Notification
         function showToast(message, type = 'info') {
@@ -392,36 +396,23 @@
 
         // ===== Stats =====
         function updateStats() {
-            try {
-                const ordersStr = localStorage.getItem('safeall_orders');
-                let allOrders = JSON.parse(ordersStr || '[]');
-                if (!Array.isArray(allOrders)) {
-                    console.error("Admin Dashboard - Dữ liệu safeall_orders không phải là mảng, đang reset...");
-                    allOrders = [];
-                }
-                const total = allOrders.length;
-                const pending = allOrders.filter(o => o.status === 'pending' || o.status === 'delivering').length;
-                const revenue = allOrders.filter(o => o.status === 'completed').reduce((s, o) => s + (o.total || 0), 0);
-                const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+            const total = allOrders.length;
+            const pending = allOrders.filter(o => o.status === 'pending' || o.status === 'delivering').length;
+            const revenue = allOrders.filter(o => o.status === 'completed').reduce((s, o) => s + (o.total || 0), 0);
+            const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
 
-                document.getElementById('statTotal').textContent = total;
-                document.getElementById('statPending').textContent = pending;
-                document.getElementById('statRevenue').textContent = formatCurrency(revenue);
-                document.getElementById('statCancelled').textContent = cancelled;
-            } catch (error) {
-                console.error("Admin Dashboard - Lỗi khi load stats:", error);
-            }
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statRevenue').textContent = formatCurrency(revenue);
+            document.getElementById('statCancelled').textContent = cancelled;
         }
 
         // ===== Render Table =====
         function renderTable() {
-            let allOrders = JSON.parse(localStorage.getItem('safeall_orders') || '[]');
-            if (!Array.isArray(allOrders)) allOrders = [];
-
             const query = document.getElementById('adminSearch').value.toLowerCase().trim();
             const statusFilter = document.getElementById('filterStatus').value;
 
-            updateStats(); // stats logic based on all data
+            updateStats();
 
             const cleanQuery = query.startsWith('#') ? query.slice(1) : query;
 
@@ -433,17 +424,6 @@
                     (o.items && o.items.some(i => i.title.toLowerCase().includes(cleanQuery)));
                 return matchStatus && matchSearch;
             }).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-
-            // Diagnostic: Check for specific missing orders (like user mentioned)
-            const missingTarget = allOrders.find(o => o.id && o.id.toUpperCase() === 'SADKYS33');
-            if (missingTarget && !filteredOrders.includes(missingTarget)) {
-                console.warn("DIAGNOSTIC: Đơn hàng SADKYS33 tồn tại nhưng bị lọc mất bởi filter hiện tại!", {
-                    status: missingTarget.status,
-                    currentFilter: statusFilter,
-                    currentQuery: query
-                });
-                showToast(`Đơn hàng #SADKYS33 đang bị ẩn do bộ lọc ${STATUS_LABELS[statusFilter] || 'hiện tại'}.`, 'info');
-            }
 
             const tbody = document.getElementById('ordersList');
             const emptyMsg = document.getElementById('emptyOrdersMsg');
@@ -519,22 +499,22 @@
         }
 
         // ===== Update Status =====
-        function updateOrderStatus(orderId, selectEl) {
+        async function updateOrderStatus(orderId, selectEl) {
             const newStatus = selectEl.value;
-            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
+            // TODO: Implement PATCH /api/orders/update in backend
+            showToast('Tính năng cập nhật trạng thái đang được đồng bộ với backend...', 'info');
+
+            // Local update for immediate feedback
             const idx = allOrders.findIndex(o => o.id === orderId);
             if (idx !== -1) {
                 allOrders[idx].status = newStatus;
-                localStorage.setItem('safeall_orders', JSON.stringify(allOrders));
             }
-            // Update select color class
             selectEl.className = `status-select s-${newStatus}`;
             updateStats();
         }
 
         // ===== Order Detail Modal =====
         function showDetail(orderId) {
-            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
             const order = allOrders.find(o => o.id === orderId);
             if (!order) return;
 
@@ -574,11 +554,10 @@
 
         // ===== Export CSV =====
         function exportCSV() {
-            const orders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
-            if (!orders.length) { alert('Không có đơn hàng để xuất.'); return; }
+            if (!allOrders.length) { alert('Không có đơn hàng để xuất.'); return; }
 
             const headers = ['Mã đơn', 'Ngày đặt', 'SĐT', 'Địa chỉ', 'Sản phẩm', 'Tổng tiền', 'Trạng thái'];
-            const rows = orders.map(o => [
+            const rows = allOrders.map(o => [
                 o.id || '',
                 o.date ? new Date(o.date).toLocaleString('vi-VN') : '',
                 o.customer?.phone || '',
@@ -597,7 +576,7 @@
 
         // ===== Logout =====
         function adminLogout() {
-            localStorage.removeItem('safeall_active_user');
+            window.SAFEALL_API.logout();
             window.location.href = 'login.html';
         }
     </script>

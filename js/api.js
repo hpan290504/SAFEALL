@@ -2,6 +2,7 @@
  * js/api.js - Production Centralized Data Access Layer
  * 
  * Vercel Serverless Backend + PostgreSQL
+ * SOURCE OF TRUTH: Server-side Session (validated via JWT)
  */
 
 const API = {
@@ -44,10 +45,12 @@ const API = {
 
     // --- Session Management ---
 
+    /**
+     * ALWAYS call this on page load to sync with server
+     */
     async initSession() {
         if (!localStorage.getItem('safeall_token')) {
             this._session = null;
-            localStorage.removeItem('safeall_active_user');
             return null;
         }
 
@@ -55,8 +58,6 @@ const API = {
             const result = await this._fetch('auth/me');
             if (result.success) {
                 this._session = result.user;
-                // Sync to localStorage for legacy code compatibility, but API._session is the real truth
-                localStorage.setItem('safeall_active_user', JSON.stringify(result.user));
                 return result.user;
             }
         } catch (error) {
@@ -65,14 +66,19 @@ const API = {
         }
     },
 
+    /**
+     * ONLY returns in-memory session. 
+     * If null, user is not logged in on THIS session.
+     */
     getActiveUser() {
-        return this._session || JSON.parse(localStorage.getItem('safeall_active_user'));
+        return this._session;
     },
 
     logout() {
         this._session = null;
-        localStorage.removeItem('safeall_active_user');
         localStorage.removeItem('safeall_token');
+        // Clear old legacy keys just in case
+        localStorage.removeItem('safeall_active_user');
     },
 
     // --- User Operations ---
@@ -99,7 +105,6 @@ const API = {
             if (result.success) {
                 localStorage.setItem('safeall_token', result.token);
                 this._session = result.user;
-                localStorage.setItem('safeall_active_user', JSON.stringify(result.user));
                 return { success: true, data: result.user };
             }
             return { success: false, message: 'Login failed' };

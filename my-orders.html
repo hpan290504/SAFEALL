@@ -302,6 +302,7 @@
         </div>
     </footer>
 
+    <script src="js/api.js"></script>
     <script>
         // ===== Helpers =====
         function formatCurrency(amount) {
@@ -329,7 +330,7 @@
             const textStyle = isCancelled ? 'line-through text-slate-400' : 'text-slate-900';
             const priceStyle = isCancelled ? 'line-through text-slate-400' : 'text-primary';
 
-            const itemsHTML = order.items.map(item => `
+            const itemsHTML = (order.items || []).map(item => `
         <div class="p-4 flex flex-col md:flex-row gap-4 items-start ${isCancelled ? 'opacity-70' : ''}">
             <div class="size-20 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                 ${item.image
@@ -378,10 +379,7 @@
                 ${order.status === 'completed'
                     ? `<a href="products.html" class="px-5 py-2 bg-primary text-white text-sm font-bold rounded hover:bg-primary/90 no-underline" style="text-decoration:none">Mua lại</a>`
                     : ''}
-                ${order.status === 'shipping' || order.status === 'delivering'
-                    ? `<button class="px-5 py-2 bg-primary text-white text-sm font-bold rounded hover:bg-primary/90">Đã nhận hàng</button>`
-                    : ''}
-                ${(order.status === 'pending' || order.status === 'delivering')
+                ${(order.status === 'pending' || order.status === 'shipping')
                     ? `<button onclick="confirmCancelOrder('${order.id}')"
                          class="px-5 py-2 border border-red-300 text-red-600 text-sm font-medium rounded hover:bg-red-50 transition-colors flex items-center gap-1">
                          <span class="material-symbols-outlined" style="font-size:16px">cancel</span> Hủy đơn
@@ -394,18 +392,30 @@
         }
 
         // ===== Load Orders =====
-        function loadOrders(userPhone, filterStatus, searchQuery = '') {
-            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
-            let myOrders = allOrders.filter(o => o.customer && o.customer.phone === userPhone);
+        async function loadAllOrders(filterStatus, searchQuery = '') {
+            const container = document.getElementById('ordersContainer');
+            const emptyMsg = document.getElementById('emptyOrdersMsg');
+
+            // Loading state
+            container.innerHTML = '<div class="py-10 text-center text-slate-400">Đang tải đơn hàng...</div>';
+
+            const result = await window.SAFEALL_API.getMyOrders();
+
+            if (!result.success) {
+                container.innerHTML = `<div class="py-10 text-center text-red-500">Lỗi: ${result.message}</div>`;
+                return;
+            }
+
+            let myOrders = result.orders;
 
             if (filterStatus === 'all') {
-                // Theo yêu cầu: Xóa khỏi mục "Tất cả" các đơn đã hủy
                 myOrders = myOrders.filter(o => o.status !== 'cancelled');
             } else {
                 myOrders = myOrders.filter(o => o.status === filterStatus ||
                     (filterStatus === 'delivering' && o.status === 'pending')
                 );
             }
+
             if (searchQuery) {
                 myOrders = myOrders.filter(o => {
                     const matchId = o.id && o.id.toLowerCase().includes(searchQuery);
@@ -413,9 +423,6 @@
                     return matchId || matchItems;
                 });
             }
-
-            const container = document.getElementById('ordersContainer');
-            const emptyMsg = document.getElementById('emptyOrdersMsg');
 
             if (myOrders.length === 0) {
                 container.innerHTML = '';
@@ -427,8 +434,9 @@
         }
 
         // ===== Init =====
-        document.addEventListener('DOMContentLoaded', () => {
-            const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Sync session with server
+            const activeSession = await window.SAFEALL_API.initSession();
 
             // Auth guard
             if (!activeSession || activeSession.role !== 'user') {
@@ -445,7 +453,7 @@
             document.getElementById('headerAvatar').innerHTML = `<img src="assets/avt_nam.jpg" alt="Avatar" class="w-full h-full object-cover"/>`;
 
             // Load all orders
-            loadOrders(userPhone, 'all');
+            loadAllOrders('all');
 
             // Tab switching
             const tabs = document.querySelectorAll('#orderTabs .tab-item');
@@ -454,56 +462,43 @@
                     tabs.forEach(t => t.classList.remove('tab-active'));
                     tab.classList.add('tab-active');
                     const q = document.getElementById('orderSearch').value.toLowerCase();
-                    loadOrders(userPhone, tab.dataset.status, q);
+                    loadAllOrders(tab.dataset.status, q);
                 });
             });
 
             // Search
             document.getElementById('orderSearch').addEventListener('input', e => {
                 const activeTab = document.querySelector('#orderTabs .tab-active');
-                loadOrders(userPhone, activeTab ? activeTab.dataset.status : 'all', e.target.value.toLowerCase());
+                loadAllOrders(activeTab ? activeTab.dataset.status : 'all', e.target.value.toLowerCase());
             });
             document.getElementById('headerSearch').addEventListener('input', e => {
                 document.getElementById('orderSearch').value = e.target.value;
                 const activeTab = document.querySelector('#orderTabs .tab-active');
-                loadOrders(userPhone, activeTab ? activeTab.dataset.status : 'all', e.target.value.toLowerCase());
+                loadAllOrders(activeTab ? activeTab.dataset.status : 'all', e.target.value.toLowerCase());
             });
         });
 
-        function logout() {
-            localStorage.removeItem('safeall_active_user');
+        window.logout = function () {
+            window.SAFEALL_API.logout();
             window.location.href = 'login.html';
         }
 
-        function confirmCancelOrder(orderId) {
+        window.confirmCancelOrder = function (orderId) {
             window._cancelTargetId = orderId;
             document.getElementById('cancelModalOrderId').textContent = 'Mã đơn: #' + orderId.toUpperCase();
             document.getElementById('cancelModal').classList.remove('hidden');
         }
 
-        function closeCancelModal() {
+        window.closeCancelModal = function () {
             document.getElementById('cancelModal').classList.add('hidden');
             window._cancelTargetId = null;
         }
 
-        function doCancel() {
+        window.doCancel = function () {
             if (!window._cancelTargetId) return;
-            cancelOrder(window._cancelTargetId);
+            // TODO: Implement /api/orders/cancel in backend
+            alert("Tính năng hủy đơn hàng đang được đồng bộ với máy chủ...");
             closeCancelModal();
-        }
-
-        function cancelOrder(orderId) {
-            const allOrders = JSON.parse(localStorage.getItem('safeall_orders')) || [];
-            const idx = allOrders.findIndex(o => o.id === orderId);
-            if (idx === -1) return;
-            allOrders[idx].status = 'cancelled';
-            localStorage.setItem('safeall_orders', JSON.stringify(allOrders));
-
-            // Re-render current tab
-            const activeSession = JSON.parse(localStorage.getItem('safeall_active_user'));
-            const activeTab = document.querySelector('#orderTabs .tab-active');
-            const q = document.getElementById('orderSearch').value.toLowerCase();
-            loadOrders(activeSession.identifier, activeTab ? activeTab.dataset.status : 'all', q);
         }
     </script>
 </body>

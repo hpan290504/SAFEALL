@@ -37,8 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Login success
-            window.SAFEALL_API.setActiveUser(result.data);
+            // Login success (API.login already handles token and session)
 
             // Handle redirect
             const urlParams = new URLSearchParams(window.location.search);
@@ -54,18 +53,20 @@ document.addEventListener('DOMContentLoaded', () => {
         })();
     });
 
-    // Auto redirect if already logged in
-    const activeSession = window.SAFEALL_API.getActiveUser();
-    if (activeSession) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectUrl = urlParams.get('redirect');
+    // Sync session and auto redirect if already logged in
+    (async () => {
+        const activeSession = await window.SAFEALL_API.initSession();
+        if (activeSession) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
 
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        } else if (activeSession.role === 'admin') {
-            window.location.href = 'admin.html';
-        } else {
-            window.location.href = 'my-orders.html';
+            if (redirectUrl) {
+                window.location.href = redirectUrl;
+            } else if (activeSession.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else {
+                window.location.href = 'my-orders.html';
+            }
         }
-    }
+    })();
 });
