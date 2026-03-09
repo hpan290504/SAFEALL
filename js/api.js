@@ -168,7 +168,7 @@ const API = {
         }
     },
 
-    async trackOrder(query) {
+    async trackOrder(query, pin) {
         try {
             // Note: Does not use _fetch to avoid auto-logout on 401 if missing token, 
             // but the new track endpoint doesn't require a token anyway.
@@ -176,7 +176,7 @@ const API = {
             const resp = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query })
+                body: JSON.stringify({ query, pin })
             });
             const data = await resp.json();
             if (!resp.ok) throw new Error(data.message || 'Lỗi tìm kiếm');

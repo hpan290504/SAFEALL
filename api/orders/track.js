@@ -1,4 +1,5 @@
 import * as db from '../_utils/db.js';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -6,9 +7,12 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { query } = req.body;
+        const { query, pin } = req.body;
         if (!query || query.trim() === '') {
             return res.status(400).json({ message: 'Vui lòng nhập Mã đơn hàng hoặc Số điện thoại' });
+        }
+        if (!pin || pin.trim().length !== 6) {
+            return res.status(400).json({ message: 'Vui lòng nhập mã PIN (6 số) để bảo mật tra cứu' });
         }
 
         const searchTerm = query.trim();
@@ -23,8 +27,28 @@ export default async function handler(req, res) {
         );
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng' });
+            return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin phù hợp, vui lòng kiểm tra lại.' });
         }
+
+        // --- NEW SECURITY CHECK: Verify PIN using bcrypt ---
+        const firstOrder = result.rows[0]; // All returned orders should realistically belong to the same phone number
+        const customerPhone = firstOrder.customer_phone;
+
+        const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 LIMIT 1', [customerPhone]);
+
+        // If a user doesn't exist for this old order or the user exists but the pin is wrong:
+        if (userCheck.rows.length === 0) {
+            // Edge case: Old legacy orders before PINs existed. We could deny it or let it pass. 
+            // For security, let's reject since all new orders will have users.
+            return res.status(401).json({ message: 'Tài khoản không hợp lệ hoặc thiếu mã PIN.' });
+        }
+
+        const user = userCheck.rows[0];
+        const isMatch = await bcrypt.compare(pin, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Mã PIN không chính xác' });
+        }
+        // --- END SECURITY CHECK ---
 
         const orders = result.rows.map(row => ({
             id: row.order_id,
