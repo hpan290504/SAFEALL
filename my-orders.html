@@ -160,6 +160,28 @@
             }
         }
 
+        function maskName(name) {
+            if (!name) return '***';
+            const parts = name.trim().split(' ');
+            if (parts.length <= 1) return name.substring(0, 1) + '***';
+            if (parts.length === 2) return parts[0] + ' ***';
+            return parts[0] + ' *** ' + parts[parts.length - 1];
+        }
+
+        function maskPhone(phone) {
+            if (!phone) return '***';
+            return phone.trim().replace(/(\d{3})\d{3,4}(\d{3})/, '$1***$2');
+        }
+
+        function maskAddress(address) {
+            if (!address) return '***';
+            const parts = address.split(',');
+            if (parts.length > 1) {
+                return '***, ' + parts.slice(-2).join(',').trim();
+            }
+            return address.substring(0, 4) + '***';
+        }
+
         function renderOrder(order) {
             const container = document.getElementById('ordersContainer');
             const status = statusMap[order.status] || { text: 'Đang xử lý', color: '#3b82f6', step: 2 };
@@ -200,10 +222,11 @@
                         <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
                             <div class="space-y-6">
                                 <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Người nhận</h4>
-                                <div class="space-y-1">
-                                    <p class="font-black text-lg">${order.customer.name}</p>
-                                    <p class="text-slate-500 text-sm">${order.customer.phone}</p>
-                                    <p class="text-slate-500 text-sm leading-relaxed">${order.customer.address}</p>
+                                <div class="space-y-1 relative">
+                                    <span class="absolute -top-3 -right-2 text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-primary/20">Đã bảo mật</span>
+                                    <p class="font-black text-lg">${maskName(order.customer.name)}</p>
+                                    <p class="text-slate-500 text-sm">${maskPhone(order.customer.phone)}</p>
+                                    <p class="text-slate-500 text-sm leading-relaxed">${maskAddress(order.customer.address)}</p>
                                 </div>
                             </div>
                             <div class="space-y-6">
