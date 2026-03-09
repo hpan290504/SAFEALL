@@ -12,9 +12,15 @@ export default async function handler(req, res) {
     try {
         // Step 1: Audit users table
         report.steps.push({ name: 'Verify users table' });
-        const userColsResult = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'users'`);
-        const userCols = userColsResult.rows.map(r => r.column_name);
-        report.users = { existing: userCols, added: [] };
+        const userColsResult = await db.query(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'users'
+        `);
+        const userCols = userColsResult.rows.map(r => `${r.column_name} (${r.data_type})`);
+        report.users = { schema: userCols, added: [] };
+
+        const existingColNames = userColsResult.rows.map(r => r.column_name);
 
         const requiredUserCols = [
             { name: 'email', type: 'TEXT' },
@@ -26,7 +32,7 @@ export default async function handler(req, res) {
         ];
 
         for (const col of requiredUserCols) {
-            if (!userCols.includes(col.name)) {
+            if (!existingColNames.includes(col.name)) {
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
                 report.users.added.push(col.name);
             }
@@ -34,9 +40,15 @@ export default async function handler(req, res) {
 
         // Step 2: Audit orders table
         report.steps.push({ name: 'Verify orders table' });
-        const orderColsResult = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'orders'`);
-        const orderCols = orderColsResult.rows.map(r => r.column_name);
-        report.orders = { existing: orderCols, added: [] };
+        const orderColsResult = await db.query(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'orders'
+        `);
+        const orderCols = orderColsResult.rows.map(r => `${r.column_name} (${r.data_type})`);
+        report.orders = { schema: orderCols, added: [] };
+
+        const existingOrderColNames = orderColsResult.rows.map(r => r.column_name);
 
         const requiredOrderCols = [
             { name: 'order_id', type: 'TEXT PRIMARY KEY' },
@@ -55,7 +67,7 @@ export default async function handler(req, res) {
         ];
 
         // If orders table doesn't exist at all, we create it
-        if (orderCols.length === 0) {
+        if (existingOrderColNames.length === 0) {
             report.steps.push({ name: 'Creating orders table' });
             await db.query(`
                 CREATE TABLE IF NOT EXISTS orders (
@@ -77,9 +89,9 @@ export default async function handler(req, res) {
             report.orders.created = true;
         } else {
             for (const col of requiredOrderCols) {
-                if (!orderCols.includes(col.name)) {
+                if (!existingOrderColNames.includes(col.name)) {
                     // Avoid adding PRIMARY KEY to ALTER TABLE
-                    const type = col.type.replace(' PRIMARY KEY', '');
+                    const type = col.type.replace(' PRIMARY KEY', '').replace(' DEFAULT NOW()', '');
                     await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS ${col.name} ${type}`);
                     report.orders.added.push(col.name);
                 }
