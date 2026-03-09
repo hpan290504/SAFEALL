@@ -2,8 +2,11 @@ import jwt from 'jsonwebtoken';
 import * as db from '../_utils/db.js';
 
 export default async function handler(req, res) {
+    console.log(`[AuthMe] ${req.method} request received`);
+
     if (req.method !== 'GET') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        console.warn(`[AuthMe] Method Not Allowed: ${req.method}`);
+        return res.status(405).json({ message: 'Method not allowed. Use GET to fetch profile.' });
     }
 
     const authHeader = req.headers.authorization;

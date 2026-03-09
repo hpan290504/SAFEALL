@@ -5,28 +5,31 @@ import jwt from 'jsonwebtoken';
 export default async function handler(req, res) {
     console.log(`[Login] ${req.method} request received`);
 
+    // STRICT METHOD CHECK (Fix for GET 500)
+    if (req.method !== 'POST') {
+        console.warn(`[Login] Method Not Allowed: ${req.method}`);
+        return res.status(405).json({ message: 'Method not allowed. Use POST to login.' });
+    }
+
     const { phone, password } = req.body;
 
     if (!phone || !password) {
-        console.log(`[Login] Error: Missing phone or password`);
-        return res.status(400).json({ message: 'Missing phone or password' });
+        console.log(`[Login] Error: Missing phone or password fields`);
+        return res.status(400).json({ message: 'Vui lòng nhập số điện thoại và mật khẩu.' });
     }
 
     try {
-        console.log(`[Login] Attempt for phone: ${phone}`);
+        console.log(`[Login] Attempting auth for phone: ${phone}`);
 
-        // Debug ENV (Sensitive) - Only log existence
+        // Debug ENV status
         if (!process.env.JWT_SECRET) {
-            console.error(`[Login] ERROR: JWT_SECRET environment variable is MISSING!`);
-        } else {
-            console.log(`[Login] JWT_SECRET is configured.`);
+            console.error(`[Login] MISSING JWT_SECRET in environment variables!`);
+            throw new Error('Server configuration error (JWT)');
         }
 
         // Admin hardcoded fallback
         if (phone === 'admin' && password === 'admin') {
-            console.log(`[Login] Admin override detected`);
-            if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not configured on server');
-
+            console.log(`[Login] Special admin override used`);
             const token = jwt.sign({ id: 'admin', role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '1d' });
             return res.status(200).json({
                 success: true,
@@ -36,7 +39,7 @@ export default async function handler(req, res) {
         }
 
         // Find user
-        console.log(`[Login] Querying database for user...`);
+        console.log(`[Login] Step 1: Querying database for ${phone}...`);
         const result = await db.query('SELECT * FROM users WHERE phone = $1', [phone]);
         const user = result.rows[0];
 
@@ -45,17 +48,20 @@ export default async function handler(req, res) {
             return res.status(401).json({ message: 'Số điện thoại chưa được đăng ký.' });
         }
 
-        console.log(`[Login] User found. Verifying password...`);
+        console.log(`[Login] Step 2: User found. Comparing password hash...`);
+        // Basic format check for bcrypt hash (usually starts with $2)
+        if (!user.password || !user.password.startsWith('$2')) {
+            console.warn(`[Login] WARNING: Password for ${phone} is not in a valid bcrypt format!`);
+        }
+
         // Verify password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            console.log(`[Login] Fail: Incorrect password for ${phone}`);
+            console.log(`[Login] Fail: Password mismatch for ${phone}`);
             return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
         }
 
-        console.log(`[Login] Password verified. Signing JWT...`);
-        if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET is not configured on server');
-
+        console.log(`[Login] Step 3: Password matched. Signing token...`);
         // Create JWT
         const token = jwt.sign(
             { id: user.id, role: user.role, phone: user.phone },
@@ -63,7 +69,7 @@ export default async function handler(req, res) {
             { expiresIn: '7d' }
         );
 
-        console.log(`[Login] Success: User ${phone} logged in successfully`);
+        console.log(`[Login] SUCCESS: User ${phone} logged in successfully`);
         return res.status(200).json({
             success: true,
             token,
@@ -75,12 +81,10 @@ export default async function handler(req, res) {
             }
         });
     } catch (error) {
-        console.error('[Login] EXCEPTION:', error);
-        // Important: Return enough info for debugging, but sanitize for core security
+        console.error('[Login] EXCEPTION OCCURRED:', error);
         return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            message: 'Lỗi máy chủ (Internal Server Error)',
+            error: error.message
         });
     }
 };
