@@ -55,17 +55,15 @@ export default async function handler(req, res) {
             return res.status(401).json({ message: 'Số điện thoại chưa được đăng ký.' });
         }
 
-        console.log(`[Login] Step 2: User found. Comparing password hash...`);
-        // Basic format check for bcrypt hash (usually starts with $2)
-        if (!user.password || !user.password.startsWith('$2')) {
-            console.warn(`[Login] WARNING: Password for ${phone} is not in a valid bcrypt format!`);
-        }
+        console.log(`[Login] Step 2: User found. Comparing credentials...`);
 
-        // Verify password
-        const isMatch = await bcrypt.compare(password, user.password);
+        // --- Unified Auth Logic: Handle both legacy password and new tracking PIN ---
+        // For standard users, the 'password' field from frontend now contains their 6-digit PIN.
+        const isMatch = await bcrypt.compare(password, user.track_pin_hash || user.password);
+
         if (!isMatch) {
-            console.log(`[Login] Fail: Password mismatch for ${phone}`);
-            return res.status(401).json({ message: 'Mật khẩu không chính xác.' });
+            console.log(`[Login] Fail: Credential mismatch for ${phone}`);
+            return res.status(401).json({ message: 'Số điện thoại hoặc mã PIN không chính xác.' });
         }
 
         console.log(`[Login] Step 3: Password matched. Signing token...`);

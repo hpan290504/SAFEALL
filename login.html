@@ -76,15 +76,13 @@
             <!-- Login Card -->
             <div class="glass-effect rounded-2xl p-8 md:p-10 shadow-2xl border border-white/5">
                 <div class="flex border-b border-slate-800 mb-8">
-                    <button class="flex-1 pb-4 text-sm font-bold border-b-2 border-primary text-white">Đăng
-                        nhập</button>
-                    <a href="sign_up/sign_up.html"
-                        class="flex-1 pb-4 text-sm font-bold text-slate-500 hover:text-slate-300 text-center transition-colors">Đăng
-                        ký</a>
+                    <button class="flex-1 pb-4 text-sm font-bold border-b-2 border-primary text-white">Tra cứu lịch sử
+                        đơn hàng</button>
                 </div>
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold mb-2">Chào mừng trở lại</h2>
-                    <p class="text-slate-400 text-sm">Nhập thông tin đăng nhập để tiếp tục vào tài khoản.</p>
+                    <h2 class="text-2xl font-bold mb-2">Truy cập bằng mã PIN</h2>
+                    <p class="text-slate-400 text-sm">Nhập Số điện thoại và Mã PIN 6 số bạn đã đặt để đăng nhập hoặc xem
+                        lịch sử.</p>
                 </div>
 
                 <!-- Error message -->
@@ -111,18 +109,19 @@
                     <!-- Password Field -->
                     <div class="flex flex-col gap-2">
                         <div class="flex justify-between items-center ml-1">
-                            <label class="text-sm font-semibold text-slate-300" for="loginPassword">Mật khẩu</label>
+                            <label class="text-sm font-semibold text-slate-300" for="loginPassword">Mã PIN (6
+                                số)</label>
                             <a class="text-xs font-bold text-primary hover:text-primary/80 transition-colors"
-                                href="#">Quên mật khẩu?</a>
+                                href="#">Quên mã PIN?</a>
                         </div>
                         <div class="relative group">
                             <div
                                 class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-primary transition-colors">
-                                <span class="material-symbols-outlined text-xl">lock</span>
+                                <span class="material-symbols-outlined text-xl">key</span>
                             </div>
                             <input id="loginPassword"
                                 class="block w-full pl-11 pr-12 py-3.5 bg-background-dark/50 border border-slate-700/50 rounded-xl text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                                placeholder="••••••••" type="password" autocomplete="current-password" />
+                                placeholder="6 chữ số PIN" type="password" maxlength="6" />
                             <button id="togglePassword"
                                 class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
                                 type="button">
@@ -141,7 +140,7 @@
                     <button
                         class="w-full flex items-center justify-center gap-2 py-4 px-6 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/25 transition-all active:scale-[0.98]"
                         type="submit">
-                        <span>Đăng nhập</span>
+                        <span>Đăng nhập hệ thống</span>
                         <span class="material-symbols-outlined">arrow_forward</span>
                     </button>
                 </form>
@@ -184,11 +183,10 @@
                     </button>
                 </div>
             </div>
-            <!-- Footer Action -->
+            <!-- Unified PIN Access -->
             <p class="mt-8 text-center text-slate-400">
-                Bạn mới biết đến SAFEALL?
-                <a class="text-primary font-bold hover:underline transition-all" href="sign_up/sign_up.html">Đăng ký
-                    miễn phí</a>
+                Lưu ý: Bạn không cần đăng ký tài khoản. Hệ thống tự động nhận diện theo Số điện thoại và Mã PIN bạn đặt
+                lúc mua hàng.
             </p>
             <!-- Secondary Navigation -->
             <div class="mt-12 flex justify-center gap-6 text-xs text-slate-600 font-medium">
