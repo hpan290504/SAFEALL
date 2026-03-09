@@ -203,10 +203,10 @@ const Checkout = {
     showError(msg) {
         const el = document.getElementById('checkoutError');
         if (!el) return;
-        el.innerText = msg;
+        el.innerHTML = msg;
         el.classList.remove('hidden');
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => el.classList.add('hidden'), 5000);
+        setTimeout(() => el.classList.add('hidden'), 10000);
     },
 
     async handleForgotPin() {
