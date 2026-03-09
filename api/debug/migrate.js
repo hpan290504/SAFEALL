@@ -10,40 +10,81 @@ export default async function handler(req, res) {
     };
 
     try {
-        // Step 1: Check users table
-        report.steps.push({ name: 'Verify users table columns' });
-        const colsResult = await db.query(`
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name = 'users'
-        `);
-        const existingCols = colsResult.rows.map(r => r.column_name);
-        report.existingColumns = existingCols;
+        // Step 1: Audit users table
+        report.steps.push({ name: 'Verify users table' });
+        const userColsResult = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'users'`);
+        const userCols = userColsResult.rows.map(r => r.column_name);
+        report.users = { existing: userCols, added: [] };
 
-        // Step 2: Add missing columns
-        const missingCols = [];
-        if (!existingCols.includes('email')) missingCols.push('email TEXT');
-        if (!existingCols.includes('track_pin_hash')) missingCols.push('track_pin_hash TEXT');
-        if (!existingCols.includes('reset_token')) missingCols.push('reset_token TEXT');
-        if (!existingCols.includes('reset_token_expiry')) missingCols.push('reset_token_expiry TIMESTAMP');
+        const requiredUserCols = [
+            { name: 'email', type: 'TEXT' },
+            { name: 'track_pin_hash', type: 'TEXT' },
+            { name: 'reset_token', type: 'TEXT' },
+            { name: 'reset_token_expiry', type: 'TIMESTAMP' },
+            { name: 'address', type: 'TEXT' },
+            { name: 'phone', type: 'TEXT' }
+        ];
 
-        if (missingCols.length > 0) {
-            report.steps.push({ name: 'Adding missing columns', columns: missingCols });
-            for (const colDef of missingCols) {
-                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${colDef}`);
+        for (const col of requiredUserCols) {
+            if (!userCols.includes(col.name)) {
+                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`);
+                report.users.added.push(col.name);
             }
-            report.migrationStatus = 'Success';
-        } else {
-            report.migrationStatus = 'Already up to date';
         }
 
-        // Step 3: Check orders table (ensure customer_phone handle normalized)
-        const orderCols = await db.query(`
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name = 'orders'
-        `);
-        report.orderColumns = orderCols.rows.map(r => r.column_name);
+        // Step 2: Audit orders table
+        report.steps.push({ name: 'Verify orders table' });
+        const orderColsResult = await db.query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'orders'`);
+        const orderCols = orderColsResult.rows.map(r => r.column_name);
+        report.orders = { existing: orderCols, added: [] };
+
+        const requiredOrderCols = [
+            { name: 'order_id', type: 'TEXT PRIMARY KEY' },
+            { name: 'user_id', type: 'INTEGER' },
+            { name: 'customer_name', type: 'TEXT' },
+            { name: 'customer_phone', type: 'TEXT' },
+            { name: 'customer_address', type: 'TEXT' },
+            { name: 'items', type: 'TEXT' },
+            { name: 'subtotal', type: 'NUMERIC' },
+            { name: 'shipping_fee', type: 'NUMERIC' },
+            { name: 'total', type: 'NUMERIC' },
+            { name: 'payment_method', type: 'TEXT' },
+            { name: 'note', type: 'TEXT' },
+            { name: 'status', type: 'TEXT' },
+            { name: 'created_at', type: 'TIMESTAMP DEFAULT NOW()' }
+        ];
+
+        // If orders table doesn't exist at all, we create it
+        if (orderCols.length === 0) {
+            report.steps.push({ name: 'Creating orders table' });
+            await db.query(`
+                CREATE TABLE IF NOT EXISTS orders (
+                    order_id TEXT PRIMARY KEY,
+                    user_id INTEGER,
+                    customer_name TEXT,
+                    customer_phone TEXT,
+                    customer_address TEXT,
+                    items TEXT,
+                    subtotal NUMERIC,
+                    shipping_fee NUMERIC,
+                    total NUMERIC,
+                    payment_method TEXT,
+                    note TEXT,
+                    status TEXT DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            `);
+            report.orders.created = true;
+        } else {
+            for (const col of requiredOrderCols) {
+                if (!orderCols.includes(col.name)) {
+                    // Avoid adding PRIMARY KEY to ALTER TABLE
+                    const type = col.type.replace(' PRIMARY KEY', '');
+                    await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS ${col.name} ${type}`);
+                    report.orders.added.push(col.name);
+                }
+            }
+        }
 
         return res.status(200).json({ success: true, report });
     } catch (error) {
