@@ -73,7 +73,6 @@
                         <span id="cartBadge"
                             class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </button>
-                    <div id="authSection" class="hidden sm:flex"></div>
                 </div>
             </div>
         </header>
@@ -130,9 +129,9 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-4">
                         <div class="text-4xl font-black text-primary">1.200.000đ</div>
-                        <div class="text-slate-400 line-through text-lg">1.500.000đ</div>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Giá trọn gói</span>
                     </div>
 
                     <p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
@@ -156,12 +155,13 @@
                     <div class="flex flex-col sm:flex-row gap-4 pt-4">
                         <a href="checkout.html"
                             onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
-                            class="flex-1 text-center bg-primary hover:bg-red-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wider text-xl">
+                            class="flex-1 text-center bg-primary hover:opacity-90 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wider text-xl flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">shopping_cart_checkout</span>
                             Mua ngay
                         </a>
                         <button
                             onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
-                            class="flex-1 bg-secondary hover:bg-blue-900 text-white font-black py-5 rounded-2xl shadow-xl shadow-secondary/20 transition-all active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2">
+                            class="flex-1 bg-white border-2 border-secondary hover:bg-secondary text-secondary hover:text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">add_shopping_cart</span>
                             Thêm vào giỏ
                         </button>
@@ -293,7 +293,8 @@
                                 class="cart-total-price">0đ</span></div>
                         <div
                             class="flex justify-between text-lg font-black text-slate-900 border-t border-slate-200 pt-3">
-                            <span>Tổng cộng</span><span class="text-primary cart-total-price">0đ</span></div>
+                            <span>Tổng cộng</span><span class="text-primary cart-total-price">0đ</span>
+                        </div>
                     </div>
                     <button onclick="window.location.href='checkout.html'"
                         class="w-full bg-primary hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group">

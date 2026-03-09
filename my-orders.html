@@ -33,7 +33,9 @@
         }
 
         .tab-active {
-            @apply border-primary text-primary font-black;
+            border-color: #ea2a33;
+            color: #ea2a33;
+            font-weight: 900;
         }
     </style>
 </head>
@@ -43,10 +45,9 @@
         class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <a href="index.html" class="flex items-center gap-2">
-                <img alt="SAFEALL logo" class="h-8 w-auto"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj7qSI13CRXgoDs7fI6SL3-4-Lyngb9Oz68msFXU8t9kBz8soLmNJPDKpGRp0a6Kdc91BbpR0xrpmsreBKrrOFwWKmvoZwKgTk1eaHnZyVkO09aA54X1WSA3HWGLlyHnW5C7R3yfY67MLFUwUHen71N680xeFB2i0uZnNI7q5d328FJg83ywU6fUnPGdXSLSeOLfL38YFuSslI2vb_L1aBjUKQ4LKv5AJf4NIwqG5SVRqe9jru_dJkiovOJcP06-moPdVQe9hHnlU" />
-                <span
-                    class="text-secondary dark:text-white text-xl font-black tracking-tighter uppercase">SAFEALL</span>
+                <img alt="SAFEALL logo" class="h-10 w-auto"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_tnJp8lktcPrPzaXILhZ7b1oRmkGUf2MOHxGDDlDJ1KtVy-gLPAZiyt1Yi6xhYEe0r4MJbdEm8sofuHhHpSdV8-N9EzVE7YlMHn_J2HXGG6BSLIIpvtzgGmDdJ1oJ7Dx3fcE95QOOMJK54ied6CKWINvBt9ciCyUHUUgnLuC7-Akx4HiI8tSk20xuJHYfbK5JCxXDQs9HHnZErB31y4wPbGIMgguSRWPIcuryIhlIWV31yXp2eQcyaoSdVUcZl3qD3XxRFGse25s" />
+                <span class="text-secondary dark:text-white text-2xl font-black tracking-tighter">SAFEALL</span>
             </a>
             <nav class="hidden md:flex items-center gap-8">
                 <a class="text-sm font-semibold hover:text-primary transition-colors" href="index.html">Trang chủ</a>
@@ -54,7 +55,10 @@
                 <a class="text-sm font-semibold hover:text-primary transition-colors text-primary"
                     href="my-orders.html">Theo dõi đơn</a>
             </nav>
-            <div id="authSection" class="auth-section"></div>
+            <a href="products.html"
+                class="hidden sm:block bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+                MUA NGAY
+            </a>
         </div>
     </header>
 
