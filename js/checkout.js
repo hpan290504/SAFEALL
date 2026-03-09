@@ -223,23 +223,24 @@ window.SAFEALL_CHECKOUT = {
             } else {
                 let errorMsg = result.message || 'Lỗi xử lý đơn hàng';
 
-                // Construct detailed debug info
+                // Construct detailed debug info for transparency
                 let debugParts = [];
-                if (result.category) debugParts.push(`<b>Loại:</b> ${result.category}`);
-                if (result.code) debugParts.push(`<b>Mã lỗi:</b> ${result.code}`);
+                if (result.category) debugParts.push(`<b>Phân loại:</b> ${result.category}`);
+                if (result.code) debugParts.push(`<b>Postgres:</b> ${result.code}`);
                 if (result.stage) debugParts.push(`<b>Giai đoạn:</b> ${result.stage}`);
-                if (result.error) debugParts.push(`<b>Chi tiết:</b> ${result.error}`);
+                if (result.error) debugParts.push(`<b>Lỗi gốc:</b> ${result.error}`);
+                if (result.detail) debugParts.push(`<b>Chi tiết:</b> ${result.detail}`);
 
                 let detailsHtml = debugParts.length > 0
-                    ? `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] leading-relaxed opacity-80">${debugParts.join(' | ')}</div>`
+                    ? `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] leading-relaxed opacity-80 grid gap-1">${debugParts.join(' | ')}</div>`
                     : '';
 
-                if (result.tip) errorMsg += `<br/><small class="text-[11px] block mt-1 font-medium">${result.tip}</small>`;
+                if (result.tip) errorMsg += `<br/><small class="text-[11px] block mt-1 font-bold text-slate-500">${result.tip}</small>`;
 
                 if (result.retry) {
-                    // Specific UX for self-healing
-                    this.showError(`${errorMsg}${detailsHtml}`, 'bg-blue-50 text-blue-600 border-blue-200');
-                    btn.innerHTML = 'NHẤN LẠI ĐỂ XÁC NHẬN <i class="codicon codicon-sync"></i>';
+                    // Specific UX for self-healing success
+                    this.showError(`${errorMsg}${detailsHtml}`, 'bg-blue-50 text-blue-700 border-blue-200');
+                    btn.innerHTML = 'NHẤN LẠI ĐẾ XÁC NHẬN <i class="codicon codicon-sync animate-spin-slow"></i>';
                 } else {
                     this.showError(`${errorMsg}${detailsHtml}`);
                     btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';

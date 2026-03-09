@@ -51,7 +51,6 @@ export default async function handler(req, res) {
                     await db.query('UPDATE users SET email = $1 WHERE id = $2', [customer.email, userId]);
                 } catch (emailErr) {
                     console.warn('[CreateOrder] Email update failed (non-critical):', emailErr.message);
-                    // Continue anyway, email might be missing in schema
                 }
             }
         } else {
@@ -79,14 +78,16 @@ export default async function handler(req, res) {
         // 2. Save Order
         console.log(`[CreateOrder] Stage 2: Saving order...`);
         try {
+            // Check if customer_email exists in schema conceptually or just try it
             await db.query(
-                `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+                `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_email, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
                 [
                     orderId,
                     userId,
                     customer.name,
                     normalizedPhone,
+                    customer.email || null,
                     customer.address,
                     JSON.stringify(items),
                     subtotal,
@@ -116,25 +117,45 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error(`[CreateOrder] Final Catch [${error.stage || 'Logic'}]:`, error.message);
 
-        // SELF-HEALING: If error is about missing columns, attempt auto-fix once
-        // error.code '42703' is undefined_column
-        if (error.code === '42703' || error.message.includes('column') || error.message.includes('track_pin_hash')) {
+        // SELF-HEALING: If error is about missing columns or tables
+        if (error.code === '42703' || error.code === '42P01' || error.message.includes('column') || error.message.includes('relation')) {
             console.log('[CreateOrder] Detected schema mismatch. Attempting auto-migration...');
             try {
+                // Ensure users table is correct
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT`);
 
-                // Ensure orders table has all columns too
+                // Ensure orders table exists and has all columns
+                await db.query(`
+                    CREATE TABLE IF NOT EXISTS orders (
+                        order_id TEXT PRIMARY KEY,
+                        user_id INTEGER,
+                        customer_name TEXT,
+                        customer_phone TEXT,
+                        customer_address TEXT,
+                        items TEXT,
+                        subtotal NUMERIC,
+                        shipping_fee NUMERIC,
+                        total NUMERIC,
+                        payment_method TEXT,
+                        note TEXT,
+                        status TEXT DEFAULT 'pending',
+                        created_at TIMESTAMP DEFAULT NOW()
+                    )
+                `);
+
                 await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT`);
+                await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id INTEGER`);
 
                 console.log('[CreateOrder] Auto-migration successful. Please retry your order.');
                 return res.status(500).json({
-                    message: 'Hệ thống vừa cập nhật dữ liệu để tương thích. Vui lòng nhấn "Xác nhận đơn hàng" một lần nữa.',
+                    message: 'Hệ thống đã tự động cập nhật Database để tương thích. Vui lòng nhấn "Xác nhận đơn hàng" một lần nữa.',
                     retry: true,
                     stage: error.stage,
+                    code: error.code,
                     category: error.category || 'Schema Migration'
                 });
             } catch (migErr) {
@@ -150,9 +171,9 @@ export default async function handler(req, res) {
             stage: error.stage,
             code: error.code,
             category: error.category || 'Unknown',
-            tip: error.code === '08006' || error.code === '08001'
-                ? 'Lỗi kết nối database. Vui lòng kiểm tra DATABASE_URL (Session Pooler).'
-                : 'Vui lòng kiểm tra lại thông tin hoặc liên hệ admin.'
+            tip: error.code?.startsWith('08')
+                ? 'Lỗi kết nối Database. Vui lòng kiểm tra lại cấu hình hoặc internet.'
+                : 'Vui lòng kiểm tra lại thông tin hoặc thử lại sau.'
         });
     }
 };
