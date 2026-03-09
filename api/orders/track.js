@@ -38,18 +38,22 @@ export default async function handler(req, res) {
         }
 
         // --- NEW SECURITY CHECK: Verify PIN using bcrypt ---
-        const firstOrder = result.rows[0]; // All returned orders should realistically belong to the same phone number
+        const firstOrder = result.rows[0];
+        const userId = firstOrder.user_id;
         const rawCustomerPhone = firstOrder.customer_phone;
-        const normalizedCustomerPhone = rawCustomerPhone.replace(/\D/g, '');
+        const normalizedCustomerPhone = rawCustomerPhone ? rawCustomerPhone.replace(/\D/g, '') : '';
 
-        const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedCustomerPhone, rawCustomerPhone]);
+        let userCheck;
+        if (userId) {
+            // Priority 1: Search by user_id linked to the order
+            userCheck = await db.query('SELECT id, password FROM users WHERE id = $1 LIMIT 1', [userId]);
+        } else {
+            // Priority 2: Fallback to phone search for legacy/unlinked orders
+            userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedCustomerPhone, rawCustomerPhone]);
+        }
 
-
-        // If a user doesn't exist for this old order or the user exists but the pin is wrong:
-        if (userCheck.rows.length === 0) {
-            // Edge case: Old legacy orders before PINs existed. We could deny it or let it pass. 
-            // For security, let's reject since all new orders will have users.
-            return res.status(401).json({ message: 'Tài khoản không hợp lệ hoặc thiếu mã PIN.' });
+        if (!userCheck || userCheck.rows.length === 0) {
+            return res.status(401).json({ message: 'Không tìm thấy thông tin xác thực. Vui lòng liên hệ Hotline.' });
         }
 
         const user = userCheck.rows[0];
