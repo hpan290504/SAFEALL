@@ -31,6 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (successEl) { successEl.textContent = "Đăng ký thành công! Hãy đăng nhập."; successEl.classList.remove('hidden'); }
 
         // REDIRECT TO LOGIN (FORCE REAL AUTH)
-        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+        setTimeout(() => { window.location.href = '/login.html'; }, 1500);
     });
 });
