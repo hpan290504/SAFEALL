@@ -52,12 +52,16 @@ export const query = async (text, params) => {
         else if (err.code === '28P01' || err.code === '28000') category = 'Authentication Failed';
         else if (err.code?.startsWith('08')) category = 'Connection Issue';
         else if (err.code === '23505') category = 'Duplicate Entry (Unique Constraint)';
+        else if (err.code === '42601') category = 'Syntax Error';
 
         console.error(`[DB] ${category} [${err.code || 'NO_CODE'}]: ${err.message}`);
-        console.error(`[DB] Failed query:`, text.substring(0, 100));
+        if (err.detail) console.error(`[DB] Detail: ${err.detail}`);
+        if (err.hint) console.error(`[DB] Hint: ${err.hint}`);
+        console.error(`[DB] Failed query:`, text.substring(0, 200));
 
         // Enrich the error object for higher layers
         err.category = category;
+        // Keep original code, detail, hint attached
         throw err;
     }
 };

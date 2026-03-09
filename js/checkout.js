@@ -222,22 +222,33 @@ window.SAFEALL_CHECKOUT = {
                 window.location.href = 'order-success.html';
             } else {
                 let errorMsg = result.message || 'Lỗi xử lý đơn hàng';
-                if (result.error) errorMsg += `: ${result.error}`;
-                if (result.tip) errorMsg += `<br/><small class="opacity-70">${result.tip}</small>`;
+
+                // Construct detailed debug info
+                let debugParts = [];
+                if (result.category) debugParts.push(`<b>Loại:</b> ${result.category}`);
+                if (result.code) debugParts.push(`<b>Mã lỗi:</b> ${result.code}`);
+                if (result.stage) debugParts.push(`<b>Giai đoạn:</b> ${result.stage}`);
+                if (result.error) debugParts.push(`<b>Chi tiết:</b> ${result.error}`);
+
+                let detailsHtml = debugParts.length > 0
+                    ? `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] leading-relaxed opacity-80">${debugParts.join(' | ')}</div>`
+                    : '';
+
+                if (result.tip) errorMsg += `<br/><small class="text-[11px] block mt-1 font-medium">${result.tip}</small>`;
 
                 if (result.retry) {
                     // Specific UX for self-healing
-                    this.showError(result.message, 'bg-blue-50 text-blue-600 border-blue-200');
+                    this.showError(`${errorMsg}${detailsHtml}`, 'bg-blue-50 text-blue-600 border-blue-200');
                     btn.innerHTML = 'NHẤN LẠI ĐỂ XÁC NHẬN <i class="codicon codicon-sync"></i>';
                 } else {
-                    this.showError(errorMsg);
+                    this.showError(`${errorMsg}${detailsHtml}`);
                     btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
                 }
                 btn.disabled = false;
             }
         } catch (e) {
             console.error(e);
-            this.showError('Hết phiên đăng nhập hoặc lỗi kết nối. Vui lòng thử lại.');
+            this.showError('Hết phiên đăng nhập hoặc lỗi kết nối. Vui lòng kiểm tra internet và thử lại.');
             btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
             btn.disabled = false;
         }

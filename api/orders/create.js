@@ -27,7 +27,8 @@ export default async function handler(req, res) {
             userCheck = await db.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [normalizedPhone]);
         } catch (dbErr) {
             console.error('[CreateOrder] Stage 1 FAIL (User Lookup):', dbErr.message);
-            throw new Error(`Lỗi tìm kiếm người dùng: ${dbErr.message}`);
+            dbErr.stage = 'Stage 1 (User Lookup)';
+            throw dbErr;
         }
 
         if (userCheck.rows.length > 0) {
@@ -70,7 +71,8 @@ export default async function handler(req, res) {
                 console.log(`[CreateOrder] New User Created: ID=${userId}`);
             } catch (createErr) {
                 console.error('[CreateOrder] Stage 1b FAIL (User Insert):', createErr.message);
-                throw new Error(`Lỗi tạo tài khoản: ${createErr.message}. Có thể schema DB chưa cập nhật cột track_pin_hash.`);
+                createErr.stage = 'Stage 1b (User Insert)';
+                throw createErr;
             }
         }
 
@@ -78,7 +80,7 @@ export default async function handler(req, res) {
         console.log(`[CreateOrder] Stage 2: Saving order...`);
         try {
             await db.query(
-                `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status) 
+                `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
                 [
                     orderId,
@@ -98,7 +100,8 @@ export default async function handler(req, res) {
             console.log(`[CreateOrder] Order Saved Successfully.`);
         } catch (orderErr) {
             console.error('[CreateOrder] Stage 2 FAIL (Order Insert):', orderErr.message);
-            throw new Error(`Lỗi lưu đơn hàng: ${orderErr.message}`);
+            orderErr.stage = 'Stage 2 (Order Insert)';
+            throw orderErr;
         }
 
         // 3. Update profile details
@@ -111,20 +114,28 @@ export default async function handler(req, res) {
 
         return res.status(201).json({ success: true, message: 'Đơn hàng đã được tạo thành công!', orderId });
     } catch (error) {
-        console.error('[CreateOrder] Final Catch:', error.message);
+        console.error(`[CreateOrder] Final Catch [${error.stage || 'Logic'}]:`, error.message);
 
         // SELF-HEALING: If error is about missing columns, attempt auto-fix once
-        if (error.code === '42703' && (error.message.includes('track_pin_hash') || error.message.includes('email'))) {
-            console.log('[CreateOrder] Detected missing columns. Attempting auto-migration...');
+        // error.code '42703' is undefined_column
+        if (error.code === '42703' || error.message.includes('column') || error.message.includes('track_pin_hash')) {
+            console.log('[CreateOrder] Detected schema mismatch. Attempting auto-migration...');
             try {
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`);
+                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT`);
+
+                // Ensure orders table has all columns too
+                await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT`);
+
                 console.log('[CreateOrder] Auto-migration successful. Please retry your order.');
                 return res.status(500).json({
                     message: 'Hệ thống vừa cập nhật dữ liệu để tương thích. Vui lòng nhấn "Xác nhận đơn hàng" một lần nữa.',
-                    retry: true
+                    retry: true,
+                    stage: error.stage,
+                    category: error.category || 'Schema Migration'
                 });
             } catch (migErr) {
                 console.error('[CreateOrder] Auto-migration failed:', migErr.message);
@@ -134,8 +145,14 @@ export default async function handler(req, res) {
         return res.status(500).json({
             message: 'Lỗi hệ thống khi tạo đơn hàng.',
             error: error.message,
+            detail: error.detail,
+            hint: error.hint,
+            stage: error.stage,
+            code: error.code,
             category: error.category || 'Unknown',
-            tip: error.message.includes('track_pin_hash') ? 'Vui lòng chạy migration để thêm cột track_pin_hash vào bảng users.' : 'Vui lòng kiểm tra lại thông tin hoặc liên hệ admin.'
+            tip: error.code === '08006' || error.code === '08001'
+                ? 'Lỗi kết nối database. Vui lòng kiểm tra DATABASE_URL (Session Pooler).'
+                : 'Vui lòng kiểm tra lại thông tin hoặc liên hệ admin.'
         });
     }
 };
