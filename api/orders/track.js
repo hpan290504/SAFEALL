@@ -66,11 +66,12 @@ export default async function handler(req, res) {
         }
 
         const user = userCheck.rows[0];
-        const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
+        const isMatch = await bcrypt.compare(pin, user.track_pin_hash);
 
         console.log(`[TrackOrder] User identified: ${user.id}. PIN Match: ${isMatch}`);
 
         if (!isMatch) {
+            console.warn(`[TrackOrder] Verification FAIL for user ${user.id} - Incorrect PIN`);
             return res.status(401).json({ message: 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.' });
         }
         // --- END SECURITY CHECK ---

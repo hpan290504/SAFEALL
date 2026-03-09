@@ -39,12 +39,22 @@ export default async function handler(req, res) {
             const userCheck = await db.query('SELECT id, password, track_pin_hash FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, customer.phone]);
 
             if (userCheck.rows.length > 0) {
-                // Return User: Verify PIN
+                // Return User: Verify or Establish PIN
                 const user = userCheck.rows[0];
-                const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
-                if (!isMatch) {
-                    return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác.' });
+
+                if (user.track_pin_hash) {
+                    const isMatch = await bcrypt.compare(pin, user.track_pin_hash);
+                    if (!isMatch) {
+                        return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác. Nếu bạn đã có tài khoản, hãy dùng mã PIN 6 số đã đăng ký.' });
+                    }
+                } else {
+                    // First time setting a tracking PIN for this user
+                    const salt = await bcrypt.genSalt(10);
+                    const hashedPin = await bcrypt.hash(pin, salt);
+                    await db.query('UPDATE users SET track_pin_hash = $1 WHERE id = $2', [hashedPin, user.id]);
+                    console.log(`[CreateOrder] Established first-time tracking PIN for user ${user.id}`);
                 }
+
                 userId = user.id;
             } else {
                 // New User: Create PIN (Hash)
