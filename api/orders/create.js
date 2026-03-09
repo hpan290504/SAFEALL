@@ -42,8 +42,8 @@ export default async function handler(req, res) {
                 // Return User: Verify or Establish PIN
                 const user = userCheck.rows[0];
 
-                if (user.track_pin_hash) {
-                    const isMatch = await bcrypt.compare(pin, user.track_pin_hash);
+                if (user.track_pin_hash || user.password) {
+                    const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
                     if (!isMatch) {
                         return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác. Nếu bạn đã có tài khoản, hãy dùng mã PIN 6 số đã đăng ký.' });
                     }

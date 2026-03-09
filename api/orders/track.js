@@ -66,7 +66,7 @@ export default async function handler(req, res) {
         }
 
         const user = userCheck.rows[0];
-        const isMatch = await bcrypt.compare(pin, user.track_pin_hash);
+        const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
 
         console.log(`[TrackOrder] User identified: ${user.id}. PIN Match: ${isMatch}`);
 
