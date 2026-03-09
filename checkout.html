@@ -82,6 +82,50 @@
                             </div>
                         </div>
 
+                        <!-- Progressive PIN Disclosure UI -->
+                        <div id="newPinContainer"
+                            class="hidden space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 dark:bg-slate-800/50 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div class="flex items-start gap-3">
+                                <i class="codicon codicon-lightbulb text-primary text-xl mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-black text-slate-900 dark:text-white">Tạo mã PIN (6 số) bảo mật đơn
+                                        hàng</h4>
+                                    <p class="text-xs text-slate-500">Bảo mật thông tin & Tra cứu đơn hàng dễ dàng hơn.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <input id="pinNew" type="password" inputmode="numeric" maxlength="6"
+                                    placeholder="Ví dụ: 123456"
+                                    class="w-full bg-white dark:bg-slate-900 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-center tracking-[0.5em] text-lg" />
+                                <input id="pinConfirm" type="password" inputmode="numeric" maxlength="6"
+                                    placeholder="Nhập lại mã PIN"
+                                    class="w-full bg-white dark:bg-slate-900 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/20 transition-all font-medium text-center tracking-[0.5em] text-lg" />
+                            </div>
+                        </div>
+
+                        <div id="existingPinContainer"
+                            class="hidden space-y-4 bg-blue-50/50 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 dark:bg-blue-900/10 animate-in fade-in slide-in-from-top-4 duration-300">
+                            <div class="flex items-start gap-3">
+                                <i class="codicon codicon-lock text-secondary text-xl mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-black text-secondary dark:text-blue-400">Số điện thoại này đã đăng
+                                        ký</h4>
+                                    <p class="text-xs text-slate-500">Vui lòng nhập mã PIN để xác nhận thanh toán.</p>
+                                </div>
+                            </div>
+                            <div class="relative max-w-sm">
+                                <input id="pinExisting" type="password" inputmode="numeric" maxlength="6"
+                                    placeholder="Nhập mã PIN 6 số của bạn"
+                                    class="w-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/50 rounded-xl py-3 pl-4 pr-24 focus:ring-2 focus:ring-secondary/20 transition-all font-medium tracking-[0.5em] text-lg" />
+                                <button type="button"
+                                    onclick="alert('Vui lòng liên hệ Hotline +84 775 605 303 để cấp lại mã PIN.')"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-primary transition-colors">Quên
+                                    mã PIN?</button>
+                            </div>
+                        </div>
+                        <!-- End PIN Details -->
+
                         <div class="space-y-2">
                             <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Email (Tùy
                                 chọn)</label>

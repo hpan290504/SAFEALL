@@ -21,6 +21,44 @@ window.SAFEALL_CHECKOUT = {
             // Guest checkout – no session is fine
             console.log('Guest checkout mode');
         }
+
+        // Initialize PIN UI Progressive Disclosure logic
+        const phoneInput = document.getElementById('checkoutPhone');
+        if (phoneInput) {
+            const handlePhoneInput = async () => {
+                const phone = phoneInput.value.trim();
+                const newPinContainer = document.getElementById('newPinContainer');
+                const existingPinContainer = document.getElementById('existingPinContainer');
+
+                // Allow simple validation - typically >=9 or 10 digits
+                if (phone.length >= 9) {
+                    const result = await window.SAFEALL_API.checkPhone(phone);
+                    if (result.success) {
+                        if (result.exists) {
+                            newPinContainer.classList.add('hidden');
+                            existingPinContainer.classList.remove('hidden');
+                            window.SAFEALL_CHECKOUT.isExistingUser = true;
+                        } else {
+                            existingPinContainer.classList.add('hidden');
+                            newPinContainer.classList.remove('hidden');
+                            window.SAFEALL_CHECKOUT.isExistingUser = false;
+                        }
+                    }
+                } else {
+                    newPinContainer.classList.add('hidden');
+                    existingPinContainer.classList.add('hidden');
+                    window.SAFEALL_CHECKOUT.isExistingUser = undefined;
+                }
+            };
+
+            // Re-check when losing focus
+            phoneInput.addEventListener('blur', handlePhoneInput);
+
+            // Check immediately if prefilled (e.g. from browser autocomplete or session)
+            if (phoneInput.value) {
+                handlePhoneInput();
+            }
+        }
     },
 
     /**
@@ -116,10 +154,38 @@ window.SAFEALL_CHECKOUT = {
         const note = document.getElementById('orderNote')?.value.trim() || '';
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'cod';
 
-        // Validate
+        // Validate Basic Info
         if (!name) { this.showError('Vui lòng nhập họ và tên.'); document.getElementById('checkoutFullName').focus(); return; }
         if (!phone) { this.showError('Vui lòng nhập số điện thoại.'); document.getElementById('checkoutPhone').focus(); return; }
         if (!address) { this.showError('Vui lòng nhập địa chỉ giao hàng.'); document.getElementById('checkoutAddress').focus(); return; }
+
+        // Grab and Validate PIN
+        let pin = '';
+        if (window.SAFEALL_CHECKOUT.isExistingUser === true) {
+            pin = document.getElementById('pinExisting').value.trim();
+            if (!pin || pin.length !== 6) {
+                this.showError('Vui lòng nhập mã PIN hợp lệ (6 số) để xác nhận đơn hàng.');
+                document.getElementById('pinExisting').focus();
+                return;
+            }
+        } else if (window.SAFEALL_CHECKOUT.isExistingUser === false) {
+            pin = document.getElementById('pinNew').value.trim();
+            const pinConfirm = document.getElementById('pinConfirm').value.trim();
+            if (!pin || pin.length !== 6) {
+                this.showError('Vui lòng tạo mã PIN (6 số) để bảo mật đơn hàng.');
+                document.getElementById('pinNew').focus();
+                return;
+            }
+            if (pin !== pinConfirm) {
+                this.showError('Mã PIN không khớp. Vui lòng nhập lại.');
+                document.getElementById('pinConfirm').focus();
+                return;
+            }
+        } else {
+            this.showError('Vui lòng cung cấp số điện thoại hợp lệ trước khi thanh toán.');
+            document.getElementById('checkoutPhone').focus();
+            return;
+        }
 
         const subtotal = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
         const shippingFee = (subtotal > 0 && subtotal < 500000) ? 30000 : 0;
@@ -134,7 +200,8 @@ window.SAFEALL_CHECKOUT = {
             subtotal,
             shippingFee,
             total,
-            paymentMethod
+            paymentMethod,
+            pin
         };
 
         const btn = document.getElementById('placeOrderBtn');

@@ -1,5 +1,6 @@
 import * as db from '../_utils/db.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -20,17 +21,37 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { orderId, items, subtotal, shippingFee, total, paymentMethod, note, customer } = req.body;
+        const { orderId, items, subtotal, shippingFee, total, paymentMethod, note, customer, pin } = req.body;
 
         if (!customer || !customer.phone) {
             return res.status(400).json({ message: 'Customer phone is required' });
         }
 
-        // Auto-link to existing user by phone if guest
+        // Auto-link or Create User based on PIN
         if (!userId) {
-            const userCheck = await db.query('SELECT id FROM users WHERE phone = $1 LIMIT 1', [customer.phone]);
+            if (!pin || pin.length !== 6) {
+                return res.status(400).json({ message: 'Vui lòng cung cấp mã PIN hợp lệ (6 số) để tra cứu đơn hàng.' });
+            }
+
+            const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 LIMIT 1', [customer.phone]);
             if (userCheck.rows.length > 0) {
-                userId = userCheck.rows[0].id;
+                // Return User: Verify PIN
+                const user = userCheck.rows[0];
+                const isMatch = await bcrypt.compare(pin, user.password);
+                if (!isMatch) {
+                    return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác.' });
+                }
+                userId = user.id;
+            } else {
+                // New User: Create PIN (Hash)
+                const salt = await bcrypt.genSalt(10);
+                const hashedPin = await bcrypt.hash(pin, salt);
+
+                const newUser = await db.query(
+                    'INSERT INTO users (name, phone, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
+                    [customer.name, customer.phone, hashedPin, 'user']
+                );
+                userId = newUser.rows[0].id;
             }
         }
 

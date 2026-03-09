@@ -110,6 +110,18 @@ const API = {
 
     // --- Profile & User Data ---
 
+    async checkPhone(phone) {
+        try {
+            const res = await this._fetch(`user/check-phone?phone=${encodeURIComponent(phone)}`, {
+                method: 'GET'
+            });
+            // Due to our generalized error catcher, we should handle HTTP statuses directly in fetch or rely on returned success
+            return { success: true, exists: res.exists };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
     async updateProfile(profileData) {
         try {
             const res = await this._fetch('user/update-profile', {
