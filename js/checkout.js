@@ -176,10 +176,22 @@ const Checkout = {
                 sessionStorage.setItem('safeall_last_order', JSON.stringify({ ...payload, success: true }));
                 window.location.href = 'order-success.html';
             } else {
-                this.showError(res.message);
+                let errorMsg = res.message || 'Lỗi xử lý đơn hàng';
+
+                // Detailed debug info if available
+                let debugInfo = [];
+                if (res.code) debugInfo.push(`Postgres: ${res.code}`);
+                if (res.step) debugInfo.push(`Giai đoạn: ${res.step}`);
+                if (res.error) debugInfo.push(`Lỗi gốc: ${res.error}`);
+
+                if (debugInfo.length > 0) {
+                    errorMsg += `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] opacity-70 italic">${debugInfo.join(' | ')}</div>`;
+                }
+
+                this.showError(errorMsg);
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                if (res.retry) btn.innerHTML = 'NHẤN LẠI ĐỂ XÁC NHẬN <i class="codicon codicon-sync"></i>';
+                if (res.retry) btn.innerHTML = 'NHẤN LẠI ĐẾ XÁC NHẬN <i class="codicon codicon-sync"></i>';
             }
         } catch (err) {
             this.showError('Lỗi kết nối máy chủ. Vui lòng thử lại.');

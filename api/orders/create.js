@@ -40,25 +40,30 @@ export default async function handler(req, res) {
             console.log(`[CreateOrder] Connecting to DB Host: ${dbHost}`);
 
             // 1. Identify User Status
+            console.log('[CreateOrder] Step 1: Looking up user by phone:', phone);
             const userCheck = await db.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [phone]);
 
             if (userCheck.rows.length > 0) {
                 // SCENARIO A: Existing User
                 const user = userCheck.rows[0];
-                const isMatch = await verifyPin(user, pin);
+                console.log(`[CreateOrder] Step 1a: Existing User found (ID: ${user.id}). Verifying PIN...`);
 
+                const isMatch = await verifyPin(user, pin);
                 if (!isMatch) {
+                    console.warn(`[CreateOrder] PIN mismatch for user ${phone}`);
                     throw { status: 401, message: 'Mã PIN không chính xác. Vui lòng nhập đúng PIN cũ của số điện thoại này.' };
                 }
                 userId = user.id;
 
                 // Sync user info if changed
+                console.log('[CreateOrder] Step 1b: Syncing user profile data...');
                 await db.query(
                     `UPDATE users SET name = $1, email = $2, address = $3 WHERE id = $4`,
                     [customer.name, customer.email || user.email, customer.address, userId]
                 );
             } else {
                 // SCENARIO B: New User
+                console.log('[CreateOrder] Step 1c: Phone not registered. Creating new account...');
                 const hashedPin = await hashPin(pin);
                 const newUser = await db.query(
                     `INSERT INTO users (name, phone, email, address, track_pin_hash, role) 
@@ -66,10 +71,11 @@ export default async function handler(req, res) {
                     [customer.name, phone, customer.email || null, customer.address, hashedPin, 'user']
                 );
                 userId = newUser.rows[0].id;
-                console.log(`[CreateOrder] Account created for new user: ID=${userId}`);
+                console.log(`[CreateOrder] Account created: ID=${userId}`);
             }
 
             // 2. Insert Order
+            console.log('[CreateOrder] Step 2: Inserting order record:', orderId);
             await db.query(
                 `INSERT INTO orders (
                     order_id, user_id, customer_name, customer_phone, 
@@ -84,6 +90,7 @@ export default async function handler(req, res) {
                 ]
             );
 
+            console.log('[CreateOrder] Order completed successfully.');
             return res.status(201).json({
                 success: true,
                 message: 'Đơn hàng tạo thành công!',
