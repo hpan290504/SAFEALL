@@ -14,7 +14,14 @@ export default async function handler(req, res) {
     const token = authHeader.split(' ')[1];
 
     try {
+        console.log(`[AuthMe] Verifying token...`);
+        if (!process.env.JWT_SECRET) {
+            console.error(`[AuthMe] ERROR: JWT_SECRET is missing!`);
+            throw new Error('JWT_SECRET is not configured');
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(`[AuthMe] Token verified for ID: ${decoded.id}`);
 
         // Admin exception
         if (decoded.id === 'admin') {
@@ -25,13 +32,16 @@ export default async function handler(req, res) {
         }
 
         // Fetch fresh user data from DB
+        console.log(`[AuthMe] Querying database for user ID: ${decoded.id}`);
         const result = await db.query('SELECT name, phone, gender, role, address, sale_deadline FROM users WHERE id = $1', [decoded.id]);
         const user = result.rows[0];
 
         if (!user) {
+            console.log(`[AuthMe] Fail: User ${decoded.id} no longer exists`);
             return res.status(401).json({ message: 'User no longer exists' });
         }
 
+        console.log(`[AuthMe] Success: User ${user.phone} profile fetched`);
         return res.status(200).json({
             success: true,
             user: {
@@ -44,6 +54,10 @@ export default async function handler(req, res) {
             }
         });
     } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token' });
+        console.error('[AuthMe] EXCEPTION:', error.message);
+        return res.status(401).json({
+            message: 'Invalid or expired token',
+            error: error.message
+        });
     }
 };
