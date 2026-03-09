@@ -180,12 +180,16 @@ const Checkout = {
 
                 // Detailed debug info if available
                 let debugInfo = [];
-                if (res.code) debugInfo.push(`Postgres: ${res.code}`);
-                if (res.step) debugInfo.push(`Giai đoạn: ${res.step}`);
-                if (res.error) debugInfo.push(`Lỗi gốc: ${res.error}`);
+                if (res.category) debugInfo.push(`Loại: ${res.category}`);
+                if (res.code) debugInfo.push(`Mã: ${res.code}`);
+                if (res.step) debugInfo.push(`Bước: ${res.step}`);
+                if (res.error) debugInfo.push(`Chi tiết: ${res.error}`);
 
                 if (debugInfo.length > 0) {
-                    errorMsg += `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] opacity-70 italic">${debugInfo.join(' | ')}</div>`;
+                    errorMsg += `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] opacity-70 italic leading-relaxed">`;
+                    errorMsg += debugInfo.join('<br/>');
+                    if (res.rawError) errorMsg += `<br/>Raw: ${res.rawError.substring(0, 200)}...`;
+                    errorMsg += `</div>`;
                 }
 
                 this.showError(errorMsg);

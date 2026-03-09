@@ -85,10 +85,11 @@ export default async function handler(req, res) {
         return res.status(500).json({
             success: false,
             message: 'Lỗi hệ thống khi tạo đơn hàng.',
-            category: error.category || 'Database Error',
+            category: error.category || 'System Error',
             step: step,
-            code: error.code,
-            error: error.message
+            code: error.code || 'NO_CODE',
+            error: error.message,
+            rawError: JSON.stringify(error, Object.getOwnPropertyNames(error))
         });
     }
 }
