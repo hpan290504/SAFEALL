@@ -32,8 +32,24 @@ window.SAFEALL_CHECKOUT = {
         if (!container) return;
 
         if (items.length === 0) {
-            container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Giỏ hàng trống</p>';
+            container.innerHTML = `
+                <div class="py-12 text-center text-slate-400">
+                    <i class="codicon codicon-warning text-4xl mb-4"></i>
+                    <p class="font-bold mb-2">Giỏ hàng của bạn đang trống</p>
+                    <p class="text-xs mb-6 px-4">Vui lòng chọn sản phẩm trước khi thanh toán.</p>
+                    <a href="products.html" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
+                        <i class="codicon codicon-arrow-left"></i> Quay lại cửa hàng
+                    </a>
+                </div>
+            `;
             this.updateTotals(0);
+
+            // Disable order button
+            const btn = document.getElementById('placeOrderBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
             return;
         }
 
@@ -89,7 +105,7 @@ window.SAFEALL_CHECKOUT = {
     async placeOrder() {
         const items = window.SAFEALL_CART.getItems();
         if (items.length === 0) {
-            alert('Giỏ hàng trống!');
+            this.showError('Giỏ hàng trống! Vui lòng quay lại cửa hàng để chọn sản phẩm.');
             return;
         }
 
@@ -101,9 +117,9 @@ window.SAFEALL_CHECKOUT = {
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'cod';
 
         // Validate
-        if (!name) { alert('Vui lòng nhập họ và tên.'); document.getElementById('checkoutFullName').focus(); return; }
-        if (!phone) { alert('Vui lòng nhập số điện thoại.'); document.getElementById('checkoutPhone').focus(); return; }
-        if (!address) { alert('Vui lòng nhập địa chỉ giao hàng.'); document.getElementById('checkoutAddress').focus(); return; }
+        if (!name) { this.showError('Vui lòng nhập họ và tên.'); document.getElementById('checkoutFullName').focus(); return; }
+        if (!phone) { this.showError('Vui lòng nhập số điện thoại.'); document.getElementById('checkoutPhone').focus(); return; }
+        if (!address) { this.showError('Vui lòng nhập địa chỉ giao hàng.'); document.getElementById('checkoutAddress').focus(); return; }
 
         const subtotal = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
         const shippingFee = (subtotal > 0 && subtotal < 500000) ? 30000 : 0;
@@ -133,16 +149,33 @@ window.SAFEALL_CHECKOUT = {
                 sessionStorage.setItem('safeall_last_order', JSON.stringify(newOrder));
                 window.location.href = 'order-success.html';
             } else {
-                alert('Lỗi: ' + result.message);
-                btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <span class="material-symbols-outlined">chevron_right</span>';
+                this.showError(result.message || 'Lỗi xử lý đơn hàng');
+                btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
                 btn.disabled = false;
             }
         } catch (e) {
             console.error(e);
-            alert('Lỗi kết nối server. Vui lòng thử lại.');
-            btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <span class="material-symbols-outlined">chevron_right</span>';
+            this.showError('Hết phiên đăng nhập hoặc lỗi kết nối. Vui lòng thử lại.');
+            btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
             btn.disabled = false;
         }
+    },
+
+    showError(msg) {
+        // Find or create an error banner above the order button
+        let errBanner = document.getElementById('checkoutErrorBanner');
+        if (!errBanner) {
+            errBanner = document.createElement('div');
+            errBanner.id = 'checkoutErrorBanner';
+            errBanner.className = 'w-full bg-red-50 text-red-600 border border-red-200 text-sm font-bold p-4 rounded-xl mb-4 flex items-start gap-2 animate-in fade-in zoom-in-95 duration-200';
+
+            const btnContainer = document.getElementById('placeOrderBtn').parentElement;
+            btnContainer.insertBefore(errBanner, document.getElementById('placeOrderBtn'));
+        }
+
+        errBanner.innerHTML = `<i class="codicon codicon-error mt-0.5"></i> <span>${msg}</span>`;
+        // Hide after 5 seconds
+        setTimeout(() => { if (errBanner) errBanner.remove(); }, 5000);
     },
 
     init() {

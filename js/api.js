@@ -18,7 +18,14 @@ const API = {
         try {
             const resp = await fetch(url, { ...options, headers: { ...headers, ...options.headers } });
             const data = await resp.json();
-            if (!resp.ok) throw new Error(data.message || 'Server Error');
+
+            if (!resp.ok) {
+                // Auto-logout on 401
+                if (resp.status === 401) {
+                    this.logout(true); // true to reload page/trigger redirect
+                }
+                throw new Error(data.message || 'Server Error');
+            }
             return data;
         } catch (e) {
             console.error(`[API FAIL] ${url}:`, e.message);
@@ -51,13 +58,22 @@ const API = {
         return this._session;
     },
 
-    logout() {
+    logout(forceReload = false) {
         this._session = null;
         localStorage.removeItem('safeall_token');
         // PURGE ALL LEGACY KEYS
         localStorage.removeItem('safeall_active_user');
         localStorage.removeItem('safeall_orders');
         localStorage.removeItem('safeall_checkout_form');
+
+        if (forceReload) {
+            // Trigger an auth error event for the UI to catch
+            localStorage.setItem('safeall_auth_error', 'expired');
+            // If already on login, do nothing, otherwise redirect
+            if (!window.location.pathname.includes('login.html')) {
+                window.location.href = 'login.html';
+            }
+        }
     },
 
     // --- Auth ---

@@ -47,7 +47,28 @@ window.SAFEALL_CART = {
 
         this.saveItems(items);
         this.toggleSideCart(true); // Open side cart automatically
-        // this.showAddedToast(product.title); // Removed alert for smoother experience
+    },
+
+    /**
+     * Buy now (direct checkout)
+     * @param {Object} product { id, title, price, image, category }
+     */
+    buyNow(product) {
+        let items = this.getItems();
+        const existing = items.find(item => item.id === product.id);
+
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            items.push({
+                ...product,
+                qty: 1
+            });
+        }
+
+        this.saveItems(items);
+        // Navigate to checkout immediately instead of opening side cart
+        window.location.href = 'checkout.html';
     },
 
     /**
