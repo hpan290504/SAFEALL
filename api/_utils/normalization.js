@@ -1,23 +1,20 @@
 export function normalizePhone(phone) {
     if (!phone) return '';
 
-    // Remove all non-digits, including leading +
-    let normalized = phone.toString().replace(/\D/g, '');
+    // Remove all non-digits
+    let digits = phone.toString().replace(/\D/g, '');
 
-    // Handle Vietnam country code prefix
-    // If it starts with 84, replace with 0
-    if (normalized.startsWith('84')) {
-        normalized = '0' + normalized.substring(2);
+    // Handle 84 prefix (Vietnam)
+    if (digits.startsWith('84') && digits.length > 9) {
+        digits = '0' + digits.substring(2);
     }
 
-    // Ensure it's exactly 10 digits if it starts with 0
-    // (This might vary depending on VN phone standards, but usually 0x is 10 digits)
-    if (normalized.startsWith('0') && normalized.length > 10) {
-        // Handle cases where people might enter 084...
-        if (normalized.startsWith('084')) {
-            normalized = '0' + normalized.substring(3);
-        }
+    // If it doesn't start with 0 but is 9 digits, add 0
+    if (!digits.startsWith('0') && digits.length === 9) {
+        digits = '0' + digits;
     }
 
-    return normalized;
+    // Final check: must start with 0 and be 10 digits
+    // If it's still not 10 digits, we return as is but the system should ideally reject it later
+    return digits;
 }

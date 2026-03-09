@@ -115,27 +115,7 @@ const API = {
             const res = await this._fetch(`user/check-phone?phone=${encodeURIComponent(phone)}`, {
                 method: 'GET'
             });
-            // Due to our generalized error catcher, we should handle HTTP statuses directly in fetch or rely on returned success
             return { success: true, exists: res.exists };
-        } catch (e) {
-            return { success: false, message: e.message };
-        }
-    },
-
-    async updateProfile(profileData) {
-        try {
-            const res = await this._fetch('user/update-profile', {
-                method: 'POST',
-                body: JSON.stringify(profileData)
-            });
-            if (res.success) {
-                // Cập nhật session in-memory để frontend phản ứng ngay lập tức
-                if (this._session) {
-                    this._session = { ...this._session, ...profileData };
-                }
-                return { success: true };
-            }
-            return { success: false, message: res.message };
         } catch (e) {
             return { success: false, message: e.message };
         }
@@ -149,13 +129,20 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify(orderData)
             });
-
-            // Nếu đặt hàng thành công, ta xóa note local (nếu còn)
-            localStorage.removeItem('safeall_checkout_form');
-
             return { success: true, orderId: res.orderId };
         } catch (e) {
-            return { success: false, message: e.message };
+            // Check for retry signal from backend (self-healing)
+            let errorData = {};
+            try {
+                // Attempt to parse text if it's JSON but fetch threw
+                errorData = JSON.parse(e.message);
+            } catch (pErr) { }
+
+            return {
+                success: false,
+                message: e.message || 'Lỗi xử lý đơn hàng',
+                retry: e.message.includes('nhấn nút') || e.message.includes('retry')
+            };
         }
     },
 
@@ -170,27 +157,22 @@ const API = {
 
     async trackOrder(query, pin) {
         try {
-            const url = '/api/orders/track';
-            const resp = await fetch(url, {
+            const res = await this._fetch('orders/track', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query, pin })
             });
-            const data = await resp.json();
-            if (!resp.ok) throw new Error(data.message || 'Lỗi tìm kiếm');
-            return { success: true, orders: data.orders };
+            return { success: true, orders: res.orders };
         } catch (e) {
             return { success: false, message: e.message };
         }
     },
 
     // --- Forgot PIN Flow (Token-based) ---
-    async forgotPin(phone) {
+    async forgotPin(contact) {
         try {
-            if (!phone) throw new Error('Vui lòng nhập số điện thoại để khôi phục mã PIN.');
             const res = await this._fetch('user/forgot-pin', {
                 method: 'POST',
-                body: JSON.stringify({ phone })
+                body: JSON.stringify({ contact })
             });
             return { success: true, message: res.message };
         } catch (e) {

@@ -1,179 +1,112 @@
 import * as db from '../_utils/db.js';
-import jwt from 'jsonwebtoken';
 import { normalizePhone } from '../_utils/normalization.js';
 import { verifyPin, hashPin } from '../_utils/auth.js';
 
+/**
+ * api/orders/create.js - REWRITTEN
+ * 
+ * Logic:
+ * 1. Normalize Phone.
+ * 2. Check if user exists with this phone.
+ * 3. BRANCH A (Existing): Verify PIN. If fail, return 401.
+ * 4. BRANCH B (New): Hash PIN, Create User.
+ * 5. Create Order linked to user.
+ */
 export default async function handler(req, res) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
-    }
+    if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
     try {
-        const { orderId, items, subtotal, shippingFee, total, paymentMethod, note, customer, pin } = req.body;
+        const {
+            orderId, items, subtotal, shippingFee, total,
+            paymentMethod, note, customer, pin
+        } = req.body;
 
-        if (!customer || !customer.phone) {
-            return res.status(400).json({ message: 'Số điện thoại là bắt buộc' });
-        }
+        // Basic validation
+        if (!customer?.phone) return res.status(400).json({ message: 'Số điện thoại là bắt buộc' });
+        if (!pin || pin.length !== 6) return res.status(400).json({ message: 'Mã PIN 6 số là bắt buộc' });
 
-        const normalizedPhone = normalizePhone(customer.phone);
+        const phone = normalizePhone(customer.phone);
         let userId = null;
 
-        console.log(`[CreateOrder] Start: OrderID=${orderId}, Phone=${normalizedPhone}`);
+        console.log(`[CreateOrder] Processing: ${phone} | Order: ${orderId}`);
 
-        // 1. Identify or Create User
-        console.log(`[CreateOrder] Stage 1: Identifying user...`);
-        let userCheck;
-        try {
-            userCheck = await db.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [normalizedPhone]);
-        } catch (dbErr) {
-            console.error('[CreateOrder] Stage 1 FAIL (User Lookup):', dbErr.message);
-            dbErr.stage = 'Stage 1 (User Lookup)';
-            throw dbErr;
-        }
+        // 1. Identify User Status
+        const userCheck = await db.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [phone]);
 
         if (userCheck.rows.length > 0) {
-            // EXISTING USER: Must verify PIN
+            // SCENARIO A: Existing User
             const user = userCheck.rows[0];
-            console.log(`[CreateOrder] Existing User Found: ID=${user.id}`);
-
             const isMatch = await verifyPin(user, pin);
+
             if (!isMatch) {
                 return res.status(401).json({
-                    message: 'Mã PIN không chính xác cho số điện thoại này. Nếu quên, hãy dùng chức năng Quên mã PIN.'
+                    success: false,
+                    message: 'Mã PIN không chính xác. Vui lòng nhập đúng PIN cũ của số điện thoại này.'
                 });
             }
             userId = user.id;
 
-            // Optional: Update email if provided
-            if (customer.email && !user.email) {
-                console.log(`[CreateOrder] Updating email for user ${userId}...`);
-                try {
-                    await db.query('UPDATE users SET email = $1 WHERE id = $2', [customer.email, userId]);
-                } catch (emailErr) {
-                    console.warn('[CreateOrder] Email update failed (non-critical):', emailErr.message);
-                }
-            }
-        } else {
-            // NEW USER: Create account with PIN
-            console.log(`[CreateOrder] Stage 1b: Creating NEW user...`);
-            if (!pin || pin.length !== 6) {
-                return res.status(400).json({ message: 'Vui lòng cung cấp mã PIN 6 số để tạo tài khoản tra cứu.' });
-            }
-
-            const hashedPin = await hashPin(pin);
-            try {
-                const newUser = await db.query(
-                    'INSERT INTO users (name, phone, email, track_pin_hash, role) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-                    [customer.name, normalizedPhone, customer.email || null, hashedPin, 'user']
-                );
-                userId = newUser.rows[0].id;
-                console.log(`[CreateOrder] New User Created: ID=${userId}`);
-            } catch (createErr) {
-                console.error('[CreateOrder] Stage 1b FAIL (User Insert):', createErr.message);
-                createErr.stage = 'Stage 1b (User Insert)';
-                throw createErr;
-            }
-        }
-
-        // 2. Save Order
-        console.log(`[CreateOrder] Stage 2: Saving order...`);
-        try {
-            // Check if customer_email exists in schema conceptually or just try it
+            // Sync user info if changed
             await db.query(
-                `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_email, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
-                [
-                    orderId,
-                    userId,
-                    customer.name,
-                    normalizedPhone,
-                    customer.email || null,
-                    customer.address,
-                    JSON.stringify(items),
-                    subtotal,
-                    shippingFee,
-                    total,
-                    paymentMethod,
-                    note,
-                    'pending'
-                ]
+                `UPDATE users SET name = $1, email = $2, address = $3 WHERE id = $4`,
+                [customer.name, customer.email || user.email, customer.address, userId]
             );
-            console.log(`[CreateOrder] Order Saved Successfully.`);
-        } catch (orderErr) {
-            console.error('[CreateOrder] Stage 2 FAIL (Order Insert):', orderErr.message);
-            orderErr.stage = 'Stage 2 (Order Insert)';
-            throw orderErr;
+        } else {
+            // SCENARIO B: New User
+            const hashedPin = await hashPin(pin);
+            const newUser = await db.query(
+                `INSERT INTO users (name, phone, email, address, track_pin_hash, role) 
+                 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+                [customer.name, phone, customer.email || null, customer.address, hashedPin, 'user']
+            );
+            userId = newUser.rows[0].id;
+            console.log(`[CreateOrder] Account created for new user: ID=${userId}`);
         }
 
-        // 3. Update profile details
-        console.log(`[CreateOrder] Stage 3: Syncing profile address...`);
-        try {
-            await db.query('UPDATE users SET address = $1, name = $2 WHERE id = $3', [customer.address, customer.name, userId]);
-        } catch (addrErr) {
-            console.warn('[CreateOrder] Profile sync failed (non-critical):', addrErr.message);
-        }
+        // 2. Insert Order
+        await db.query(
+            `INSERT INTO orders (
+                order_id, user_id, customer_name, customer_phone, 
+                customer_email, customer_address, items, subtotal, 
+                shipping_fee, total, payment_method, note, status
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+            [
+                orderId, userId, customer.name, phone,
+                customer.email || null, customer.address,
+                JSON.stringify(items), subtotal, shippingFee,
+                total, paymentMethod, note, 'pending'
+            ]
+        );
 
-        return res.status(201).json({ success: true, message: 'Đơn hàng đã được tạo thành công!', orderId });
+        return res.status(201).json({
+            success: true,
+            message: 'Đơn hàng tạo thành công!',
+            orderId
+        });
+
     } catch (error) {
-        console.error(`[CreateOrder] Final Catch [${error.stage || 'Logic'}]:`, error.message);
+        console.error('[CreateOrder] CRITICAL ERROR:', error);
 
-        // SELF-HEALING: If error is about missing columns or tables
-        if (error.code === '42703' || error.code === '42P01' || error.message.includes('column') || error.message.includes('relation')) {
-            console.log('[CreateOrder] Detected schema mismatch. Attempting auto-migration...');
+        // Attempt automated schema check if columns are missing
+        if (error.code === '42703' || error.message.includes('column')) {
+            console.log('[CreateOrder] Schema mismatch. Running emergency migration...');
             try {
-                // Ensure users table is correct
-                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT`);
                 await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT`);
-                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`);
-                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`);
-                await db.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT`);
-
-                // Ensure orders table exists and has all columns
-                await db.query(`
-                    CREATE TABLE IF NOT EXISTS orders (
-                        order_id TEXT PRIMARY KEY,
-                        user_id INTEGER,
-                        customer_name TEXT,
-                        customer_phone TEXT,
-                        customer_address TEXT,
-                        items TEXT,
-                        subtotal NUMERIC,
-                        shipping_fee NUMERIC,
-                        total NUMERIC,
-                        payment_method TEXT,
-                        note TEXT,
-                        status TEXT DEFAULT 'pending',
-                        created_at TIMESTAMP DEFAULT NOW()
-                    )
-                `);
-
                 await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_email TEXT`);
-                await db.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id INTEGER`);
-
-                console.log('[CreateOrder] Auto-migration successful. Please retry your order.');
                 return res.status(500).json({
-                    message: 'Hệ thống đã tự động cập nhật Database để tương thích. Vui lòng nhấn "Xác nhận đơn hàng" một lần nữa.',
-                    retry: true,
-                    stage: error.stage,
-                    code: error.code,
-                    category: error.category || 'Schema Migration'
+                    success: false,
+                    message: 'Hệ thống vừa cập nhật cấu trúc dữ liệu. Vui lòng nhấn nút "Xác nhận đơn hàng" một lần nữa.',
+                    retry: true
                 });
             } catch (migErr) {
-                console.error('[CreateOrder] Auto-migration failed:', migErr.message);
+                console.error('[CreateOrder] Emergency migration failed:', migErr.message);
             }
         }
 
         return res.status(500).json({
+            success: false,
             message: 'Lỗi hệ thống khi tạo đơn hàng.',
-            error: error.message,
-            detail: error.detail,
-            hint: error.hint,
-            stage: error.stage,
-            code: error.code,
-            category: error.category || 'Unknown',
-            tip: error.code?.startsWith('08')
-                ? 'Lỗi kết nối Database. Vui lòng kiểm tra lại cấu hình hoặc internet.'
-                : 'Vui lòng kiểm tra lại thông tin hoặc thử lại sau.'
+            error: error.message
         });
     }
-};
+}
