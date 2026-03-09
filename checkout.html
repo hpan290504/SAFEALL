@@ -2,683 +2,226 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SAFEALL Checkout - Xác nhận đơn hàng và thanh toán.">
-    <title>Thanh toán | SAFEALL</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/checkout.css">
-    <script>
-        // Initial Auth Guard (Static check)
-        const token = localStorage.getItem('safeall_token');
-        if (!token) {
-            window.location.href = 'login.html?redirect=checkout.html';
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SAFEALL - Thanh toán</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
         }
     </script>
 </head>
 
-<body class="checkout-page">
-    <!-- Navbar (Simplified) -->
-    <nav class="navbar checkout-nav">
-        <div class="container nav-content">
-            <div class="checkout-brand">
-                <a href="index.html" class="logo"><span class="logo-safe">SAFE</span><span
-                        class="logo-all">ALL</span></a>
-                <span class="checkout-nav-title" data-i18n="checkout_title">Thanh Toán</span>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+    <div class="relative flex min-h-screen flex-col overflow-x-hidden">
+        <header
+            class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-20 py-4 sticky top-0 z-50">
+            <div class="flex items-center gap-4 text-primary">
+                <a href="index.html" class="flex items-center gap-2">
+                    <h2 class="text-slate-900 dark:text-white text-xl font-black leading-tight tracking-[-0.015em]">
+                        SAFEALL</h2>
+                </a>
             </div>
-            <div class="header-actions">
-                <div id="authSection" class="auth-section"></div>
-                <div class="lang-switch">
-                    <button id="lang-vi" class="active">VI</button>
-                    <div class="divider">|</div>
-                    <button id="lang-en">EN</button>
-                </div>
+            <div class="flex items-center gap-6">
+                <nav class="hidden md:flex items-center gap-8">
+                    <a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors"
+                        href="index.html">Trang chủ</a>
+                    <a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors"
+                        href="products.html">Sản phẩm</a>
+                </nav>
             </div>
-        </div>
-    </nav>
+        </header>
 
-    <!-- Main Checkout Container -->
-    <div class="checkout-main section-padding">
-        <div class="container checkout-wrapper">
+        <main class="flex-1 max-w-7xl mx-auto w-full px-4 md:px-10 py-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex items-center gap-2 mb-6 text-sm text-slate-500">
+                <a class="hover:text-primary transition-colors" href="index.html">Trang chủ</a>
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                <a class="hover:text-primary transition-colors" href="cart.html">Giỏ hàng</a>
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                <span class="text-primary font-semibold">Thanh toán</span>
+            </nav>
 
-            <!-- BLOCK 1: Address -->
-            <div class="shopee-card address-block stripe-border-top">
-                <div class="block-header text-primary-red">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    <h3 data-i18n="checkout_address">Địa Chỉ Nhận Hàng</h3>
-                </div>
-
-                <form id="addressForm" class="address-form-grid">
-                    <div class="form-group span-2">
-                        <label for="fullName" data-i18n="form_name">Họ và tên</label>
-                        <input type="text" id="fullName" class="form-control" required
-                            placeholder="(Vi/En placeholder via JS)">
-                    </div>
-                    <div class="form-group span-2">
-                        <label for="phoneNumber" data-i18n="form_phone">Số điện thoại</label>
-                        <input type="tel" id="phoneNumber" class="form-control" required placeholder="09xxxxxxx"
-                            readonly style="background-color: #f5f5f5; cursor: not-allowed;"
-                            title="Số điện thoại được lấy từ tài khoản đăng nhập">
-                    </div>
-                    <div class="form-group span-4">
-                        <label for="address" data-i18n="form_address">Địa chỉ nhận hàng chi tiết</label>
-                        <input type="text" id="address" class="form-control" required
-                            placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện, Tỉnh/Thành...">
-                    </div>
-                </form>
-            </div>
-
-            <!-- BLOCK 2: Products -->
-            <div class="shopee-card products-block">
-                <div class="shopee-table">
-                    <!-- Header -->
-                    <div class="st-header">
-                        <div class="st-col st-product" data-i18n="checkout_product">Sản phẩm</div>
-                        <div class="st-col st-price" data-i18n="checkout_unit_price">Đơn giá</div>
-                        <div class="st-col st-qty" data-i18n="checkout_quantity">Số lượng</div>
-                        <div class="st-col st-total" data-i18n="checkout_item_total">Thành tiền</div>
-                    </div>
-
-                    <!-- Shop Name -->
-                    <div class="shop-header">
-                        <span class="mall-badge">Mall</span>
-                        <strong>SAFEALL Official Store</strong>
-                    </div>
-
-                    <!-- Product Items -->
-                    <div id="checkoutCartItems">
-                        <!-- Category: Flood Kit -->
-                        <div class="checkout-category-header mt-2 mb-2 font-bold text-primary-blue"
-                            style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                            <span data-i18n="prod_flood_title">Bộ kit ứng phó lũ lụt</span>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Left Column: Shipping & Items -->
+                <div class="flex-1 space-y-8">
+                    <!-- Shipping Section -->
+                    <section
+                        class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div
+                            class="bg-primary/5 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">location_on</span>
+                            <h3 class="font-bold text-lg">Địa chỉ giao hàng</h3>
                         </div>
-                        <!-- Product 1 -->
-                        <div class="st-row product-row" data-price="1200000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox" checked>
-                                <img src="assets/safeall_flood_kit_1772701309096.png" alt="Flood Kit"
-                                    class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="prod_flood_title">Bộ kit ứng phó lũ lụt</h4>
-                                    <span class="product-variant">Phân loại: Standard</span>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold uppercase text-slate-500 tracking-wider">Họ và
+                                        tên</label>
+                                    <div id="checkoutFullName"
+                                        class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 font-medium">
+                                        Đang tải...</div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-bold uppercase text-slate-500 tracking-wider">Số điện
+                                        thoại</label>
+                                    <div id="checkoutPhone"
+                                        class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 font-medium">
+                                        Đang tải...</div>
                                 </div>
                             </div>
-                            <div class="st-col st-price">
-                                <span class="old-price" data-i18n="price_flood_old">1.500.000đ</span>
-                                <span class="current-price" data-i18n="price_flood">1.200.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold uppercase text-slate-500 tracking-wider">Địa chỉ chi
+                                    tiết</label>
+                                <div
+                                    class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 font-medium flex justify-between items-start">
+                                    <span id="checkoutAddressDisplay">Đang tải...</span>
+                                    <button
+                                        class="text-primary text-sm font-bold flex items-center gap-1 ml-4 whitespace-nowrap hover:underline">
+                                        <span class="material-symbols-outlined text-sm">edit</span> Thay đổi
+                                    </button>
                                 </div>
                             </div>
-                            <div class="st-col st-total text-primary-red item-total-price">1.200.000đ</div>
                         </div>
+                    </section>
 
-                        <!-- Category: Multi-Hazard Kit -->
-                        <div class="checkout-category-header mt-4 mb-2 font-bold text-primary-blue"
-                            style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                            <span data-i18n="prod_multi_title">Bộ kit đa tình huống</span>
+                    <!-- Order Items Section -->
+                    <section
+                        class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Đơn hàng của bạn</h3>
+                            <span
+                                class="checkout-item-count text-xs text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">(0
+                                sản phẩm)</span>
                         </div>
-                        <!-- Product 2 -->
-                        <div class="st-row product-row" data-price="2500000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox">
-                                <img src="assets/safeall_multi_kit_1772701607502.png" alt="Multi-Hazard Kit"
-                                    class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="prod_multi_title">Bộ kit đa tình huống</h4>
-                                    <span class="product-variant">Phân loại: Premium</span>
-                                </div>
-                            </div>
-                            <div class="st-col st-price">
-                                <span class="current-price" data-i18n="price_multi">2.500.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
-                                </div>
-                            </div>
-                            <div class="st-col st-total text-primary-red item-total-price">2.500.000đ</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-slate-50 dark:bg-slate-800 text-slate-500 text-xs font-bold uppercase">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left">Sản phẩm</th>
+                                        <th class="px-6 py-3 text-center">Đơn giá</th>
+                                        <th class="px-6 py-3 text-center">Số lượng</th>
+                                        <th class="px-6 py-3 text-right">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="checkoutItemsTable" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <!-- Populated by checkout.js -->
+                                </tbody>
+                            </table>
                         </div>
+                    </section>
 
-                        <!-- Category: Individual Items -->
-                        <div class="checkout-category-header mt-4 mb-2 font-bold text-primary-blue"
-                            style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                            <span data-i18n="prod_individual_title">Mua lẻ trang thiết bị</span>
-                        </div>
-                        <!-- Product 3: Flashlight -->
-                        <div class="st-row product-row" data-price="250000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox">
-                                <img src="assets/den_doi_dau.png" alt="Flashlight" class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="checkout_indi_1_name">Đèn pin chiến thuật siêu sáng</h4>
-                                    <span class="product-variant">Phân loại: Mua lẻ</span>
-                                </div>
-                            </div>
-                            <div class="st-col st-price">
-                                <span class="current-price">250.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
-                                </div>
-                            </div>
-                            <div class="st-col st-total text-primary-red item-total-price">250.000đ</div>
-                        </div>
-
-                        <!-- Product 4: Multitool -->
-                        <div class="st-row product-row" data-price="300000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox">
-                                <img src="assets/safeall_individual_items_1772704234519.png" alt="Multi Tool"
-                                    class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="checkout_indi_2_name">Kìm đa năng 12 in 1</h4>
-                                    <span class="product-variant">Phân loại: Mua lẻ</span>
-                                </div>
-                            </div>
-                            <div class="st-col st-price">
-                                <span class="current-price">300.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
-                                </div>
-                            </div>
-                            <div class="st-col st-total text-primary-red item-total-price">300.000đ</div>
-                        </div>
-
-                        <!-- Product 5: First Aid -->
-                        <div class="st-row product-row" data-price="150000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox">
-                                <img src="assets/firstaidkit.png" alt="First Aid Kit" class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="checkout_indi_3_name">Túi y tế cơ bản cho gia đình</h4>
-                                    <span class="product-variant">Phân loại: Mua lẻ</span>
-                                </div>
-                            </div>
-                            <div class="st-col st-price">
-                                <span class="current-price">150.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
-                                </div>
-                            </div>
-                            <div class="st-col st-total text-primary-red item-total-price">150.000đ</div>
-                        </div>
-
-                        <!-- Product 6: Whistle -->
-                        <div class="st-row product-row" data-price="50000">
-                            <div class="st-col st-product flex-center" style="justify-content: flex-start; gap: 15px;">
-                                <input type="checkbox" class="product-checkbox shopee-checkbox">
-                                <!-- Using generic individual image for whistle as placeholder -->
-                                <img src="assets/safeall_individual_items_1772704234519.png" alt="Whistle"
-                                    class="product-img">
-                                <div class="product-info-cell">
-                                    <h4 data-i18n="checkout_indi_4_name">Còi sinh tồn thông minh</h4>
-                                    <span class="product-variant">Phân loại: Mua lẻ</span>
-                                </div>
-                            </div>
-                            <div class="st-col st-price">
-                                <span class="current-price">50.000đ</span>
-                            </div>
-                            <div class="st-col st-qty">
-                                <div class="qty-control">
-                                    <button type="button" class="qty-btn minus">-</button>
-                                    <input type="number" class="qty-input" value="1" min="1">
-                                    <button type="button" class="qty-btn plus">+</button>
-                                </div>
-                            </div>
-                            <div class="st-col st-total text-primary-red item-total-price">50.000đ</div>
-                        </div>
+                    <!-- Notes -->
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                        <label class="block text-sm font-bold mb-2">Ghi chú đơn hàng (Tùy chọn)</label>
+                        <textarea id="orderNote"
+                            class="w-full rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:border-primary focus:ring-primary p-3"
+                            placeholder="Ghi chú về đơn hàng, ví dụ: hướng dẫn giao hàng đặc biệt." rows="3"></textarea>
                     </div>
                 </div>
 
-                <!-- Shop Footer -->
-                <div class="shop-footer">
-                    <!-- Row 1: E-Invoice & Shop Voucher -->
-                    <div class="sf-row">
-                        <div class="sf-left flex-between">
-                            <span class="text-gray" data-i18n="checkout_invoice">Hóa đơn điện tử</span>
-                            <a href="#" class="change-link" data-i18n="checkout_req_invoice">Yêu Cầu Ngay</a>
-                        </div>
-                        <div class="sf-right flex-between flex-row align-center">
-                            <div class="flex-center gap-2">
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="var(--primary-red)"
-                                    stroke-width="2" fill="none">
-                                    <path
-                                        d="M20 7h-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2H4a2 2 0 0 0-2 2v2a2 2 0 0 1 2 2 2 2 0 0 1-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z">
-                                    </path>
-                                </svg>
-                                <span class="text-gray" data-i18n="checkout_shop_voucher">Voucher của Shop</span>
+                <!-- Right Column: Summary -->
+                <div class="w-full lg:w-[400px]">
+                    <div
+                        class="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 p-6 sticky top-24">
+                        <h3 class="font-bold text-xl mb-6">Tóm tắt đơn hàng</h3>
+                        <div class="space-y-4 mb-6">
+                            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                                <span class="text-sm">Tạm tính <span class="checkout-item-count"></span></span>
+                                <span id="checkoutSubtotal" class="font-bold">0đ</span>
                             </div>
-                            <a href="#" class="change-link" data-i18n="checkout_choose_voucher">Chọn Voucher</a>
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Note & Shipping -->
-                    <div class="sf-row bg-light-blue">
-                        <div class="sf-left">
-                            <div class="sf-left-input">
-                                <label for="orderNote" data-i18n="checkout_note">Lời nhắn:</label>
-                                <input type="text" id="orderNote" class="shopee-input"
-                                    placeholder="Lưu ý cho Người bán...">
+                            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+                                <span class="text-sm">Phí vận chuyển</span>
+                                <span id="checkoutShipping" class="font-bold">0đ</span>
                             </div>
-                        </div>
-                        <div class="sf-right">
-                            <div class="shipping-header flex-between align-center mb-2" style="width: 100%;">
+                            <div
+                                class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-end">
                                 <div>
-                                    <span class="text-gray" data-i18n="checkout_shipping">Phương thức vận chuyển:
-                                    </span>
-                                    <span class="shipping-method font-bold">Nhanh</span>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Tổng cộng</p>
+                                    <p class="text-xs text-slate-400 uppercase tracking-widest">(Đã bao gồm VAT)</p>
                                 </div>
-                                <div class="flex-center gap-2">
-                                    <a href="#" class="change-link" style="text-transform: uppercase;">Thay Đổi</a>
-                                    <span class="shipping-fee text-primary-red font-bold" style="padding-left: 20px;"
-                                        id="shippingDisplayCard">30.000đ</span>
+                                <div id="checkoutTotal" class="text-2xl font-black text-primary">0đ</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-8">
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-3 tracking-widest">Phương
+                                thức thanh toán</label>
+                            <div class="space-y-2">
+                                <label
+                                    class="flex items-center gap-3 p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer transition-all">
+                                    <input checked name="payment" type="radio" value="cod"
+                                        class="text-primary focus:ring-primary" />
+                                    <div class="flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary">payments</span>
+                                        <span class="font-bold text-sm">Thanh toán khi nhận hàng (COD)</span>
+                                    </div>
+                                </label>
+                                <label
+                                    class="flex items-center gap-3 p-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 hover:border-slate-200 transition-all cursor-pointer">
+                                    <input name="payment" type="radio" value="bank"
+                                        class="text-primary focus:ring-primary" />
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="material-symbols-outlined text-slate-600 dark:text-slate-400">credit_card</span>
+                                        <span class="font-bold text-sm">Chuyển khoản ngân hàng</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="placeOrderBtn"
+                            class="w-full bg-primary hover:bg-primary/90 text-white font-black py-5 rounded-xl shadow-xl shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
+                            ĐẶT HÀNG NGAY
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+
+                        <div class="mt-8 flex flex-col gap-4">
+                            <div class="flex items-center gap-3 text-xs text-slate-500">
+                                <div
+                                    class="size-8 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400">
+                                    <span class="material-symbols-outlined text-lg">verified_user</span>
                                 </div>
-                            </div>
-                            <div class="shipping-eta text-success text-sm mb-2"
-                                style="font-size: 12px; margin-top: 5px;">
-                                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
-                                    fill="none" style="vertical-align: middle; margin-right: 4px;">
-                                    <rect x="1" y="3" width="15" height="13"></rect>
-                                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                                </svg>
-                                Nhận hàng sau 2-3 ngày làm việc
-                            </div>
-                            <div class="text-gray mt-2 pt-2 border-top"
-                                style="font-size: 12px; margin-top: 10px; padding-top: 10px;">
-                                Được đồng kiểm
+                                <p>Thanh toán an toàn được xử lý qua mã hóa SSL bảo vệ dữ liệu khách hàng.</p>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Row 3: Total -->
-                    <div class="shop-total-row border-bottom">
-                        <div class="shop-total-text">
-                            Tổng số tiền (<span id="shopItemCount">0</span> sản phẩm):
-                            <span class="shop-total-price" id="shopSubtotalDisplay">0đ</span>
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            <!-- BLOCK 3: Voucher -->
-            <div class="shopee-card voucher-block flex-between align-center">
-                <div class="flex-center gap-2">
-                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="var(--primary-red)" stroke-width="2"
-                        fill="rgba(178,27,27,0.1)">
-                        <path
-                            d="M20 7h-2a2 2 0 0 0-2-2 2 2 0 0 0-2 2H4a2 2 0 0 0-2 2v2a2 2 0 0 1 2 2 2 2 0 0 1-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2z">
-                        </path>
-                    </svg>
-                    <span class="font-bold" data-i18n="checkout_voucher">SAFEALL Voucher</span>
-                </div>
-                <a href="#" class="change-link">Chọn Voucher</a>
-            </div>
-
-            <!-- BLOCK 4: Payment Methods -->
-            <div class="shopee-card payment-block">
-                <div class="payment-header align-center">
-                    <h3 data-i18n="payment_method">Phương thức thanh toán</h3>
-                    <div class="payment-tabs">
-                        <button class="payment-tab active" data-method="cod" data-i18n="pay_cod">Thanh toán khi nhận
-                            hàng</button>
-                        <button class="payment-tab" data-method="bank" data-i18n="pay_bank">Chuyển khoản ngân
-                            hàng</button>
-                        <button class="payment-tab" data-method="card">Thẻ Tín dụng/Ghi nợ</button>
-                    </div>
-                </div>
-
-                <div class="payment-content" id="paymentContentCod">
-                    <div class="payment-message">Thanh toán tiền mặt cho nhân viên giao hàng khi nhận hàng. Phí thu hộ:
-                        Miễn phí.</div>
-                </div>
-            </div>
-
-            <!-- BLOCK 5: Total & Checkout -->
-            <div class="shopee-card checkout-submit-block">
-                <div class="submit-summary">
-                    <div class="summary-line">
-                        <span data-i18n="checkout_merchandise_subtotal">Tổng tiền hàng</span>
-                        <span class="value" id="subtotalDisplay">1.200.000đ</span>
-                    </div>
-                    <div class="summary-line">
-                        <span data-i18n="checkout_shipping_total">Tổng tiền phí vận chuyển</span>
-                        <span class="value" id="shippingDisplay">0đ</span>
-                    </div>
-                    <div class="summary-line total">
-                        <span data-i18n="checkout_total_payment">Tổng thanh toán</span>
-                        <span class="total-value text-primary-red" id="totalDisplay">1.200.000đ</span>
-                    </div>
-                </div>
-
-                <div class="submit-action align-center flex-between pt-4 mt-4 border-top">
-                    <div class="terms-text text-gray">
-                        Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo <a href="#"
-                            class="text-primary-blue">Điều khoản SAFEALL</a>.
-                    </div>
-                    <button class="btn btn-primary btn-large-shopee" id="btnPlaceOrder"
-                        data-i18n="checkout_btn_order">Đặt hàng</button>
-                </div>
-            </div>
-
-        </div>
+        </main>
     </div>
 
-    <!-- Footer (Simplified) -->
-    <footer class="footer">
-        <div class="container footer-bottom">
-            <p>&copy; 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.</p>
-        </div>
-    </footer>
-
-    <!-- Order Success Modal -->
-    <div id="orderSuccessModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content text-center">
-            <div class="success-icon mb-3">
-                <svg viewBox="0 0 24 24" width="64" height="64" stroke="#00bfa5" stroke-width="2" fill="none"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-            </div>
-            <h2 class="mb-3" style="color: var(--primary-red);" data-i18n="checkout_success_title">Đặt hàng thành công!
-            </h2>
-            <p class="mb-2 text-gray" data-i18n="checkout_success_msg">Cảm ơn bạn đã mua sắm tại SAFEALL.</p>
-            <p class="mb-2"><strong>Mã đơn hàng:</strong> <span id="modalOrderId" class="text-primary-blue"></span></p>
-            <div class="eta-box bg-light-blue p-3 mb-4 mt-3"
-                style="border-radius: 4px; border: 1px dashed rgba(0,0,0,.09);">
-                <span class="text-success font-bold" data-i18n="checkout_success_eta">Dự kiến giao hàng: 2-3 ngày làm
-                    việc</span>
-            </div>
-            <div class="flex-center gap-2 mt-4">
-                <button class="btn btn-outline" onclick="window.location.href='index.html'"
-                    data-i18n="checkout_success_home">Về trang chủ</button>
-                <button class="btn btn-primary" onclick="window.location.href='admin.html'"
-                    style="background-color: var(--primary-blue);" data-i18n="checkout_success_admin">Xem Quản Lý
-                    Đơn</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="js/lang.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/script.js"></script>
-    <script>
-        // Payment Tabs logic
-        const tabs = document.querySelectorAll('.payment-tab');
-        const content = document.getElementById('paymentContentCod');
-
-        const paymentMessages = {
-            'cod': 'Thanh toán tiền mặt cho nhân viên giao hàng khi nhận hàng. Phí thu hộ: Miễn phí.',
-            'bank': `
-                <div style="text-align: center; margin-top: 10px;">
-                    <p style="margin-bottom: 15px; font-weight: 500; color: var(--primary-blue);">Quét mã QR qua ứng dụng ngân hàng hoặc Momo để thanh toán</p>
-                    <img src="assets/qr_ngan_hang.png" alt="QR Code Bank Transfer" style="max-width: 250px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; background: white;">
-                    <p style="margin-top: 15px; color: var(--gray); font-size: 0.9rem;">
-                        <strong>Ngân hàng:</strong> MB Bank<br>
-                        <strong>STK:</strong> 0764346124<br>
-                        <strong>Nội dung:</strong> [SĐT MUA HÀNG]
-                    </p>
-                </div>
-            `,
-            'card': 'Bạn sẽ được chuyển hướng tới cổng thanh toán an toàn NAPAS để tiếp tục.'
-        };
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
-                const method = tab.getAttribute('data-method');
-                content.innerHTML = `<div class="payment-message">${paymentMessages[method] || ''}</div>`;
-            });
-        });
-
-        // Product Selection & Quantity Logic
-        const productRows = document.querySelectorAll('.product-row');
-        const subtotalDisplay = document.getElementById('subtotalDisplay');
-        const shippingDisplay = document.getElementById('shippingDisplay');
-        const totalDisplay = document.getElementById('totalDisplay');
-        let shippingFee = 0; // Default Free Shipping
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
-        }
-
-        function calculateCart() {
-            let subtotal = 0;
-            let hasSelectedItems = false;
-
-            productRows.forEach(row => {
-                const checkbox = row.querySelector('.product-checkbox');
-                const qtyInput = row.querySelector('.qty-input');
-                const price = parseInt(row.getAttribute('data-price'));
-                const itemTotalDisplay = row.querySelector('.item-total-price');
-
-                let qty = parseInt(qtyInput.value) || 1;
-                if (qty < 1) { qty = 1; qtyInput.value = 1; }
-
-                const itemTotal = price * qty;
-                itemTotalDisplay.innerText = formatCurrency(itemTotal);
-
-                if (checkbox.checked) {
-                    subtotal += itemTotal;
-                    hasSelectedItems = true;
-                }
-            });
-
-            let itemCount = 0;
-            productRows.forEach(row => {
-                if (row.querySelector('.product-checkbox').checked) {
-                    itemCount += parseInt(row.querySelector('.qty-input').value) || 1;
-                }
-            });
-
-            shippingFee = (hasSelectedItems && subtotal > 0 && subtotal < 500000) ? 30000 : 0; // Fee logic example
-
-            subtotalDisplay.innerText = formatCurrency(subtotal);
-            shippingDisplay.innerText = formatCurrency(shippingFee);
-            totalDisplay.innerText = formatCurrency(subtotal + shippingFee);
-
-            // Update Shop Footer items
-            document.getElementById('shopSubtotalDisplay').innerText = formatCurrency(subtotal + shippingFee);
-            document.getElementById('shippingDisplayCard').innerText = shippingFee > 0 ? formatCurrency(shippingFee) : 'Miễn phí giao hàng';
-            document.getElementById('shopItemCount').innerText = itemCount;
-        }
-
-        productRows.forEach(row => {
-            const checkbox = row.querySelector('.product-checkbox');
-            const minusBtn = row.querySelector('.minus');
-            const plusBtn = row.querySelector('.plus');
-            const qtyInput = row.querySelector('.qty-input');
-
-            checkbox.addEventListener('change', calculateCart);
-
-            minusBtn.addEventListener('click', () => {
-                if (qtyInput.value > 1) {
-                    qtyInput.value = parseInt(qtyInput.value) - 1;
-                    calculateCart();
-                }
-            });
-
-            plusBtn.addEventListener('click', () => {
-                qtyInput.value = parseInt(qtyInput.value) + 1;
-                calculateCart();
-            });
-
-            qtyInput.addEventListener('change', calculateCart);
-        });
-
-        // Initial Calculation
-        calculateCart();
-
-        // Sync session first
-        (async () => {
-            const activeSession = await window.SAFEALL_API.initSession();
-
-            if (!activeSession) {
-                window.location.href = 'login.html?redirect=checkout.html';
-                return;
-            }
-
-            // POPULATE FROM SERVER SESSION (Source of Truth)
-            if (activeSession.phone) {
-                const phoneEl = document.getElementById('phoneNumber');
-                if (phoneEl) phoneEl.value = activeSession.phone;
-            }
-            if (activeSession.name) {
-                const nameEl = document.getElementById('fullName');
-                if (nameEl) nameEl.value = activeSession.name;
-            }
-            if (activeSession.address) {
-                const addressEl = document.getElementById('address');
-                if (addressEl) addressEl.value = activeSession.address;
-            }
-
-            // Xóa rác local cũ nếu còn
-            localStorage.removeItem('safeall_checkout_form');
-        })();
-
-        // SYNC TO SERVER ON CHANGE
-        async function syncProfileToServer() {
-            const name = document.getElementById('fullName').value.trim();
-            const address = document.getElementById('address').value.trim();
-
-            // Only sync if logged in and data exists
-            const user = window.SAFEALL_API.getActiveUser();
-            if (user && user.phone !== 'admin') {
-                await window.SAFEALL_API.updateProfile({ name, address });
-            }
-        }
-
-        document.getElementById('fullName').addEventListener('blur', syncProfileToServer);
-        document.getElementById('address').addEventListener('blur', syncProfileToServer);
-
-        let isSubmitting = false;
-        // Submit form
-        document.getElementById('btnPlaceOrder').addEventListener('click', function (e) {
-            if (isSubmitting) return;
-
-            // basic validation
-            const name = document.getElementById('fullName').value.trim();
-            const addr = document.getElementById('address').value.trim();
-            const note = document.getElementById('orderNote').value.trim();
-
-            // Đảm bảo lấy SĐT định danh từ session
-            const activeSession = window.SAFEALL_API.getActiveUser();
-            const phone = (activeSession && activeSession.phone) ? activeSession.phone : document.getElementById('phoneNumber').value.trim();
-
-
-            let hasItems = false;
-            let orderItems = [];
-            let subtotal = 0;
-            let itemCount = 0;
-
-            document.querySelectorAll('.product-row').forEach(row => {
-                const cb = row.querySelector('.product-checkbox');
-                if (cb.checked) {
-                    hasItems = true;
-                    const title = row.querySelector('.product-info-cell h4').innerText;
-                    const priceStr = row.getAttribute('data-price');
-                    const qtyStr = row.querySelector('.qty-input').value;
-
-                    const price = parseInt(priceStr) || 0;
-                    const qty = parseInt(qtyStr) || 1;
-
-                    subtotal += (price * qty);
-                    itemCount += qty;
-
-                    orderItems.push({
-                        title: title,
-                        price: price,
-                        qty: qty,
-                        total: price * qty
-                    });
-                }
-            });
-
-            if (!hasItems) {
-                alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán!");
-                return;
-            }
-
-            if (!name || !phone || !addr) {
-                alert("Vui lòng nhập đầy đủ thông tin Địa Chỉ Nhận Hàng!");
-                return;
-            }
-
-            isSubmitting = true;
-            const loadingMsg = window.langData ? (window.langData[window.currentLang]?.processing || "Đang xử lý...") : "Đang xử lý...";
-            const originalText = this.innerText;
-            this.innerText = loadingMsg;
-            this.disabled = true;
-
-            const feeItem = (subtotal > 0 && subtotal < 500000) ? 30000 : 0;
-            const total = subtotal + feeItem;
-
-            // Create Order Object
-            const orderId = 'SA' + Math.random().toString(36).substr(2, 6).toUpperCase();
-            const newOrder = {
-                orderId: orderId,
-                customer: { name, phone, address: addr },
-                items: orderItems,
-                note: note,
-                subtotal: subtotal,
-                shippingFee: feeItem,
-                total: total,
-                paymentMethod: document.querySelector('.payment-tab.active')?.getAttribute('data-method') || 'cod'
-            };
-
-            // Save to Backend via API
-            (async () => {
-                const result = await window.SAFEALL_API.createOrder(newOrder);
-
-                if (!result.success) {
-                    alert("Lỗi khi đặt hàng: " + result.message);
-                    this.innerText = originalText;
-                    this.disabled = false;
-                    isSubmitting = false;
-                    return;
-                }
-
-                // Clear saved form data after successful order
-                localStorage.removeItem('safeall_checkout_form');
-
-                // Show modal
-                document.getElementById('modalOrderId').innerText = orderId;
-                document.getElementById('orderSuccessModal').style.display = 'flex';
-
-                this.innerText = originalText;
-                this.disabled = false;
-                isSubmitting = false;
-            })();
-        });
-    </script>
+    <script src="js/cart.js"></script>
+    <script src="js/checkout.js"></script>
 </body>
 
 </html>
