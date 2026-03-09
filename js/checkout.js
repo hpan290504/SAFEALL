@@ -221,8 +221,18 @@ window.SAFEALL_CHECKOUT = {
                 sessionStorage.setItem('safeall_last_order', JSON.stringify(newOrder));
                 window.location.href = 'order-success.html';
             } else {
-                this.showError(result.message || 'Lỗi xử lý đơn hàng');
-                btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
+                let errorMsg = result.message || 'Lỗi xử lý đơn hàng';
+                if (result.error) errorMsg += `: ${result.error}`;
+                if (result.tip) errorMsg += `<br/><small class="opacity-70">${result.tip}</small>`;
+
+                if (result.retry) {
+                    // Specific UX for self-healing
+                    this.showError(result.message, 'bg-blue-50 text-blue-600 border-blue-200');
+                    btn.innerHTML = 'NHẤN LẠI ĐỂ XÁC NHẬN <i class="codicon codicon-sync"></i>';
+                } else {
+                    this.showError(errorMsg);
+                    btn.innerHTML = 'XÁC NHẬN ĐƠN HÀNG <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform text-xl"></i>';
+                }
                 btn.disabled = false;
             }
         } catch (e) {
@@ -233,21 +243,23 @@ window.SAFEALL_CHECKOUT = {
         }
     },
 
-    showError(msg) {
+    showError(msg, customClass = 'bg-red-50 text-red-600 border-red-200') {
         // Find or create an error banner above the order button
         let errBanner = document.getElementById('checkoutErrorBanner');
         if (!errBanner) {
             errBanner = document.createElement('div');
             errBanner.id = 'checkoutErrorBanner';
-            errBanner.className = 'w-full bg-red-50 text-red-600 border border-red-200 text-sm font-bold p-4 rounded-xl mb-4 flex items-start gap-2 animate-in fade-in zoom-in-95 duration-200';
+            errBanner.className = `w-full ${customClass} border text-sm font-bold p-4 rounded-xl mb-4 flex items-start gap-2 animate-in fade-in zoom-in-95 duration-200`;
 
             const btnContainer = document.getElementById('placeOrderBtn').parentElement;
             btnContainer.insertBefore(errBanner, document.getElementById('placeOrderBtn'));
+        } else {
+            errBanner.className = `w-full ${customClass} border text-sm font-bold p-4 rounded-xl mb-4 flex items-start gap-2`;
         }
 
-        errBanner.innerHTML = `<i class="codicon codicon-error mt-0.5"></i> <span>${msg}</span>`;
-        // Hide after 5 seconds
-        setTimeout(() => { if (errBanner) errBanner.remove(); }, 5000);
+        errBanner.innerHTML = `<i class="codicon codicon-info mt-0.5"></i> <span>${msg}</span>`;
+        // Hide after 8 seconds
+        setTimeout(() => { if (errBanner) errBanner.remove(); }, 8000);
     },
 
     init() {

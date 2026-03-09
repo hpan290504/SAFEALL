@@ -44,8 +44,20 @@ export const query = async (text, params) => {
         console.log(`[DB] Query OK (${Date.now() - start}ms):`, text.substring(0, 60));
         return result;
     } catch (err) {
-        console.error('[DB] Query Error:', err.message);
-        console.error('[DB] Failed query:', text.substring(0, 60));
+        let category = 'Unknown SQL Error';
+
+        // Categorize common pg errors
+        if (err.code === '42703') category = 'Missing Column (Schema Mismatch)';
+        else if (err.code === '42P01') category = 'Missing Table';
+        else if (err.code === '28P01' || err.code === '28000') category = 'Authentication Failed';
+        else if (err.code?.startsWith('08')) category = 'Connection Issue';
+        else if (err.code === '23505') category = 'Duplicate Entry (Unique Constraint)';
+
+        console.error(`[DB] ${category} [${err.code || 'NO_CODE'}]: ${err.message}`);
+        console.error(`[DB] Failed query:`, text.substring(0, 100));
+
+        // Enrich the error object for higher layers
+        err.category = category;
         throw err;
     }
 };
