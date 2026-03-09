@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#2563eb",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 md:px-20 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<img alt="SAFEALL Logo" class="h-10 w-auto" data-alt="SAFEALL company logo with red and white branding" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQipZ4KyCEzuUwNo_PQvK9o2F_TPx1QvpKFJLtwty2BF8oqkHCeQEfvu0pKwsv63W6QvAmWzXlusqg0hOq_X3PYYxYcNY1aJj2kjtoQ-Z6Dr6zA0LK2_eiOi51awRyjt-RpivwoE3RgVF9VqKMVWrexYNp1-0CR356rFQPlpxggzj6t83Vp_lGc8dl_1nxjGAHKExnfW0UuWXm83Cf6rqKVLuhtwJMx9u73l293MlTVLbTfbfUsqyzcinhVJH--fTxV-g1uSsFzWE"/>
+<h2 class="text-slate-900 dark:text-white text-xl font-black leading-tight tracking-tight">SAFEALL</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-4 md:gap-8">
+<label class="hidden md:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-500 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 placeholder:text-slate-500 px-4 rounded-l-none pl-2 text-base font-normal" placeholder="Tìm kiếm sản phẩm..." value=""/>
+</div>
+</label>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200 dark:border-slate-700" data-alt="User profile avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCgWKqzqq3ssGg2Ux4B37JJ7U-beLEJwvoucwinXk0SEonxKtalYsgUtSetoUaKDWDkf9jaWMLE_TvA0AQxTKP1cnlp8gMAx5xGUyLM7d2f5Y8Kpbfx4nxOm5_axns4jVphsOcoHhRx6pDNOpnzjYq_Dj3h-lX6nNy8IN0F_oIe88blIkRd0rD-Zt7MpTBeN0Tl4HhC27rK2t7SRfvAvcQnwvSn5mIHVHBasLAlT8_KgbgJXfC_sw67WcCokse6IJSIeTzGH9LPkxk");'></div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-4 md:px-10 py-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+<div class="flex flex-col gap-4">
+<div class="group relative aspect-square overflow-hidden rounded-xl bg-white dark:bg-slate-900 shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Large detailed photo of premium medical first aid kit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQcSmtIqBpsZ9GqNJsPc_eCLLs1jIRV1GJAVo_nY3Bef_-a9dpdSH0kHSTbEDmPcIuWj_Z9VzzEuD0R2ulUzl97ImxH_XYbHRAZkqJq7xuFkBWH259W68XsMlFKi-Qea7zebl3yODJ8wnfUjUSUsdTyf9DcYTjccQ-BJxw0KKKFYN-3MN0o0Pv6tskGCkm7DoAzlLVbhqWpGUwnw62pNSj0mPC2CHQ0L7E5dvvl6GBQoGmPG4jpnmoGrhcns4cPGQrSQSbiDL56nk"/>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+<div class="min-w-[100px] aspect-square rounded-lg overflow-hidden border-2 border-primary">
+<img class="w-full h-full object-cover" data-alt="Side view of the medical kit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMbdd1OYuRfepUfKi2PVwDk0Zv8NYMmIz1N28dROHlwSCDuRt02VNR5kwtvqSPeX1YEsXTSfspZQ4QHZkoYAFb-n6nbE3FN8dDyniApSOX-vYRQheWJMFMjM9nHbrEEIQF3lWYPyPR5BmRtV5WtpdxPQVFT1-0a0SfgRRmZw0AldsvmaGdJne9Rglz81V6nedNFCX5f4iWP-KU7rhlCSAIVeEWm4WgQuemEP0G2sCA9_kglHwFEFazeZroO0wsx5PfVDvjrJZRYUU"/>
+</div>
+<div class="min-w-[100px] aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 opacity-70 hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="Items spread out from the first aid kit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD35BllIA7RpMj3Ds_dsoY56Ux7IW2ZPpvhEaZP1RelqXOrgeJ38F28Nc3iheZ5SFHu20wpVJDYM8ZXuGdWinuEE1rN7qq249dMIKAdxJavsT923a8amAfc3OKo_JLN7DBWgZ9E37-AfZZnghDzwpM0aA2EbbNkXxZYFZeMtsEdBSeu5YVD0-amt9jyDakMZxe48Qe_G1F96pUECrFrvhF7XzdDdsBHDwv4tLAArEi0r1Ems8eJOWb-0jnXtIZEfFfL8WomFZEZjk"/>
+</div>
+<div class="min-w-[100px] aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 opacity-70 hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="High quality certification and labels on packaging" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbWdjKQq-B49oAd2yezW2FaLKTArXkYfA0RgRYP9T8hnD_eyDXqdvqUgQqB5L-Wf7tWmWFwCeVzNQSmZ8L4BTANZqQGYBWXyhM4_s3Zq7cgB4ClINi7a4Cnx8kWc-nXWrUbk-fcSatJ-HCqQ9hvFkjNC_cYNNFnOq9WIT6bqtte8VtAvSHaoX-MZn-to0ZAtZY7whYG6f3Djgs2VbJy0fFAPtvYqfmgziH3z-GrvYfFu_asVntdIgX-7hUTtLssiJTFO0lqf6C_tM"/>
+</div>
+<div class="min-w-[100px] aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 opacity-70 hover:opacity-100 transition-opacity">
+<img class="w-full h-full object-cover" data-alt="Kit being used in a home setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRUd5galZTDTRB9JBlmkeEfUAaaqBS-Gt0VmPB_YVHqxQGRswUq5CJBqM2VB1cuu8DY5_jTIEwvB4LxS1y6Ne3ocXV2aWaXritVBLzrzb1d4Qb_XNaJSVOCJflsb2X_RA1WPWKpAiXv8Qjee5ACx2GaXDftsyyJe7lM1gkzXuM_f4Xr2eyDZwvNjGx5728lBO63FXYkzsekYLB7OeP4JMsy-1MQT1UXRHTKwGCFydI-pt8OC6gNQmkfiBBojJN-_E8wBCc0NjwY1s"/>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6">
+<nav class="flex text-sm text-slate-500 gap-2">
+<span class="hover:text-primary cursor-pointer">Trang chủ</span>
+<span>/</span>
+<span class="hover:text-primary cursor-pointer">Bộ sơ cứu</span>
+<span>/</span>
+<span class="text-slate-900 dark:text-white font-medium">Kit Cao Cấp</span>
+</nav>
+<div class="flex flex-col gap-2">
+<h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-tight">SAFEALL Premium Safety Kit</h1>
+<div class="flex items-center gap-4">
+<div class="flex text-yellow-400">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined">star_half</span>
+</div>
+<span class="text-slate-500 text-sm font-medium">(128 đánh giá)</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<div class="text-3xl font-bold text-primary">1.250.000₫</div>
+<div class="text-slate-500 line-through text-lg">1.500.000₫</div>
+</div>
+<p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
+                            Giải pháp an toàn toàn diện nhất cho gia đình và nơi làm việc của bạn. Được thiết kế chuyên nghiệp với các vật liệu bền bỉ và dễ dàng sử dụng trong tình huống khẩn cấp. Đạt tiêu chuẩn an toàn quốc tế.
+                        </p>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-bold border border-blue-100">
+<span class="material-symbols-outlined text-lg">verified</span>
+                                Quality Verified
+                            </div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-bold border border-blue-100">
+<span class="material-symbols-outlined text-lg">local_shipping</span>
+                                Fast Shipping
+                            </div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm font-bold border border-green-100">
+<span class="material-symbols-outlined text-lg">security</span>
+                                12 Months Warranty
+                            </div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="flex-1 bg-primary hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-wider">
+                                Mua ngay
+                            </button>
+<button class="flex-1 bg-secondary hover:bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+                                Thêm vào giỏ
+                            </button>
+</div>
+</div>
+</div>
+<div class="mt-20 border-t border-slate-200 dark:border-slate-800 pt-12">
+<h3 class="text-2xl font-bold mb-8 text-slate-900 dark:text-white">Chi tiết sản phẩm</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">medical_services</span>
+</div>
+<div>
+<h4 class="font-bold">Hộp đựng chống nước</h4>
+<p class="text-sm text-slate-500">Chất liệu EVA cao cấp, bền bỉ và bảo vệ tuyệt đối.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">device_band</span>
+</div>
+<div>
+<h4 class="font-bold">Bộ băng gạc 50 món</h4>
+<p class="text-sm text-slate-500">Đầy đủ các kích cỡ cho mọi loại vết thương.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">thermometer</span>
+</div>
+<div>
+<h4 class="font-bold">Thiết bị đo y tế</h4>
+<p class="text-sm text-slate-500">Nhiệt kế điện tử hồng ngoại chính xác cao.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">cleaning_services</span>
+</div>
+<div>
+<h4 class="font-bold">Dung dịch sát khuẩn</h4>
+<p class="text-sm text-slate-500">Cồn 70 độ và oxy già dạng chai xịt tiện lợi.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">content_cut</span>
+</div>
+<div>
+<h4 class="font-bold">Dụng cụ chuyên dụng</h4>
+<p class="text-sm text-slate-500">Kéo cắt băng, nhíp gắp thép không gỉ.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+<div class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined">menu_book</span>
+</div>
+<div>
+<h4 class="font-bold">Hướng dẫn sơ cứu</h4>
+<p class="text-sm text-slate-500">Sách hướng dẫn minh họa bằng hình ảnh dễ hiểu.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-20 grid grid-cols-1 lg:grid-cols-2 gap-16">
+<div>
+<h3 class="text-2xl font-bold mb-8 text-slate-900 dark:text-white">Câu hỏi thường gặp</h3>
+<div class="space-y-4">
+<div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+<button class="flex justify-between items-center w-full text-left font-bold text-slate-900 dark:text-white">
+<span>Sản phẩm có hạn sử dụng bao lâu?</span>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+<p class="mt-2 text-slate-500 text-sm">Các vật tư tiêu hao trong bộ kit có hạn sử dụng từ 2-3 năm kể từ ngày sản xuất.</p>
+</div>
+<div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+<button class="flex justify-between items-center w-full text-left font-bold text-slate-900 dark:text-white">
+<span>Bộ kit có chống nước không?</span>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+<p class="mt-2 text-slate-500 text-sm">Có, vỏ hộp được làm từ vật liệu EVA cao cấp chống thấm nước và chịu va đập tốt.</p>
+</div>
+<div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+<button class="flex justify-between items-center w-full text-left font-bold text-slate-900 dark:text-white">
+<span>Tôi có thể mua thêm vật dụng lẻ không?</span>
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white">Đánh giá khách hàng</h3>
+<button class="text-primary font-bold text-sm underline">Viết đánh giá</button>
+</div>
+<div class="space-y-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm">
+<div class="flex justify-between mb-2">
+<div class="font-bold">Nguyễn Văn An</div>
+<div class="flex text-yellow-400 scale-75">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+</div>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm italic">"Sản phẩm rất chất lượng, đóng gói kỹ càng. Giao hàng cực nhanh chỉ trong 2 ngày."</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm">
+<div class="flex justify-between mb-2">
+<div class="font-bold">Trần Thị Bích</div>
+<div class="flex text-yellow-400 scale-75">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined">star</span>
+</div>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-sm italic">"Bộ kit đầy đủ vật dụng cần thiết. Hộp đựng rất chắc chắn, màu đỏ nổi bật dễ tìm thấy khi cần."</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 px-4 md:px-20 mt-20">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex items-center gap-4">
+<img alt="SAFEALL Logo" class="h-8 w-auto" data-alt="SAFEALL logo small for footer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCojU6B-A0THv9z1TtbXGk76lifaI_-U6Xlwm9oaCdUgBcivV_eXi6_whc086N8qTPbymQR-yezwF_sqxsZRr5CpgjVhKkapXvkwhHbDb_JP2vkZDn-a6MwTYSzN_0eHlxX7pVOSJSGirTK5DjikKSqOEowXoLGEi2GjHkEHvCZmjGrwxZkA5QkT4RuTklnDfF-TsnIUTHQCt-kOqDerS7u-IOkiZ29_u-9MRWJdC6qZp2u3ibib0dGqJEmrmCBFinSwNwr3r4A8D8"/>
+<span class="text-slate-900 dark:text-white font-black">SAFEALL © 2024</span>
+</div>
+<div class="flex gap-8 text-sm text-slate-500">
+<a class="hover:text-primary transition-colors" href="#">Chính sách bảo hành</a>
+<a class="hover:text-primary transition-colors" href="#">Vận chuyển</a>
+<a class="hover:text-primary transition-colors" href="#">Liên hệ</a>
+</div>
+<div class="flex gap-4">
+<div class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-base">public</span>
+</div>
+<div class="size-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center cursor-pointer hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-base">mail</span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#1e3a8a", // Blue structure as requested
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<img alt="SAFEALL logo" class="h-10 w-auto" data-alt="SAFEALL professional emergency preparedness brand logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_tnJp8lktcPrPzaXILhZ7b1oRmkGUf2MOHxGDDlDJ1KtVy-gLPAZiyt1Yi6xhYEe0r4MJbdEm8sofuHhHpSdV8-N9EzVE7YlMHn_J2HXGG6BSLIIpvtzgGmDdJ1oJ7Dx3fcE95QOOMJK54ied6CKWINvBt9ciCyUHUUgnLuC7-Akx4HiI8tSk20xuJHYfbK5JCxXDQs9HHnZErB31y4wPbGIMgguSRWPIcuryIhlIWV31yXp2eQcyaoSdVUcZl3qD3XxRFGse25s"/>
+<span class="text-secondary dark:text-white text-2xl font-black tracking-tighter">SAFEALL</span>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Trang chủ</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Sản phẩm</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Về chúng tôi</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+                    Mua ngay
+                </button>
+</div>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="order-2 lg:order-1">
+<span class="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6">Sẵn sàng trước mọi biến cố</span>
+<h1 class="text-secondary dark:text-white text-4xl md:text-6xl font-black leading-[1.1] mb-6">
+                            Bộ kit ứng phó khẩn cấp cho gia đình Việt
+                        </h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg mb-10 max-w-lg leading-relaxed">
+                            Giải pháp toàn diện giúp gia đình bạn sẵn sàng ứng phó với lũ lụt, thiên tai và các tình huống khẩn cấp. Bảo vệ an toàn tuyệt đối cho những người thân yêu.
+                        </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-xl shadow-primary/30">
+                                Nhận tư vấn ngay
+                            </button>
+<button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-colors">
+                                Xem chi tiết
+                            </button>
+</div>
+</div>
+<div class="order-1 lg:order-2 relative">
+<div class="absolute -inset-4 bg-primary/5 rounded-full blur-3xl"></div>
+<img alt="Emergency Kit" class="relative rounded-2xl shadow-2xl object-cover w-full aspect-[4/3]" data-alt="Professional emergency survival kit with various tools and supplies" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAadR0kA8vhQ88ijt7UvWejnwHHioZA1Rc950h4z1Cuewt6XAT5ei3m_EZ4ygkEwpGRnfW1jVWiC3ucNsafUfJvH53yLiZKqdM_wkntZw59WWZmQ8b4SvfCorDrKl4h1WSm3379W4mlA3zLKYApIBl3rJBnKRo6Y86FwmUs1XB41DZN8lIqoOJFvLhqgE2CEwY4KGcy5TXoj-4NN-r9ogb3P82uc7A2CKklJ6DmDpUzYzgL15tkcTOHQvsuUXOz3AJOzY8ISPsq4UY"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Bar -->
+<section class="bg-white dark:bg-slate-900 py-12 border-y border-slate-100 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">local_shipping</span>
+<div class="space-y-1">
+<p class="font-bold text-secondary dark:text-white">Giao hàng toàn quốc</p>
+<p class="text-xs text-slate-500">63 tỉnh thành</p>
+</div>
+</div>
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">verified_user</span>
+<div class="space-y-1">
+<p class="font-bold text-secondary dark:text-white">Kiểm tra khi nhận</p>
+<p class="text-xs text-slate-500">Thanh toán tại nhà</p>
+</div>
+</div>
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">support_agent</span>
+<div class="space-y-1">
+<p class="font-bold text-secondary dark:text-white">Hỗ trợ nhanh</p>
+<p class="text-xs text-slate-500">Phục vụ 24/7</p>
+</div>
+</div>
+<div class="flex flex-col items-center text-center gap-3">
+<span class="material-symbols-outlined text-primary text-4xl">autorenew</span>
+<div class="space-y-1">
+<p class="font-bold text-secondary dark:text-white">1 đổi 1</p>
+<p class="text-xs text-slate-500">Bảo hành uy tín</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Grid -->
+<section class="py-24">
+<div class="max-w-7xl mx-auto px-4">
+<div class="text-center mb-16">
+<h2 class="text-secondary dark:text-white text-3xl md:text-4xl font-black mb-4">Sản phẩm nổi bật</h2>
+<p class="text-slate-500 max-w-2xl mx-auto">Lựa chọn giải pháp phù hợp nhất với nhu cầu và quy mô gia đình bạn</p>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<!-- Product Card 1 -->
+<div class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="overflow-hidden rounded-xl mb-6">
+<img alt="Basic Kit" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Basic emergency response kit for 2 people" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq1GFpa5i1Kb-bRtbf4sm74q7QE9bnBmxSy3JW-FWBTLSrsruv9Ai7rMDgXpAbUM0dvsXx1mvmoPxMCoF0M_GHkh5JirpP6MlQpaeuygr0i2whO5EaFJoOIszZkmUa80ynHCnMj-hm-XWBXOoNSXHw0TrHrqCN6ytoFIsrK9pQ6J4ASTfCBVDUZumK1MkCBWwI594yQtnERNQTh2-5qP51-2h1jpNZVQkdvl9dWzEgYTTZf7REYvYvPabvaHGkPHa8R1F9Estth6s"/>
+</div>
+<h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Bộ Kit Cơ Bản</h3>
+<p class="text-slate-500 text-sm mb-4">Phù hợp cho gia đình nhỏ (1-2 người), bao gồm các nhu yếu phẩm thiết yếu.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+<span class="text-primary font-black text-xl">950.000đ</span>
+<button class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border-2 border-primary/20">
+<div class="overflow-hidden rounded-xl mb-6 relative">
+<span class="absolute top-3 left-3 bg-primary text-white text-[10px] font-black px-2 py-1 rounded uppercase z-10">Bán chạy nhất</span>
+<img alt="Pro Kit" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Advanced family emergency kit for 4-6 people" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi2jaNQKKfQg6lCWlwmwo_lbpxD-goY0ZJUFzG5FmmUvPqqV_j4AvEukSzREuM5z2GSH84tc30dPvFJ_1Ms2EfK_Nkcln3MtmmGzJoOypVUCEnHZ0JnftM3cFDqqDT-vOWlWVtBaoeqq_FwrvOe75JjmSoYnjRm-N8itNaWd6RynyywqGE3D9gl1RvSDwGNscCwi4jRRUY_niB60TjDmUBj0vPydSWvI2DjtT59MNbcczos3L9IFfNyoc8UOkAljRbKJOw-VI8ciw"/>
+</div>
+<h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Bộ Kit Nâng Cao</h3>
+<p class="text-slate-500 text-sm mb-4">Phù hợp cho gia đình 4-6 người, đầy đủ thiết bị y tế và sinh tồn chuyên sâu.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+<span class="text-primary font-black text-xl">1.850.000đ</span>
+<button class="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+<div class="overflow-hidden rounded-xl mb-6">
+<img alt="Flood Kit" class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Professional flood emergency and rescue kit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEnlG8YgDd5RvZq_qGwt2NnRNfRYi9Gqr7mN8_Fk0AE68pttdWmrqf9Xz4aaIli77aJ8_q244vyR9foY0ZQgyr9hUwpBohdmEqUlELfwyHWLrqkoLznWD3O7IP1adOe3ip_ItoaStQmaMYQtwU-WDLtFP-kvBahn6A-C_ohwxUAuiURe8KNO9uD1WBBVkNNSJh75Xyl7e4ZkP7H8qwD0G3rubg97lxoPXn9eWRAOMD8pe0Y8qY_fEg1MM2nY90wjZoL4-wZ6ZN1CA"/>
+</div>
+<h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Bộ Kit Chuyên Dụng</h3>
+<p class="text-slate-500 text-sm mb-4">Dành riêng cho vùng lũ lụt, tích hợp phao cứu sinh và đèn tín hiệu công suất lớn.</p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+<span class="text-primary font-black text-xl">2.500.000đ</span>
+<button class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- What's Inside & Why Prepare Early -->
+<section class="bg-secondary text-white py-24 overflow-hidden relative">
+<div class="absolute right-0 top-0 w-1/3 h-full bg-primary/10 -skew-x-12 translate-x-1/2"></div>
+<div class="max-w-7xl mx-auto px-4 relative">
+<div class="grid lg:grid-cols-2 gap-20 items-center">
+<div>
+<h2 class="text-3xl font-black mb-8 border-l-4 border-primary pl-6">Tại sao cần chuẩn bị sớm?</h2>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="size-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">schedule</span>
+</div>
+<div>
+<h4 class="font-bold mb-1">Thời gian vàng trong cấp cứu</h4>
+<p class="text-blue-100/70 text-sm">Phản ứng nhanh trong 5 phút đầu tiên quyết định 80% sự an toàn của người gặp nạn.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="size-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary">psychology</span>
+</div>
+<div>
+<h4 class="font-bold mb-1">An tâm tuyệt đối</h4>
+<p class="text-blue-100/70 text-sm">Khi có sự chuẩn bị, tâm lý gia đình sẽ bình tĩnh hơn để đưa ra các quyết định sáng suốt.</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h2 class="text-3xl font-black mb-8 border-l-4 border-primary pl-6">Có gì bên trong SAFEALL Kit?</h2>
+<ul class="grid sm:grid-cols-2 gap-4">
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">medical_services</span>
+<span class="text-sm font-medium">Sơ cứu y tế chuyên sâu</span>
+</li>
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">flashlight_on</span>
+<span class="text-sm font-medium">Đèn pin đa năng siêu sáng</span>
+</li>
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">restaurant</span>
+<span class="text-sm font-medium">Thực phẩm dự trữ dài hạn</span>
+</li>
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">water_drop</span>
+<span class="text-sm font-medium">Thiết bị lọc nước khẩn cấp</span>
+</li>
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">campaign</span>
+<span class="text-sm font-medium">Còi báo hiệu &amp; Tín hiệu</span>
+</li>
+<li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+<span class="material-symbols-outlined text-primary">construction</span>
+<span class="text-sm font-medium">Dụng cụ thoát hiểm 10-in-1</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Social Proof / Reviews -->
+<section class="py-24 bg-white dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4">
+<div class="text-center mb-16">
+<h2 class="text-secondary dark:text-white text-3xl font-black mb-4">Khách hàng nói về SAFEALL</h2>
+</div>
+<div class="grid md:grid-cols-3 gap-8">
+<div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+<span class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4">format_quote</span>
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 italic mb-6">"Sản phẩm đóng gói rất chuyên nghiệp, các dụng cụ bên trong đều là hàng cao cấp. Cảm thấy an tâm hơn rất nhiều khi để bộ kit này trong nhà."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-300" data-alt="Customer avatar"></div>
+<div>
+<p class="font-bold text-sm text-secondary dark:text-white">Anh Minh Tú</p>
+<p class="text-[10px] text-slate-500 uppercase">Hà Nội</p>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+<span class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4">format_quote</span>
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 italic mb-6">"Vùng mình hay có lụt nên mình mua bộ Chuyên Dụng. Túi chống nước rất tốt, còi và đèn pin cực kỳ sáng. Rất đáng đồng tiền bát gạo."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-300" data-alt="Customer avatar"></div>
+<div>
+<p class="font-bold text-sm text-secondary dark:text-white">Chị Thu Thủy</p>
+<p class="text-[10px] text-slate-500 uppercase">Quảng Bình</p>
+</div>
+</div>
+</div>
+<div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+<span class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4">format_quote</span>
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span><span class="material-symbols-outlined">star</span>
+</div>
+<p class="text-slate-600 dark:text-slate-400 italic mb-6">"Dịch vụ khách hàng của SAFEALL rất tuyệt vời. Họ tư vấn tận tình bộ kit phù hợp cho gia đình có người già và trẻ nhỏ của mình."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-300" data-alt="Customer avatar"></div>
+<div>
+<p class="font-bold text-sm text-secondary dark:text-white">Chú Hùng</p>
+<p class="text-[10px] text-slate-500 uppercase">TP. Hồ Chí Minh</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ -->
+<section class="py-24 bg-slate-50 dark:bg-slate-900/50">
+<div class="max-w-3xl mx-auto px-4">
+<h2 class="text-secondary dark:text-white text-3xl font-black mb-12 text-center">Câu hỏi thường gặp</h2>
+<div class="space-y-4">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm">
+<h4 class="font-bold text-secondary dark:text-white flex justify-between items-center cursor-pointer">
+                            Thời hạn sử dụng của bộ kit là bao lâu?
+                            <span class="material-symbols-outlined">expand_more</span>
+</h4>
+<p class="mt-4 text-slate-500 text-sm">Hầu hết dụng cụ có độ bền trên 10 năm. Riêng vật tư y tế và thực phẩm có hạn dùng từ 2-5 năm, chúng tôi có dịch vụ nhắc nhở thay mới định kỳ.</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm">
+<h4 class="font-bold text-secondary dark:text-white flex justify-between items-center cursor-pointer">
+                            Tôi có thể tự tùy chỉnh các vật dụng bên trong không?
+                            <span class="material-symbols-outlined">expand_more</span>
+</h4>
+<p class="mt-4 text-slate-500 text-sm">Hoàn toàn được. Hãy liên hệ hotline để chúng tôi tư vấn và thiết kế riêng bộ kit theo yêu cầu đặc biệt của gia đình bạn.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="py-20">
+<div class="max-w-5xl mx-auto px-4">
+<div class="bg-primary rounded-[2rem] p-8 md:p-16 text-center text-white relative overflow-hidden">
+<div class="absolute inset-0 bg-white/5 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 20px 20px, white 2px, transparent 0); background-size: 40px 40px;"></div>
+<h2 class="text-3xl md:text-5xl font-black mb-6 relative">Đừng đợi đến khi quá muộn</h2>
+<p class="text-white/80 text-lg mb-10 max-w-xl mx-auto relative">Hãy trang bị ngay sự an tâm cho gia đình mình với giải pháp ứng phó khẩn cấp chuyên nghiệp từ SAFEALL.</p>
+<button class="bg-white text-primary px-12 py-5 rounded-2xl font-black text-xl hover:scale-105 transition-transform shadow-2xl relative">
+                        Bảo vệ gia đình ngay
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-secondary text-white pt-20 pb-10">
+<div class="max-w-7xl mx-auto px-4">
+<div class="grid md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-2 mb-6">
+<img alt="Logo" class="h-8 w-auto brightness-0 invert" data-alt="SAFEALL brand logo white version" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI8rieWur0ga85CuSBr13eaZTzBjiqi1my1xp93isjCW6ZTY9uOTMcI1k6iYzJsZ0RAUvN-N8uUEtdffPlvjV7zVdKsv0uACfkyS3UFK6v9ryyEiB-xD3eAMKO1FDdh22oGZP-jBMV_yMDP2KbjYIDKveNiLo8UrxpVXUPBbVvBW97Kx-n8aTHqbSzNwNBm80MMgnX_jJaHJWwXwcmARXdktP7LOlJb_MarbUYGQhpGEg7YNICr0IV-Do7P95F4LTf6R1Z1wzSOZY"/>
+<span class="text-2xl font-black tracking-tighter">SAFEALL</span>
+</div>
+<p class="text-blue-200/60 max-w-sm mb-6">Hệ thống giải pháp ứng phó khẩn cấp hàng đầu Việt Nam. Chúng tôi cam kết mang lại sự an toàn cao nhất cho mọi gia đình.</p>
+<div class="flex gap-4">
+<a class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" href="#">
+<span class="material-symbols-outlined !text-xl">social_leaderboard</span>
+</a>
+<a class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors" href="#">
+<span class="material-symbols-outlined !text-xl">public</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-bold mb-6 text-lg">Liên kết</h4>
+<ul class="space-y-4 text-blue-200/60 text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Về chúng tôi</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Sản phẩm</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Tin tức &amp; Cảnh báo</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Liên hệ</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6 text-lg">Hỗ trợ</h4>
+<ul class="space-y-4 text-blue-200/60 text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Chính sách bảo hành</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Hướng dẫn thanh toán</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Giao hàng &amp; Đổi trả</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Câu hỏi thường gặp</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-white/10 text-center text-blue-200/30 text-xs">
+                © 2024 SAFEALL. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

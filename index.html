@@ -2,343 +2,587 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="description"
         content="SAFEALL - Chuẩn bị hôm nay, An toàn ngày mai. Cung cấp bộ kit khẩn cấp cho gia đình Việt.">
-    <title>SAFEALL - Chuẩn bị hôm nay, An toàn ngày mai | Safe Families</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    <title>SAFEALL - Chuẩn bị sẵn sàng – Bảo vệ gia đình trước mọi tình huống khẩn cấp</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#1e3a8a",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
 
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container nav-content">
-            <a href="#" class="logo"><span class="logo-safe">SAFE</span><span class="logo-all">ALL</span></a>
-            <ul class="nav-links">
-                <li><a href="#about" data-i18n="nav_about">Giới thiệu</a></li>
-                <li><a href="#mission" data-i18n="nav_mission">Sứ mệnh</a></li>
-                <li><a href="#products" data-i18n="nav_products">Sản phẩm</a></li>
-                <li><a href="#reasons" data-i18n="nav_reasons">Vì sao chọn SAFEALL</a></li>
-            </ul>
-            <div class="header-actions">
-                <div id="authSection" class="auth-section"></div>
-                <a href="cart.html" class="nav-cart-btn"
-                    style="position: relative; color: var(--text-dark); text-decoration: none;">
-                    <span class="material-symbols-outlined">shopping_cart</span>
-                    <span class="cart-badge nav-cart-count"
-                        style="position: absolute; top: -5px; right: -10px; background: var(--primary-red); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; display: none;">0</span>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+
+    <!-- Header -->
+    <header
+        class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <a href="index.html" class="flex items-center gap-2">
+                    <img alt="SAFEALL logo" class="h-10 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_tnJp8lktcPrPzaXILhZ7b1oRmkGUf2MOHxGDDlDJ1KtVy-gLPAZiyt1Yi6xhYEe0r4MJbdEm8sofuHhHpSdV8-N9EzVE7YlMHn_J2HXGG6BSLIIpvtzgGmDdJ1oJ7Dx3fcE95QOOMJK54ied6CKWINvBt9ciCyUHUUgnLuC7-Akx4HiI8tSk20xuJHYfbK5JCxXDQs9HHnZErB31y4wPbGIMgguSRWPIcuryIhlIWV31yXp2eQcyaoSdVUcZl3qD3XxRFGse25s" />
+                    <span class="text-secondary dark:text-white text-2xl font-black tracking-tighter">SAFEALL</span>
                 </a>
-                <div class="lang-switch">
-
-                    <button id="lang-vi" class="active">VI</button>
-                    <div class="divider">|</div>
-                    <button id="lang-en">EN</button>
-                </div>
+            </div>
+            <nav class="hidden md:flex items-center gap-10">
+                <a class="text-sm font-semibold hover:text-primary transition-colors" href="index.html"
+                    data-i18n="nav_home">Trang chủ</a>
+                <a class="text-sm font-semibold hover:text-primary transition-colors" href="products.html"
+                    data-i18n="nav_products">Sản phẩm</a>
+                <a class="text-sm font-semibold hover:text-primary transition-colors" href="my-orders.html"
+                    data-i18n="nav_track">Theo dõi đơn</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <div id="authSection" class="hidden sm:flex items-center gap-4"></div>
+                <button onclick="window.SAFEALL_CART.toggleSideCart(true)"
+                    class="relative p-2 text-slate-600 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <span id="cartBadge"
+                        class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                </button>
+                <button onclick="window.SAFEALL_CART.toggleSideCart(true)"
+                    class="hidden sm:block bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+                    data-i18n="nav_buy_now">
+                    Mua ngay
+                </button>
             </div>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="hero">
-        <div class="container hero-content">
-            <div class="hero-text reveal">
-                <h1 data-i18n="hero_title">Chuẩn bị hôm nay –<br><span class="highlight">An toàn ngày mai</span></h1>
-                <p data-i18n="hero_desc">Bảo vệ gia đình bạn trước mọi tình huống khẩn cấp với các bộ kit thiết yếu từ
-                    SAFEALL.</p>
-                <a href="#products" class="btn btn-primary" data-i18n="hero_cta">Khám phá bộ kit</a>
-            </div>
-            <div class="hero-image reveal-right">
-                <img src="assets/safeall_hero_image_1772701293109.png" alt="SAFEALL Emergency Preparedness Essentials">
-            </div>
-        </div>
-        <div class="hero-bg-accent"></div>
     </header>
 
-    <!-- About Section -->
-    <section id="about" class="about section-padding">
-        <div class="container about-content">
-            <div class="about-text reveal">
-                <h2 data-i18n="about_title">Về SAFEALL</h2>
-                <div class="section-divider"></div>
-                <p data-i18n="about_desc">SAFEALL là thương hiệu cung cấp các bộ kit chuẩn bị khẩn cấp dành cho hộ gia
-                    đình tại Việt Nam, giúp mọi người sẵn sàng ứng phó với các tình huống như lũ lụt, cháy nổ và các
-                    thảm họa bất ngờ.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Vision & Mission & Goals -->
-    <section id="mission" class="mission section-padding bg-light">
-        <div class="container">
-            <div class="mission-grid">
-                <!-- Vision -->
-                <div class="card reveal-up" style="transition-delay: 0.1s;">
-                    <div class="icon-wrapper">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon">
-                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3 data-i18n="vision_title">Tầm nhìn</h3>
-                    <p data-i18n="vision_desc">Xây dựng cộng đồng gia đình Việt Nam an toàn và chủ động trước các tình
-                        huống khẩn cấp.</p>
-                </div>
-                <!-- Mission -->
-                <div class="card reveal-up" style="transition-delay: 0.2s;">
-                    <div class="icon-wrapper">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon">
-                            <path
-                                d="M22 11.08V12C21.9988 14.1564 21.3001 16.2547 20.0093 17.9818C18.7185 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69679 2.6853 9.79619 2.14808C11.8956 1.61086 14.088 1.73977 16.05 2.505"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3 data-i18n="mission_title">Sứ mệnh</h3>
-                    <p data-i18n="mission_desc">Cung cấp các bộ kit chuẩn bị khẩn cấp dễ sử dụng, đáng tin cậy và phù
-                        hợp với nhu cầu của hộ gia đình.</p>
-                </div>
-                <!-- Goals -->
-                <div class="card reveal-up" style="transition-delay: 0.3s;">
-                    <div class="icon-wrapper">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="feature-icon">
-                            <path
-                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3 data-i18n="goals_title">Mục tiêu</h3>
-                    <ul>
-                        <li data-i18n="goals_1">Nâng cao nhận thức về chuẩn bị khẩn cấp cho hộ gia đình</li>
-                        <li data-i18n="goals_2">Cung cấp các bộ kit an toàn và đáng tin cậy</li>
-                        <li data-i18n="goals_3">Xây dựng cộng đồng chủ động trong việc phòng ngừa rủi ro</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Products Section -->
-    <section id="products" class="products section-padding">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 data-i18n="products_title">Danh mục sản phẩm</h2>
-                <div class="section-divider mx-auto"></div>
-                <p data-i18n="products_subtitle">Chọn bộ kit phù hợp với nhu cầu bảo vệ gia đình bạn.</p>
-            </div>
-
-            <div class="products-grid">
-                <!-- Kit 1: Flood -->
-                <div class="product-card reveal-up popular-product" style="transition-delay: 0.1s;">
-                    <div class="product-badge" data-i18n="badge_popular">Phổ biến nhất</div>
-                    <div class="product-image">
-                        <img src="assets/safeall_flood_kit_1772701309096.png" alt="Flood Emergency Kit">
-                    </div>
-                    <div class="product-info">
-                        <h4 data-i18n="prod_flood_title">Bộ kit ứng phó lũ lụt</h4>
-                        <div class="price-container">
-                            <span class="old-price" data-i18n="price_flood_old">1.500.000 VNĐ</span>
-                            <span class="new-price" data-i18n="price_flood">1.200.000 VNĐ</span>
-                            <span class="discount-tag">-20%</span>
+    <main>
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 lg:order-1">
+                        <span
+                            class="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-6">Sẵn
+                            sàng trước mọi biến cố</span>
+                        <h1 class="text-secondary dark:text-white text-4xl md:text-6xl font-black leading-[1.1] mb-6"
+                            data-i18n="hero_title">
+                            Bộ kit ứng phó khẩn cấp cho gia đình Việt
+                        </h1>
+                        <p class="text-slate-600 dark:text-slate-400 text-lg mb-10 max-w-lg leading-relaxed"
+                            data-i18n="hero_desc">
+                            Giải pháp toàn diện giúp gia đình bạn sẵn sàng ứng phó với lũ lụt, thiên tai và các tình
+                            huống khẩn cấp. Bảo vệ an toàn tuyệt đối cho những người thân yêu.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="window.open('https://zalo.me/safeall')"
+                                class="bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform shadow-xl shadow-primary/30">
+                                Nhận tư vấn ngay
+                            </button>
+                            <a href="products.html"
+                                class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-slate-50 transition-colors text-center"
+                                data-i18n="btn_details">
+                                Xem chi tiết
+                            </a>
                         </div>
-                        <div class="countdown-wrapper">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            <span data-i18n="sale_ends_in">Deal kết thúc sau:</span>
-                            <span class="countdown-timer">1 Ngày 00:00:00</span>
-                        </div>
-                        <p data-i18n="prod_flood_desc">Được thiết kế chuyên biệt để bảo vệ gia đình trong các tình huống
-                            ngập lụt, bao gồm vật dụng chống nước và phao cứu sinh.</p>
-                        <div class="product-actions" style="display: flex; gap: 10px; margin-top: 15px;">
-                            <a href="products.html#flood" class="btn btn-outline" data-i18n="btn_details"
-                                style="flex: 1; text-align: center;">Xem chi tiết</a>
-                            <button
-                                onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
-                                class="btn btn-primary" style="flex: 1;">+ Giỏ hàng</button>
-                        </div>
-
                     </div>
-                </div>
-
-                <!-- Kit 2: Multi-hazard -->
-                <div class="product-card reveal-up" style="transition-delay: 0.2s;">
-                    <div class="product-image">
-                        <img src="assets/safeall_multi_kit_1772701607502.png" alt="Multi-Hazard Kit">
-                    </div>
-                    <div class="product-info">
-                        <h4 data-i18n="prod_multi_title">Bộ kit đa tình huống</h4>
-                        <p data-i18n="prod_multi_desc">Giải pháp toàn diện nhất chuẩn bị cho mọi thảm họa bất ngờ như
-                            động đất hoặc mất điện diện rộng, dự trữ thức ăn và nước uống.</p>
-                        <div class="product-actions" style="display: flex; gap: 10px; margin-top: 15px;">
-                            <a href="products.html#multi" class="btn btn-outline" data-i18n="btn_details"
-                                style="flex: 1; text-align: center;">Xem chi tiết</a>
-                            <button
-                                onclick="window.SAFEALL_CART.addItem({id: 'multi_kit', title: 'Bộ kit đa tình huống', price: 2500000, image: 'assets/safeall_multi_kit_1772701607502.png', category: 'multi'})"
-                                class="btn btn-primary" style="flex: 1;">+ Giỏ hàng</button>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Kit 3: Individual Items -->
-                <div class="product-card reveal-up" style="transition-delay: 0.3s;">
-                    <div class="product-image">
-                        <img src="assets/safeall_individual_items_1772704234519.png" alt="Individual Gear">
-                    </div>
-                    <div class="product-info">
-                        <h4 data-i18n="prod_individual_title">Mua lẻ trang thiết bị</h4>
-                        <p data-i18n="prod_individual_desc">Tự thiết kế bộ kit cho riêng gia đình bạn với các món đồ lẻ
-                            chất lượng cao như đèn pin, kìm đa năng và túi y tế.</p>
-                        <a href="products.html#individual" class="btn btn-outline" data-i18n="btn_details">Xem chi
-                            tiết</a>
-                    </div>
-                </div>
-
-                <!-- Kit 4: Fire (Coming Soon) -->
-                <div class="product-card reveal-up product-disabled" style="transition-delay: 0.4s;">
-                    <div class="product-badge badge-disabled" data-i18n="badge_coming_soon">Sắp ra mắt</div>
-                    <div class="product-image">
-                        <img src="assets/safeall_fire_kit_1772701384899.png" alt="Fire Emergency Kit"
-                            style="opacity: 0.5;">
-                    </div>
-                    <div class="product-info">
-                        <h4 data-i18n="prod_fire_title">Bộ kit ứng phó cháy nổ</h4>
-                        <p data-i18n="prod_fire_desc">Giúp gia đình bạn thoát hiểm an toàn khi xảy ra hỏa hoạn, với mặt
-                            nạ chống khói, chăn chữa cháy và bình xịt.</p>
-                        <button class="btn btn-outline" disabled data-i18n="btn_disabled">Đang phát triển</button>
+                    <div class="order-1 lg:order-2 relative">
+                        <div class="absolute -inset-4 bg-primary/5 rounded-full blur-3xl"></div>
+                        <img alt="Emergency Kit"
+                            class="relative rounded-2xl shadow-2xl object-cover w-full aspect-[4/3] transform hover:scale-[1.02] transition-transform duration-700"
+                            src="assets/safeall_hero_image_1772701293109.png" />
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Why Choose Us Section -->
-    <section id="reasons" class="reasons section-padding bg-dark text-white">
-        <div class="container">
-            <div class="reasons-grid">
-                <div class="reasons-text reveal">
-                    <h2 data-i18n="why_title">Vì sao chọn SAFEALL</h2>
-                    <div class="section-divider"></div>
-                    <ul class="check-list">
-                        <li>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M22 11.08V12C21.9988 14.1564 21.3001 16.2547 20.0093 17.9818C18.7185 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69679 2.6853 9.79619 2.14808C11.8956 1.61086 14.088 1.73977 16.05 2.505"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M22 4L12 14.01L9 11.01" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span data-i18n="why_1">Bộ kit được thiết kế theo từng tình huống cụ thể</span>
-                        </li>
-                        <li>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M22 11.08V12C21.9988 14.1564 21.3001 16.2547 20.0093 17.9818C18.7185 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69679 2.6853 9.79619 2.14808C11.8956 1.61086 14.088 1.73977 16.05 2.505"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M22 4L12 14.01L9 11.01" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span data-i18n="why_2">Phù hợp với đặc thù hộ gia đình Việt Nam</span>
-                        </li>
-                        <li>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M22 11.08V12C21.9988 14.1564 21.3001 16.2547 20.0093 17.9818C18.7185 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69679 2.6853 9.79619 2.14808C11.8956 1.61086 14.088 1.73977 16.05 2.505"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M22 4L12 14.01L9 11.01" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span data-i18n="why_3">Hướng dẫn ứng phó khẩn cấp dễ hiểu, dễ làm</span>
-                        </li>
-                        <li>
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path
-                                    d="M22 11.08V12C21.9988 14.1564 21.3001 16.2547 20.0093 17.9818C18.7185 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69679 2.6853 9.79619 2.14808C11.8956 1.61086 14.088 1.73977 16.05 2.505"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M22 4L12 14.01L9 11.01" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <span data-i18n="why_4">Trang thiết bị an toàn, độ bền cao và đáng tin cậy</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="cta-box reveal-up" style="transition-delay: 0.2s;">
-                    <h3 data-i18n="cta_title">Chuẩn bị ngay hôm nay để bảo vệ gia đình bạn.</h3>
-                    <a href="checkout.html" class="btn btn-primary" data-i18n="cta_btn">Mua ngay</a>
+        <!-- Trust Bar -->
+        <section class="bg-white dark:bg-slate-900 py-12 border-y border-slate-100 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="flex flex-col items-center text-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-4xl">local_shipping</span>
+                        <div class="space-y-1">
+                            <p class="font-bold text-secondary dark:text-white">Giao hàng toàn quốc</p>
+                            <p class="text-xs text-slate-500">63 tỉnh thành</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center text-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-4xl">verified_user</span>
+                        <div class="space-y-1">
+                            <p class="font-bold text-secondary dark:text-white">Kiểm tra khi nhận</p>
+                            <p class="text-xs text-slate-500">Thanh toán tại nhà</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center text-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-4xl">support_agent</span>
+                        <div class="space-y-1">
+                            <p class="font-bold text-secondary dark:text-white">Hỗ trợ nhanh</p>
+                            <p class="text-xs text-slate-500">Phục vụ 24/7</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center text-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-4xl">autorenew</span>
+                        <div class="space-y-1">
+                            <p class="font-bold text-secondary dark:text-white">1 đổi 1</p>
+                            <p class="text-xs text-slate-500">Bảo hành uy tín</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <!-- Product Grid -->
+        <section class="py-24" id="products">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-secondary dark:text-white text-3xl md:text-4xl font-black mb-4"
+                        data-i18n="nav_products">Sản phẩm nổi bật</h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto">Lựa chọn giải pháp phù hợp nhất với nhu cầu và quy mô
+                        gia đình bạn</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Product Card 1: Flood Kit -->
+                    <div
+                        class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+                        <div class="overflow-hidden rounded-xl mb-6 relative">
+                            <span
+                                class="absolute top-3 left-3 bg-primary text-white text-[10px] font-black px-2 py-1 rounded uppercase z-10">Bán
+                                chạy nhất</span>
+                            <img alt="Flood Kit"
+                                class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500"
+                                src="assets/safeall_flood_kit_1772701309096.png" />
+                        </div>
+                        <h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Bộ Kit Ứng Phó Lũ Lụt</h3>
+                        <p class="text-slate-500 text-sm mb-4">Được thiết kế chuyên biệt để bảo vệ gia đình trong các
+                            tình huống ngập lụt.</p>
+                        <div
+                            class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+                            <span class="text-primary font-black text-xl">1.200.000đ</span>
+                            <div class="flex gap-2">
+                                <a href="checkout.html"
+                                    onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
+                                    class="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                                    <span class="text-[10px] font-black uppercase px-1">Mua ngay</span>
+                                </a>
+                                <button
+                                    onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
+                                    class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined">shopping_cart</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product Card 2: Multi Kit -->
+                    <div
+                        class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+                        <div class="overflow-hidden rounded-xl mb-6">
+                            <img alt="Multi-Hazard Kit"
+                                class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500"
+                                src="assets/safeall_multi_kit_1772701607502.png" />
+                        </div>
+                        <h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Bộ Kit Đa Tình Huống</h3>
+                        <p class="text-slate-500 text-sm mb-4">Giải pháp toàn diện nhất chuẩn bị cho mọi thảm họa bất
+                            ngờ như động đất hoặc mất điện.</p>
+                        <div
+                            class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+                            <span class="text-primary font-black text-xl">2.500.000đ</span>
+                            <div class="flex gap-2">
+                                <a href="checkout.html"
+                                    onclick="window.SAFEALL_CART.addItem({id: 'multi_kit', title: 'Bộ kit đa tình huống', price: 2500000, image: 'assets/safeall_multi_kit_1772701607502.png', category: 'multi'})"
+                                    class="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                                    <span class="text-[10px] font-black uppercase px-1">Mua ngay</span>
+                                </a>
+                                <button
+                                    onclick="window.SAFEALL_CART.addItem({id: 'multi_kit', title: 'Bộ kit đa tình huống', price: 2500000, image: 'assets/safeall_multi_kit_1772701607502.png', category: 'multi'})"
+                                    class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined">shopping_cart</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product Card 3: Basic Kit -->
+                    <div
+                        class="group bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-slate-100 dark:border-slate-800">
+                        <div class="overflow-hidden rounded-xl mb-6">
+                            <img alt="Individual Items"
+                                class="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500"
+                                src="assets/safeall_individual_items_1772704234519.png" />
+                        </div>
+                        <h3 class="text-secondary dark:text-white text-xl font-bold mb-2">Trang bị lẻ cao cấp</h3>
+                        <p class="text-slate-500 text-sm mb-4">Các vật dụng cứu hộ và thiết bị thoát hiểm được bán lẻ
+                            theo nhu cầu riêng của bạn.</p>
+                        <div
+                            class="flex items-center justify-between mt-auto pt-4 border-t border-slate-50 dark:border-slate-800">
+                            <span class="text-primary font-black text-xl">950.000đ</span>
+                            <div class="flex gap-2">
+                                <a href="checkout.html"
+                                    onclick="window.SAFEALL_CART.addItem({id: 'basic_kit', title: 'Bộ kit cơ bản', price: 950000, image: 'assets/safeall_individual_items_1772704234519.png', category: 'basic'})"
+                                    class="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors">
+                                    <span class="text-[10px] font-black uppercase px-1">Mua ngay</span>
+                                </a>
+                                <button
+                                    onclick="window.SAFEALL_CART.addItem({id: 'basic_kit', title: 'Bộ kit cơ bản', price: 950000, image: 'assets/safeall_individual_items_1772704234519.png', category: 'basic'})"
+                                    class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                                    <span class="material-symbols-outlined">shopping_cart</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- What's Inside & Why Prepare Early -->
+        <section class="bg-secondary text-white py-24 overflow-hidden relative">
+            <div class="absolute right-0 top-0 w-1/3 h-full bg-primary/10 -skew-x-12 translate-x-1/2"></div>
+            <div class="max-w-7xl mx-auto px-4 relative">
+                <div class="grid lg:grid-cols-2 gap-20 items-center">
+                    <div>
+                        <h2 class="text-3xl font-black mb-8 border-l-4 border-primary pl-6">Tại sao cần chuẩn bị sớm?
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="size-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary">schedule</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">Thời gian vàng trong cấp cứu</h4>
+                                    <p class="text-blue-100/70 text-sm">Phản ứng nhanh trong 5 phút đầu tiên quyết định
+                                        80% sự an toàn của người gặp nạn.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="size-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary">psychology</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold mb-1">An tâm tuyệt đối</h4>
+                                    <p class="text-blue-100/70 text-sm">Khi có sự chuẩn bị, tâm lý gia đình sẽ bình tĩnh
+                                        hơn để đưa ra các quyết định sáng suốt.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-black mb-8 border-l-4 border-primary pl-6">Có gì bên trong SAFEALL Kit?
+                        </h2>
+                        <ul class="grid sm:grid-cols-2 gap-4">
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">medical_services</span>
+                                <span class="text-sm font-medium">Sơ cứu y tế chuyên sâu</span>
+                            </li>
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">flashlight_on</span>
+                                <span class="text-sm font-medium">Đèn pin đa năng siêu sáng</span>
+                            </li>
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">restaurant</span>
+                                <span class="text-sm font-medium">Thực phẩm dự trữ dài hạn</span>
+                            </li>
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">water_drop</span>
+                                <span class="text-sm font-medium">Thiết bị lọc nước khẩn cấp</span>
+                            </li>
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">campaign</span>
+                                <span class="text-sm font-medium">Còi báo hiệu & Tín hiệu</span>
+                            </li>
+                            <li class="flex items-center gap-3 bg-white/5 p-4 rounded-xl">
+                                <span class="material-symbols-outlined text-primary">construction</span>
+                                <span class="text-sm font-medium">Dụng cụ thoát hiểm 10-in-1</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof / Reviews -->
+        <section class="py-24 bg-white dark:bg-background-dark">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-16">
+                    <h2 class="text-secondary dark:text-white text-3xl font-black mb-4">Khách hàng nói về SAFEALL</h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+                        <span
+                            class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4 text-[5rem]">format_quote</span>
+                        <div class="flex gap-1 text-primary mb-4">
+                            <span class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-400 italic mb-6 relative z-10">"Sản phẩm đóng gói rất
+                            chuyên nghiệp, các dụng cụ bên trong đều là hàng cao cấp. Cảm thấy an tâm hơn rất nhiều khi
+                            để bộ kit này trong nhà."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-slate-300"></div>
+                            <div>
+                                <p class="font-bold text-sm text-secondary dark:text-white">Anh Minh Tú</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Hà Nội</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+                        <span
+                            class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4 text-[5rem]">format_quote</span>
+                        <div class="flex gap-1 text-primary mb-4">
+                            <span class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-400 italic mb-6 relative z-10">"Vùng mình hay có lụt
+                            nên mình mua bộ Chuyên Dụng. Túi chống nước rất tốt, còi và đèn pin cực kỳ sáng. Rất đáng
+                            đồng tiền bát gạo."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-slate-300"></div>
+                            <div>
+                                <p class="font-bold text-sm text-secondary dark:text-white">Chị Thu Thủy</p>
+                                <p class="text-[10px] text-slate-500 uppercase">Quảng Bình</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl relative">
+                        <span
+                            class="material-symbols-outlined text-primary/20 text-6xl absolute top-4 right-4 text-[5rem]">format_quote</span>
+                        <div class="flex gap-1 text-primary mb-4">
+                            <span class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span><span
+                                class="material-symbols-outlined">star</span>
+                        </div>
+                        <p class="text-slate-600 dark:text-slate-400 italic mb-6 relative z-10">"Dịch vụ khách hàng của
+                            SAFEALL rất tuyệt vời. Họ tư vấn tận tình bộ kit phù hợp cho gia đình có người già và trẻ
+                            nhỏ của mình."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 rounded-full bg-slate-300"></div>
+                            <div>
+                                <p class="font-bold text-sm text-secondary dark:text-white">Chú Hùng</p>
+                                <p class="text-[10px] text-slate-500 uppercase">TP. Hồ Chí Minh</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="py-24 bg-slate-50 dark:bg-slate-900/50">
+            <div class="max-w-3xl mx-auto px-4">
+                <h2 class="text-secondary dark:text-white text-3xl font-black mb-12 text-center">Câu hỏi thường gặp</h2>
+                <div class="space-y-4">
+                    <div
+                        class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+                        <h4
+                            class="font-bold text-secondary dark:text-white flex justify-between items-center cursor-pointer">
+                            Thời hạn sử dụng của bộ kit là bao lâu?
+                            <span class="material-symbols-outlined transition-transform">expand_more</span>
+                        </h4>
+                        <p class="mt-4 text-slate-500 text-sm">Hầu hết dụng cụ có độ bền trên 10 năm. Riêng vật tư y tế
+                            và thực phẩm có hạn dùng từ 2-5 năm, chúng tôi có dịch vụ nhắc nhở thay mới định kỳ.</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800">
+                        <h4
+                            class="font-bold text-secondary dark:text-white flex justify-between items-center cursor-pointer">
+                            Tôi có thể tự tùy chỉnh các vật dụng bên trong không?
+                            <span class="material-symbols-outlined transition-transform">expand_more</span>
+                        </h4>
+                        <p class="mt-4 text-slate-500 text-sm">Hoàn toàn được. Hãy liên hệ hotline để chúng tôi tư vấn
+                            và thiết kế riêng bộ kit theo yêu cầu đặc biệt của gia đình bạn.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="py-20">
+            <div class="max-w-5xl mx-auto px-4">
+                <div
+                    class="bg-primary rounded-[2rem] p-8 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-white/5 opacity-20 pointer-events-none"
+                        style="background-image: radial-gradient(circle at 20px 20px, white 2px, transparent 0); background-size: 40px 40px;">
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-black mb-6 relative">Đừng đợi đến khi quá muộn</h2>
+                    <p class="text-white/80 text-lg mb-10 max-w-xl mx-auto relative">Hãy trang bị ngay sự an tâm cho gia
+                        đình mình với giải pháp ứng phó khẩn cấp chuyên nghiệp từ SAFEALL.</p>
+                    <button onclick="window.location.href='#products'"
+                        class="bg-white text-primary px-12 py-5 rounded-2xl font-black text-xl hover:scale-105 transition-transform shadow-2xl relative">
+                        Bảo vệ gia đình ngay
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-brand">
-                <a href="#" class="logo"><span class="logo-safe">SAFE</span><span class="logo-all">ALL</span></a>
-                <p data-i18n="footer_slogan">Chuẩn bị hôm nay – An toàn ngày mai.</p>
-                <div class="social-links">
-                    <a href="https://www.facebook.com/profile.php?id=61586877506893" target="_blank"
-                        rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" width="24" height="24"
-                            stroke="currentColor" stroke-width="2" fill="none">
-                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                        </svg></a>
-                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" width="24" height="24"
-                            stroke="currentColor" stroke-width="2" fill="none">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg></a>
+    <footer class="bg-secondary text-white pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-6">
+                        <img alt="Logo" class="h-8 w-auto brightness-0 invert"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI8rieWur0ga85CuSBr13eaZTzBjiqi1my1xp93isjCW6ZTY9uOTMcI1k6iYzJsZ0RAUvN-N8uUEtdffPlvjV7zVdKsv0uACfkyS3UFK6v9ryyEiB-xD3eAMKO1FDdh22oGZP-jBMV_yMDP2KbjYIDKveNiLo8UrxpVXUPBbVvBW97Kx-n8aTHqbSzNwNBm80MMgnX_jJaHJWwXwcmARXdktP7LOlJb_MarbUYGQhpGEg7YNICr0IV-Do7P95F4LTf6R1Z1wzSOZY" />
+                        <span class="text-2xl font-black tracking-tighter">SAFEALL</span>
+                    </div>
+                    <p class="text-blue-200/60 max-w-sm mb-6">Hệ thống giải pháp ứng phó khẩn cấp hàng đầu Việt Nam.
+                        Chúng tôi cam kết mang lại sự an toàn cao nhất cho mọi gia đình.</p>
+                    <div class="flex gap-4">
+                        <a class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+                            href="https://facebook.com/safeall">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                            </svg>
+                        </a>
+                        <a class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors"
+                            href="#">
+                            <span class="material-symbols-outlined !text-xl">public</span>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6 text-lg">Liên kết</h4>
+                    <ul class="space-y-4 text-blue-200/60 text-sm">
+                        <li><a class="hover:text-primary transition-colors" href="index.html">Trang chủ</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="products.html">Sản phẩm</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="my-orders.html">Theo dõi đơn</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6 text-lg">Ngôn ngữ</h4>
+                    <div class="flex gap-2">
+                        <button onclick="changeLanguage('vi')"
+                            class="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-xs font-bold transition-colors">VI</button>
+                        <button onclick="changeLanguage('en')"
+                            class="px-3 py-1 rounded bg-white/10 hover:bg-white/20 text-xs font-bold transition-colors">EN</button>
+                    </div>
                 </div>
             </div>
-            <div class="footer-links">
-                <h4 data-i18n="footer_links_title">Liên kết nhanh</h4>
-                <ul>
-                    <li><a href="#about" data-i18n="nav_about">Giới thiệu</a></li>
-                    <li><a href="#products" data-i18n="nav_products">Sản phẩm</a></li>
-                    <li><a href="#reasons" data-i18n="nav_reasons">Vì sao chọn chúng tôi</a></li>
-                </ul>
+            <div class="pt-8 border-t border-white/10 text-center text-blue-200/30 text-xs">
+                © 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.
             </div>
-            <div class="footer-contact">
-                <h4 data-i18n="footer_contact_title">Liên hệ</h4>
-                <p>Email: safeall.official@gmail.com</p>
-                <p>Phone: +84 775 605 303</p>
-            </div>
-            <div class="footer-lang">
-                <h4 data-i18n="footer_lang_title">Ngôn ngữ</h4>
-                <div class="lang-switch-footer">
-                    <button class="btn-lang" onclick="changeLanguage('vi')">Tiếng Việt</button>
-                    <button class="btn-lang outline" onclick="changeLanguage('en')">English</button>
-                </div>
-            </div>
-        </div>
-        <div class="container footer-bottom">
-            <p>&copy; 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.</p>
         </div>
     </footer>
 
+    <!-- Side Cart Overlay -->
+    <div id="sideCartOverlay"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden transition-opacity duration-300">
+        <div onclick="window.SAFEALL_CART.toggleSideCart(false)" class="absolute inset-0"></div>
+        <!-- Slide-out Side Cart Panel -->
+        <div id="sideCartPanel"
+            class="fixed top-0 right-0 h-screen w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+            <!-- Cart Header -->
+            <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <img alt="SAFEALL Logo" class="h-8 w-auto"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj7qSI13CRXgoDs7fI6SL3-4-Lyngb9Oz68msFXU8t9kBz8soLmNJPDKpGRp0a6Kdc91BbpR0xrpmsreBKrrOFwWKmvoZwKgTk1eaHnZyVkO09aA54X1WSA3HWGLlyHnW5C7R3yfY67MLFUwUHen71N680xeFB2i0uZnNI7q5d328FJg83ywU6fUnPGdXSLSeOLfL38YFuSslI2vb_L1aBjUKQ4LKv5AJf4NIwqG5SVRqe9jru_dJkiovOJcP06-moPdVQe9hHnlU" />
+                    <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">Giỏ hàng</h2>
+                </div>
+                <button onclick="window.SAFEALL_CART.toggleSideCart(false)"
+                    class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <span class="material-symbols-outlined text-slate-500">close</span>
+                </button>
+            </div>
+            <!-- Items List -->
+            <div id="sideCartItems" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+                <!-- Dynamic Content from JS -->
+            </div>
+            <!-- Bottom Section -->
+            <div class="border-t border-slate-100 p-6 bg-slate-50">
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between text-sm text-slate-500">
+                        <p>Tạm tính</p>
+                        <p class="cart-total-price">0đ</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-slate-500">
+                        <p>Phí vận chuyển</p>
+                        <p>Miễn phí</p>
+                    </div>
+                    <div class="flex justify-between text-lg font-black text-slate-900 border-t border-slate-200 pt-3">
+                        <p>Tổng cộng</p>
+                        <p class="text-primary cart-total-price">0đ</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <button onclick="window.location.href='checkout.html'"
+                        class="w-full bg-primary hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group">
+                        <span>THANH TOÁN NGAY</span>
+                        <span
+                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                    <button onclick="window.SAFEALL_CART.toggleSideCart(false)"
+                        class="w-full text-secondary hover:text-blue-800 text-sm font-bold text-center">
+                        Tiếp tục xem sản phẩm khác
+                    </button>
+                </div>
+                <p
+                    class="mt-6 text-center text-[10px] text-slate-400 flex items-center justify-center gap-1 uppercase tracking-widest font-bold">
+                    <span class="material-symbols-outlined text-sm">lock</span>
+                    Thanh toán an toàn & bảo mật
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="js/lang.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/lang.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/script.js"></script>
-</body>
+    <script>
+        // FAQ Accordion logic
+        document.querySelectorAll('h4.cursor-pointer').forEach(header => {
+            header.addEventListener('click', () => {
+                const p = header.nextElementSibling;
+                const icon = header.querySelector('.material-symbols-outlined');
+                const isHidden = p.classList.contains('hidden');
 
+                // Toggle current
+                p.classList.toggle('hidden');
+                icon.style.transform = p.classList.contains('hidden') ? 'rotate(0)' : 'rotate(180deg)';
+                header.parentElement.classList.toggle('ring-2', !p.classList.contains('hidden'));
+                header.parentElement.classList.toggle('ring-primary/20', !p.classList.contains('hidden'));
+            });
+            // Initial state
+            header.nextElementSibling.classList.add('hidden');
+        });
+    </script>
+</body>
 
 </html>

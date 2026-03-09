@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#3b82f6",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 md:px-20 py-4">
+<div class="flex items-center gap-4">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">shield_with_heart</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold leading-tight tracking-tight">SAFEALL</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-4">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400">notifications</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200" data-alt="User profile placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBSGqMCVoMFArVPqzY2vVbTwZeGU_Jyo9py0zS8UnDurgNK_4ptih7K0LOj2h4A1wFbOYaoztkNywRF9lgm6KAhHOy_zQFgu3js08XXSFGGvD58XS0YC-4YYDHUpA9p_ExTJySlRQ_NKdw8dqmEFCRMhRDMcPENtz_63tjUjt0PUrQkNW3dyvC34SAGUvpumg8SMXcAqg7pMpXbGgsjO6D1kCJbpJYfRqu7luLCkifvQbsCtsjyQtqC-njKO3ogVragRvt2odsUx0A");'></div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex flex-1 justify-center py-10 px-4">
+<div class="layout-content-container flex flex-col max-w-[640px] flex-1">
+<!-- Success Icon & Headline -->
+<div class="flex flex-col items-center text-center mb-8">
+<div class="size-20 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-5xl">check_circle</span>
+</div>
+<h1 class="text-slate-900 dark:text-white tracking-tight text-3xl md:text-4xl font-bold leading-tight mb-2">Đặt hàng thành công!</h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-normal max-w-md">Cảm ơn bạn đã tin dùng SAFEALL. Đơn hàng của bạn đang được xử lý và sẽ sớm được giao đến bạn.</p>
+</div>
+<!-- Order Summary Card -->
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+                        Chi tiết đơn hàng
+                    </h3>
+<div class="space-y-4">
+<div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+<span class="text-slate-500 dark:text-slate-400">Mã đơn hàng</span>
+<span class="font-bold text-slate-900 dark:text-white">#SA-882910</span>
+</div>
+<div class="py-2 border-b border-slate-100 dark:border-slate-800">
+<span class="text-slate-500 dark:text-slate-400 block mb-1">Người nhận hàng</span>
+<div class="text-slate-900 dark:text-white font-medium">Nguyễn Văn A</div>
+<div class="text-slate-600 dark:text-slate-400 text-sm">090 123 4567</div>
+<div class="text-slate-600 dark:text-slate-400 text-sm">123 Đường ABC, Phường 1, Quận 1, TP. Hồ Chí Minh</div>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+<span class="text-slate-500 dark:text-slate-400">Phương thức thanh toán</span>
+<span class="text-slate-900 dark:text-white">Thanh toán khi nhận hàng (COD)</span>
+</div>
+<div class="flex justify-between items-center pt-4">
+<span class="text-lg font-bold text-slate-900 dark:text-white">Tổng cộng</span>
+<span class="text-2xl font-bold text-primary">1.250.000đ</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-3 sm:flex-row">
+<button class="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-4 px-6 rounded-xl transition-colors shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">local_shipping</span>
+                        Theo dõi đơn hàng
+                    </button>
+<button class="flex-1 flex items-center justify-center gap-2 bg-secondary hover:bg-secondary/90 text-white font-bold py-4 px-6 rounded-xl transition-colors">
+<span class="material-symbols-outlined">shopping_basket</span>
+                        Tiếp tục mua sắm
+                    </button>
+</div>
+<!-- Support Info -->
+<div class="mt-12 text-center">
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-2">Bạn cần hỗ trợ? Liên hệ hotline:</p>
+<a class="text-primary font-bold text-lg hover:underline" href="tel:19001234">1900 1234</a>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-100 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-800 py-8 px-6 mt-10">
+<div class="max-w-[960px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-3 opacity-60">
+<span class="material-symbols-outlined text-2xl">shield_with_heart</span>
+<span class="font-bold text-lg">SAFEALL</span>
+</div>
+<div class="flex gap-6 text-slate-500 dark:text-slate-400 text-sm font-medium">
+<a class="hover:text-primary" href="#">Trang chủ</a>
+<a class="hover:text-primary" href="#">Chính sách bảo mật</a>
+<a class="hover:text-primary" href="#">Điều khoản dịch vụ</a>
+</div>
+<p class="text-slate-400 dark:text-slate-500 text-xs">© 2024 SAFEALL. All rights reserved.</p>
+</div>
+</footer>
+</div>
+</body></html>

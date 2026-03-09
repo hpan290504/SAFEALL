@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#0056b3",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-slate-200 font-display">
+<!-- Background Overlay (Simulating the cart being open over a page) -->
+<div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+<!-- Slide-out Side Cart -->
+<div class="fixed top-0 right-0 h-screen w-full max-w-md bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300">
+<!-- Cart Header -->
+<div class="flex items-center justify-between p-4 border-b border-slate-100">
+<div class="flex items-center gap-3">
+<img alt="SAFEALL Logo" class="h-8 w-auto" data-alt="SAFEALL brand logo red and white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj7qSI13CRXgoDs7fI6SL3-4-Lyngb9Oz68msFXU8t9kBz8soLmNJPDKpGRp0a6Kdc91BbpR0xrpmsreBKrrOFwWKmvoZwKgTk1eaHnZyVkO09aA54X1WSA3HWGLlyHnW5C7R3yfY67MLFUwUHen71N680xeFB2i0uZnNI7q5d328FJg83ywU6fUnPGdXSLSeOLfL38YFuSslI2vb_L1aBjUKQ4LKv5AJf4NIwqG5SVRqe9jru_dJkiovOJcP06-moPdVQe9hHnlU"/>
+<h2 class="text-xl font-bold text-slate-900 uppercase tracking-tight">Giỏ hàng</h2>
+</div>
+<button class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined text-slate-500">close</span>
+</button>
+</div>
+<!-- Items List -->
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- Item 1 -->
+<div class="flex gap-4 border-b border-slate-50 pb-6">
+<div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-100">
+<img class="h-full w-full object-cover" data-alt="Emergency rescue kit product thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFpRyhgfuPApEmczZkunlSrZzycw03cdLkJ3JMeBhfNevK-rLRRFc8v850Wawyx2BhAMIitKHnBGiMlR1dL87K5nPMf99KwpP7FTogGbPTmmV_vAPuDVzLteT-ra9p9EVkn8QY8FD4rGsB5lUT0Ewyzc03tchFiOtmNmLawL1-4IV3msf0UvmdTQ9VgbKaQ1kjGNQxfpRNE2N9nk9BD1y2Xie5FodbhuRwg-vHq3EGd2WqkblrMiDMarylp_QWxw9XiL2F-KtD1_0"/>
+</div>
+<div class="flex flex-1 flex-col">
+<div class="flex justify-between text-base font-semibold text-slate-900">
+<h3>Sản phẩm cứu hộ A1</h3>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+<p class="mt-1 text-sm text-slate-500 italic">Màu sắc: Đỏ tiêu chuẩn</p>
+<div class="flex flex-1 items-end justify-between text-sm">
+<div class="flex items-center border border-slate-200 rounded-lg bg-white">
+<button class="px-2 py-1 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<input class="w-8 text-center border-none p-0 text-sm font-medium focus:ring-0" type="text" value="1"/>
+<button class="px-2 py-1 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<p class="font-bold text-primary text-base">500.000đ</p>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-4 border-b border-slate-50 pb-6">
+<div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-100">
+<img class="h-full w-full object-cover" data-alt="Personal first aid kit thumbnail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbYzTcCbjNwFpCLrANcN6QLhHW15JKSaMwO64hoQeLlQAXVSejPBhoq7QIp03RUTMRo87oVcOfvVWtgXwMfy6vZquxLk6AlCdi2C7c9NxCBuQyldAleCCWwwID2NRgjOFZ-_V4kB5QPwZt9laYpgKkNf7a8gIXgUMw4XgxNxtRXd-JyOq_m128Fezz0elO5C5qAmjNe_nnALOnvgcM8sVpdpyKp9fY3hpTLdY2iFh_HZhsf1ohdIa80tEzZhds60e0liJXMcV3RJk"/>
+</div>
+<div class="flex flex-1 flex-col">
+<div class="flex justify-between text-base font-semibold text-slate-900">
+<h3>Bộ sơ cứu cá nhân</h3>
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined text-lg">delete</span>
+</button>
+</div>
+<p class="mt-1 text-sm text-slate-500 italic">Loại: 15 món</p>
+<div class="flex flex-1 items-end justify-between text-sm">
+<div class="flex items-center border border-slate-200 rounded-lg bg-white">
+<button class="px-2 py-1 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<input class="w-8 text-center border-none p-0 text-sm font-medium focus:ring-0" type="text" value="2"/>
+<button class="px-2 py-1 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="text-right">
+<p class="text-xs text-slate-400 line-through">150.000đ</p>
+<p class="font-bold text-primary text-base">300.000đ</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty cart state hint (hidden) -->
+<!-- <div class="flex flex-col items-center justify-center py-20 text-slate-400">
+                <span class="material-symbols-outlined text-6xl mb-4">shopping_cart</span>
+                <p>Giỏ hàng của bạn đang trống</p>
+            </div> -->
+</div>
+<!-- Bottom Section -->
+<div class="border-t border-slate-100 p-6 bg-slate-50/50">
+<div class="space-y-3 mb-6">
+<div class="flex justify-between text-sm text-slate-500">
+<p>Tạm tính</p>
+<p>800.000đ</p>
+</div>
+<div class="flex justify-between text-sm text-slate-500">
+<p>Phí vận chuyển</p>
+<p>Miễn phí</p>
+</div>
+<div class="flex justify-between text-lg font-bold text-slate-900 border-t border-slate-200 pt-3">
+<p>Tổng cộng</p>
+<p class="text-primary">800.000đ</p>
+</div>
+</div>
+<div class="space-y-4">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group">
+<span>THANH TOÁN NGAY</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<div class="text-center">
+<a class="text-secondary hover:text-secondary/80 text-sm font-semibold flex items-center justify-center gap-1" href="#">
+<span class="material-symbols-outlined text-base">chevron_left</span>
+                        Tiếp tục xem sản phẩm khác
+                    </a>
+</div>
+</div>
+<p class="mt-6 text-center text-xs text-slate-400 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-sm">lock</span>
+                Thanh toán an toàn &amp; bảo mật
+            </p>
+</div>
+</div>
+</body></html>

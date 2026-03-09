@@ -2,324 +2,341 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="description" content="SAFEALL Products - Chi tiết các bộ kit chuẩn bị khẩn cấp cho gia đình Việt.">
-    <title>Sản phẩm | SAFEALL</title>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    <title>Sản phẩm | SAFEALL - Chi tiết Bộ Kit Ứng Phó Khẩn Cấp</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#1e3a8a",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
 
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </head>
 
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container nav-content">
-            <a href="index.html" class="logo"><span class="logo-safe">SAFE</span><span class="logo-all">ALL</span></a>
-            <ul class="nav-links">
-                <li><a href="index.html#about" data-i18n="nav_about">Giới thiệu</a></li>
-                <li><a href="index.html#mission" data-i18n="nav_mission">Sứ mệnh</a></li>
-                <li><a href="index.html#products" data-i18n="nav_products">Sản phẩm</a></li>
-                <li><a href="index.html#reasons" data-i18n="nav_reasons">Vì sao chọn SAFEALL</a></li>
-            </ul>
-            <div class="header-actions">
-                <div id="authSection" class="auth-section"></div>
-                <a href="cart.html" class="nav-cart-btn"
-                    style="position: relative; color: var(--text-dark); text-decoration: none;">
-                    <span class="material-symbols-outlined">shopping_cart</span>
-                    <span class="cart-badge nav-cart-count"
-                        style="position: absolute; top: -5px; right: -10px; background: var(--primary-red); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; display: none;">0</span>
-                </a>
-                <div class="lang-switch">
-
-                    <button id="lang-vi" class="active">VI</button>
-                    <div class="divider">|</div>
-                    <button id="lang-en">EN</button>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Header -->
+        <header
+            class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <a href="index.html" class="flex items-center gap-2">
+                        <img alt="SAFEALL logo" class="h-10 w-auto"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_tnJp8lktcPrPzaXILhZ7b1oRmkGUf2MOHxGDDlDJ1KtVy-gLPAZiyt1Yi6xhYEe0r4MJbdEm8sofuHhHpSdV8-N9EzVE7YlMHn_J2HXGG6BSLIIpvtzgGmDdJ1oJ7Dx3fcE95QOOMJK54ied6CKWINvBt9ciCyUHUUgnLuC7-Akx4HiI8tSk20xuJHYfbK5JCxXDQs9HHnZErB31y4wPbGIMgguSRWPIcuryIhlIWV31yXp2eQcyaoSdVUcZl3qD3XxRFGse25s" />
+                        <span class="text-secondary dark:text-white text-2xl font-black tracking-tighter">SAFEALL</span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex items-center gap-10">
+                    <a class="text-sm font-semibold hover:text-primary transition-colors" href="index.html">Trang
+                        chủ</a>
+                    <a class="text-sm font-semibold hover:text-primary transition-colors text-primary"
+                        href="products.html">Sản phẩm</a>
+                    <a class="text-sm font-semibold hover:text-primary transition-colors" href="my-orders.html">Theo dõi
+                        đơn</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button onclick="window.SAFEALL_CART.toggleSideCart(true)"
+                        class="relative p-2 text-slate-600 hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span id="cartBadge"
+                            class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                    <div id="authSection" class="hidden sm:flex"></div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </header>
 
-    <!-- Page Header -->
-    <header class="page-header">
-        <div class="container">
-            <h1 data-i18n="page_products_title">Chi tiết sản phẩm</h1>
-        </div>
-    </header>
+        <main class="flex-1 max-w-7xl mx-auto w-full px-4 md:px-10 py-8">
+            <!-- Breadcrumbs -->
+            <nav class="flex text-sm text-slate-500 gap-2 mb-8">
+                <a href="index.html" class="hover:text-primary cursor-pointer">Trang chủ</a>
+                <span>/</span>
+                <span class="text-slate-900 dark:text-white font-medium">Bộ Kit Ứng Phó Lũ Lụt</span>
+            </nav>
 
-    <!-- Product Details Sections -->
-    <!-- Flood Kit -->
-    <section id="flood" class="product-detail-section bg-light">
-        <div class="container product-detail-grid" style="grid-template-columns: 1fr; max-width: 1000px;">
-            <div class="product-detail-info reveal-right">
-                <h2 data-i18n="prod_flood_title">Bộ kit ứng phó lũ lụt</h2>
-                <div class="flood-hero"
-                    style="display: flex; gap: 40px; margin: 30px 0; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;">
-                    <div class="flood-price-info" style="flex: 1; min-width: 300px;">
-                        <div class="price-container">
-                            <span class="old-price" data-i18n="price_flood_old">1.500.000 VNĐ</span>
-                            <span class="new-price"><span data-i18n="price_label">Giá bán:</span> <span
-                                    data-i18n="price_flood">1.200.000 VNĐ</span></span>
-                            <span class="discount-tag">-20%</span>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Image Gallery -->
+                <div class="flex flex-col gap-4">
+                    <div
+                        class="group relative aspect-square overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800">
+                        <img id="mainProductImg" class="w-full h-full object-cover"
+                            src="assets/safeall_flood_kit_1772701309096.png" />
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                        <div onclick="document.getElementById('mainProductImg').src=this.querySelector('img').src"
+                            class="min-w-[100px] aspect-square rounded-lg overflow-hidden border-2 border-primary cursor-pointer">
+                            <img class="w-full h-full object-cover" src="assets/safeall_flood_kit_1772701309096.png" />
                         </div>
-                        <div class="countdown-wrapper">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                            <span data-i18n="sale_ends_in">Deal kết thúc sau:</span>
-                            <span class="countdown-timer">1 Ngày 00:00:00</span>
+                        <div onclick="document.getElementById('mainProductImg').src=this.querySelector('img').src"
+                            class="min-w-[100px] aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 opacity-70 hover:opacity-100 transition-opacity cursor-pointer">
+                            <img class="w-full h-full object-cover"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMbdd1OYuRfepUfKi2PVwDk0Zv8NYMmIz1N28dROHlwSCDuRt02VNR5kwtvqSPeX1YEsXTSfspZQ4QHZkoYAFb-n6nbE3FN8dDyniApSOX-vYRQheWJMFMjM9nHbrEEIQF3lWYPyPR5BmRtV5WtpdxPQVFT1-0a0SfgRRmZw0AldsvmaGdJne9Rglz81V6nedNFCX5f4iWP-KU7rhlCSAIVeEWm4WgQuemEP0G2sCA9_kglHwFEFazeZroO0wsx5PfVDvjrJZRYUU" />
                         </div>
-                        <p data-i18n="prod_flood_desc">Được thiết kế chuyên biệt để bảo vệ gia đình trong các tình huống
-                            ngập
-                            lụt, bao gồm vật dụng chống nước và phao cứu sinh.</p>
-                        <ul class="product-features">
-                            <li data-i18n="feat_flood_adv_1"><strong>Giải pháp sinh tồn toàn diện:</strong> Tích hợp đầy
-                                đủ trang thiết bị thiết yếu từ phao cứu sinh, đèn pin năng lượng mặt trời đến bộ y tế
-                                chuyên dụng.</li>
-                            <li data-i18n="feat_flood_adv_2"><strong>Thiết kế tối ưu cho môi trường ngập lụt:</strong>
-                                Balo và các phụ kiện chống thấm nước cao cấp, bền bỉ và dễ dàng mang theo.</li>
-                            <li data-i18n="feat_flood_adv_3"><strong>Phản ứng nhanh và sẵn sàng tức thì:</strong> Vật
-                                dụng sắp xếp khoa học, gọn nhẹ, giúp bạn bảo vệ gia đình trong giây phút quan trọng
-                                nhất.</li>
-                        </ul>
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="flex flex-col gap-6">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span
+                                class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase rounded">Bestseller</span>
+                            <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Mã:
+                                SA-FLOOD-01</span>
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight">Bộ Kit
+                            Ứng Phó Lũ Lụt SAFEALL</h1>
+                        <div class="flex items-center gap-4">
+                            <div class="flex text-yellow-400">
+                                <span class="material-symbols-outlined fill-1">star</span>
+                                <span class="material-symbols-outlined fill-1">star</span>
+                                <span class="material-symbols-outlined fill-1">star</span>
+                                <span class="material-symbols-outlined fill-1">star</span>
+                                <span class="material-symbols-outlined fill-1">star</span>
+                            </div>
+                            <span class="text-slate-500 text-sm font-medium">(1.2k+ đánh giá)</span>
+                        </div>
                     </div>
 
-                    <div class="flood-image-action" style="flex: 0 0 400px; text-align: center;">
-                        <img src="assets/safeall_flood_kit_1772701309096.png" alt="Flood Emergency Kit"
-                            style="width: 100%; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                        <div class="product-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                    <div class="flex flex-col gap-1">
+                        <div class="text-4xl font-black text-primary">1.200.000đ</div>
+                        <div class="text-slate-400 line-through text-lg">1.500.000đ</div>
+                    </div>
+
+                    <p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
+                        Được thiết kế chuyên biệt để bảo vệ gia đình trong các tình huống ngập lụt, bao gồm vật dụng
+                        chống nước và phao cứu sinh cao cấp. Sẵn sàng bảo vệ an toàn tối đa cho căn nhà của bạn.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3">
+                        <div
+                            class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-bold border border-blue-100">
+                            <span class="material-symbols-outlined text-lg">verified</span>
+                            Đạt chuẩn an toàn
+                        </div>
+                        <div
+                            class="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm font-bold border border-green-100">
+                            <span class="material-symbols-outlined text-lg">local_shipping</span>
+                            Giao hàng hỏa tốc
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                        <a href="checkout.html"
+                            onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
+                            class="flex-1 text-center bg-primary hover:bg-red-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wider text-xl">
+                            Mua ngay
+                        </a>
+                        <button
+                            onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
+                            class="flex-1 bg-secondary hover:bg-blue-900 text-white font-black py-5 rounded-2xl shadow-xl shadow-secondary/20 transition-all active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">add_shopping_cart</span>
+                            Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Deep Dive -->
+            <div class="mt-24">
+                <h3 class="text-3xl font-black mb-12 text-slate-900 dark:text-white border-l-8 border-primary pl-6">Chi
+                    tiết bộ kit</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div
+                        class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
+                        <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
+                            <span class="material-symbols-outlined text-3xl">backpack</span>
+                        </div>
+                        <h4 class="font-black text-xl mb-3">Balo cứu hộ chống nước</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Chất liệu TPU cao cấp, dung tích 40L, có thể
+                            sử dụng như phao cứu sinh tạm thời.</p>
+                    </div>
+                    <div
+                        class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
+                        <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
+                            <span class="material-symbols-outlined text-3xl">flashlight_on</span>
+                        </div>
+                        <h4 class="font-black text-xl mb-3">Đèn pin sạc năng lượng</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Ánh sáng 1000 lumen, tích hợp sạc năng lượng
+                            mặt trời và cổng USB dự phòng.</p>
+                    </div>
+                    <div
+                        class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
+                        <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
+                            <span class="material-symbols-outlined text-3xl">medical_services</span>
+                        </div>
+                        <h4 class="font-black text-xl mb-3">Túi y tế 50 món</h4>
+                        <p class="text-sm text-slate-500 leading-relaxed">Bao gồm đầy đủ bông băng, thuốc sát trùng,
+                            nhiệt kế và các dụng cụ sơ cứu cơ bản.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Kits -->
+            <div class="mt-32">
+                <div class="flex items-center justify-between mb-12">
+                    <h3 class="text-3xl font-black text-slate-900 dark:text-white">Các bộ kit khác</h3>
+                    <a href="index.html#products" class="text-primary font-bold hover:underline">Xem tất cả</a>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Multi -->
+                    <div
+                        class="flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <div class="size-24 rounded-2xl overflow-hidden shrink-0 border border-slate-50">
+                            <img src="assets/safeall_multi_kit_1772701607502.png" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">Bộ Kit Đa Tình Huống</h4>
+                            <p class="text-primary font-black">2.500.000đ</p>
                             <button
-                                onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
-                                class="btn btn-primary" style="flex: 1; font-size: 1rem; padding: 12px 0;">Thêm vào
-                                giỏ</button>
-                            <a href="checkout.html"
-                                onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
-                                class="btn btn-outline"
-                                style="flex: 1; font-size: 1rem; padding: 12px 0; border: 2px solid var(--primary-red); color: var(--primary-red); text-align: center; text-decoration: none; border-radius: 8px; font-weight: 700;">Mua
-                                ngay</a>
+                                onclick="window.SAFEALL_CART.addItem({id: 'multi_kit', title: 'Bộ kit đa tình huống', price: 2500000, image: 'assets/safeall_multi_kit_1772701607502.png', category: 'multi'})"
+                                class="mt-3 text-xs font-bold text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">
+                                Thêm vào giỏ <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                            </button>
                         </div>
-
                     </div>
-                </div>
-
-                <div class="sub-products-container">
-                    <h3 data-i18n="sub_prod_title" class="sub-products-title">Chi tiết các sản phẩm trong bộ kit</h3>
-                    <div class="sub-products-table">
-                        <div class="sp-header">
-                            <div class="sp-col name" data-i18n="sub_prod_name">Tên sản phẩm</div>
-                            <div class="sp-col qty" data-i18n="sub_prod_qty">Số lượng</div>
-                            <div class="sp-col desc" data-i18n="sub_prod_desc">Mô tả cơ bản</div>
-                            <div class="sp-col img">Hình ảnh</div>
+                    <!-- Basic -->
+                    <div
+                        class="flex items-center gap-6 p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <div class="size-24 rounded-2xl overflow-hidden shrink-0 border border-slate-50">
+                            <img src="assets/safeall_individual_items_1772704234519.png"
+                                class="w-full h-full object-cover">
                         </div>
-
-                        <!-- Product 1 (Core Product) -->
-                        <div class="sp-row highlight-core-product">
-                            <div class="sp-col name">
-                                <span data-i18n="sp_1_name">Balo cứu hộ</span>
-                            </div>
-                            <div class="sp-col qty" data-i18n="sp_1_qty">1</div>
-                            <div class="sp-col desc" data-i18n="sp_1_desc">Balo khẩn cấp thiết kế đặc biệt chống nước,
-                                dung tích lớn. Nổi bật với tính năng phao cứu sinh thứ 5 khi ngập lụt.</div>
-                            <div class="sp-col img"><img src="assets/balo_cuu_ho.jpg" alt="Backpack"></div>
-                        </div>
-
-                        <!-- Product 2 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_2_name">Áo phao cứu sinh</div>
-                            <div class="sp-col qty" data-i18n="sp_2_qty">4</div>
-                            <div class="sp-col desc" data-i18n="sp_2_desc">Chất liệu TPU bền bỉ, an toàn, có thể gấp gọn
-                                dễ sử dụng.</div>
-                            <div class="sp-col img"><img src="assets/ao_phao.png" alt="Life jackets"></div>
-                        </div>
-
-                        <!-- Product 3 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_3_name">Đèn pin đội đầu</div>
-                            <div class="sp-col qty" data-i18n="sp_3_qty">1-2</div>
-                            <div class="sp-col desc" data-i18n="sp_3_desc">Cung cấp ánh sáng mạnh mẽ hỗ trợ khi mất
-                                điện, kèm pin dự phòng.</div>
-                            <div class="sp-col img"><img src="assets/den_doi_dau.png" alt="Headlamp"></div>
-                        </div>
-
-                        <!-- Product 4 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_4_name">Sạc dự phòng</div>
-                            <div class="sp-col qty" data-i18n="sp_4_qty">1-2</div>
-                            <div class="sp-col desc" data-i18n="sp_4_desc">Dung lượng lớn, sạc nhanh nhiều thiết bị liên
-                                lạc khẩn cấp.</div>
-                            <div class="sp-col img"><img src="assets/pin_du_phong.png" alt="Power bank"></div>
-                        </div>
-
-                        <!-- Product 5 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_5_name">Bộ y tế sơ cứu</div>
-                            <div class="sp-col qty" data-i18n="sp_5_qty">1</div>
-                            <div class="sp-col desc" data-i18n="sp_5_desc">Bộ sơ cứu cơ bản với băng gạc, cồn sát trùng
-                                và thuốc men cần thiết.</div>
-                            <div class="sp-col img"><img src="assets/firstaidkit.png" alt="First aid"></div>
-                        </div>
-
-                        <!-- Product 6 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_6_name">Miếng dán giữ nhiệt</div>
-                            <div class="sp-col qty" data-i18n="sp_6_qty">8</div>
-                            <div class="sp-col desc" data-i18n="sp_6_desc">Giữ ấm cơ thể liên tục trong điều kiện thời
-                                tiết khắc nghiệt.</div>
-                            <div class="sp-col img">
-                                <img src="assets/heat_pad.png" alt="Heat pads">
-                            </div>
-                        </div>
-
-                        <!-- Product 7 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_7_name">Túi chống nước</div>
-                            <div class="sp-col qty" data-i18n="sp_7_qty">2</div>
-                            <div class="sp-col desc" data-i18n="sp_7_desc">Bảo vệ điện thoại và giấy tờ quan trọng khỏi
-                                hư hỏng do nước lũ.</div>
-                            <div class="sp-col img">
-                                <img src="assets/tui_chong_nuoc.png" alt="Waterproof Pouch">
-                            </div>
-                        </div>
-
-                        <!-- Product 8 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_8_name">Thực phẩm</div>
-                            <div class="sp-col qty" data-i18n="sp_8_qty">Đủ cho 24-72h</div>
-                            <div class="sp-col desc" data-i18n="sp_8_desc">Lương khô sinh tồn cao năng lượng bảo quản
-                                lâu ngày.</div>
-                            <div class="sp-col img">
-                                <img src="assets/luong_thuc.png" alt="Emergency Food">
-                            </div>
-                        </div>
-
-                        <!-- Product 9 -->
-                        <div class="sp-row">
-                            <div class="sp-col name" data-i18n="sp_9_name">Chăn giữ nhiệt</div>
-                            <div class="sp-col qty" data-i18n="sp_9_qty">4</div>
-                            <div class="sp-col desc" data-i18n="sp_9_desc">Chăn khẩn cấp siêu nhẹ, thiết kế ngăn ngừa
-                                mất nhiệt cơ thể cực kỳ hiệu quả.</div>
-                            <div class="sp-col img">
-                                <img src="assets/emergency_blanket.png" alt="Thermal Blanket">
-                            </div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">Bộ Kit Cơ Bản</h4>
+                            <p class="text-primary font-black">950.000đ</p>
+                            <button
+                                onclick="window.SAFEALL_CART.addItem({id: 'basic_kit', title: 'Bộ kit cơ bản', price: 950000, image: 'assets/safeall_individual_items_1772704234519.png', category: 'basic'})"
+                                class="mt-3 text-xs font-bold text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">
+                                Thêm vào giỏ <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        </div>
-        </div>
-    </section>
+        </main>
 
-    <!-- Multi-Hazard Kit -->
-    <section id="multi" class="product-detail-section">
-        <div class="container product-detail-grid">
-            <div class="product-detail-image reveal-right">
-                <img src="assets/safeall_multi_kit_1772701607502.png" alt="Multi-Hazard Kit">
-            </div>
-            <div class="product-detail-info reveal">
-                <h2 data-i18n="prod_multi_title">Bộ kit đa tình huống</h2>
-                <div class="product-price"><span data-i18n="price_label">Giá bán:</span> <span
-                        data-i18n="price_multi">2.500.000 VNĐ</span></div>
-                <p data-i18n="prod_multi_desc">Giải pháp toàn diện nhất chuẩn bị cho mọi thảm họa bất ngờ như động đất
-                    hoặc mất điện diện rộng, dự trữ thức ăn và nước uống.</p>
-                <ul class="product-features">
-                    <li data-i18n="feat_multi_1">Balo chịu lực chống nước</li>
-                    <li data-i18n="feat_multi_2">Dụng cụ lọc nước mini</li>
-                    <li data-i18n="feat_multi_3">Bộ y tế cá nhân toàn diện</li>
-                    <li data-i18n="feat_multi_4">Thức ăn dự trữ cao năng lượng</li>
-                </ul>
-                <a href="checkout.html" class="btn btn-primary" data-i18n="cta_btn">Mua ngay</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Individual Items -->
-    <section id="individual" class="product-detail-section bg-light">
-        <div class="container product-detail-grid">
-            <div class="product-detail-info reveal-right">
-                <h2 data-i18n="prod_individual_title">Mua lẻ trang thiết bị</h2>
-                <div class="product-price"><span data-i18n="price_label">Giá bán:</span> <span data-i18n="price_indi">Từ
-                        150.000 VNĐ</span></div>
-                <p data-i18n="prod_individual_desc">Tự thiết kế bộ kit cho riêng gia đình bạn với các món đồ lẻ chất
-                    lượng cao như đèn pin, kìm đa năng và túi y tế.</p>
-                <ul class="product-features">
-                    <li data-i18n="feat_indi_1">Đèn pin chiến thuật siêu sáng (250K)</li>
-                    <li data-i18n="feat_indi_2">Kìm đa năng 12 in 1 (300K)</li>
-                    <li data-i18n="feat_indi_3">Túi y tế cơ bản cho gia đình (150K)</li>
-                    <li data-i18n="feat_indi_4">Còi sinh tồn thông minh (50K)</li>
-                </ul>
-                <a href="checkout.html" class="btn btn-primary" data-i18n="cta_btn">Mua ngay</a>
-            </div>
-            <div class="product-detail-image reveal">
-                <img src="assets/safeall_individual_items_1772704234519.png" alt="Individual Gear">
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-grid">
-            <div class="footer-brand">
-                <a href="index.html" class="logo"><span class="logo-safe">SAFE</span><span
-                        class="logo-all">ALL</span></a>
-                <p data-i18n="footer_slogan">Chuẩn bị hôm nay – An toàn ngày mai.</p>
-                <div class="social-links">
-                    <a href="https://www.facebook.com/profile.php?id=61586877506893" target="_blank"
-                        rel="noopener noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" width="24" height="24"
-                            stroke="currentColor" stroke-width="2" fill="none">
-                            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                        </svg></a>
-                    <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" width="24" height="24"
-                            stroke="currentColor" stroke-width="2" fill="none">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                        </svg></a>
+        <!-- Footer -->
+        <footer class="bg-secondary text-white pt-20 pb-10 mt-32">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
+                    <div class="flex items-center gap-2">
+                        <img alt="Logo" class="h-8 w-auto brightness-0 invert"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI8rieWur0ga85CuSBr13eaZTzBjiqi1my1xp93isjCW6ZTY9uOTMcI1k6iYzJsZ0RAUvN-N8uUEtdffPlvjV7zVdKsv0uACfkyS3UFK6v9ryyEiB-xD3eAMKO1FDdh22oGZP-jBMV_yMDP2KbjYIDKveNiLo8UrxpVXUPBbVvBW97Kx-n8aTHqbSzNwNBm80MMgnX_jJaHJWwXwcmARXdktP7LOlJb_MarbUYGQhpGEg7YNICr0IV-Do7P95F4LTf6R1Z1wzSOZY" />
+                        <span class="text-2xl font-black tracking-tighter">SAFEALL</span>
+                    </div>
+                    <div class="flex gap-8 text-sm text-blue-200/60">
+                        <a href="index.html" class="hover:text-white transition-colors">Trang chủ</a>
+                        <a href="products.html" class="hover:text-white transition-colors">Sản phẩm</a>
+                        <a href="my-orders.html" class="hover:text-white transition-colors">Theo dõi đơn</a>
+                    </div>
+                </div>
+                <div class="pt-8 border-t border-white/10 text-center text-blue-200/30 text-xs">
+                    © 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.
                 </div>
             </div>
-            <div class="footer-links">
-                <h4 data-i18n="footer_links_title">Liên kết nhanh</h4>
-                <ul>
-                    <li><a href="index.html#about" data-i18n="nav_about">Giới thiệu</a></li>
-                    <li><a href="index.html#products" data-i18n="nav_products">Sản phẩm</a></li>
-                    <li><a href="index.html#reasons" data-i18n="nav_reasons">Vì sao chọn chúng tôi</a></li>
-                </ul>
-            </div>
-            <div class="footer-contact">
-                <h4 data-i18n="footer_contact_title">Liên hệ</h4>
-                <p>Email: safeall.official@gmail.com</p>
-                <p>Phone: +84 775 605 303</p>
-            </div>
-            <div class="footer-lang">
-                <h4 data-i18n="footer_lang_title">Ngôn ngữ</h4>
-                <div class="lang-switch-footer">
-                    <button class="btn-lang" onclick="changeLanguage('vi')">Tiếng Việt</button>
-                    <button class="btn-lang outline" onclick="changeLanguage('en')">English</button>
+        </footer>
+
+        <!-- Side Cart Overlay (Shared Component) -->
+        <div id="sideCartOverlay"
+            class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] hidden transition-opacity duration-300">
+            <div onclick="window.SAFEALL_CART.toggleSideCart(false)" class="absolute inset-0"></div>
+            <div id="sideCartPanel"
+                class="fixed top-0 right-0 h-screen w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+                <div class="flex items-center justify-between p-6 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <img alt="SAFEALL Logo" class="h-8 w-auto"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj7qSI13CRXgoDs7fI6SL3-4-Lyngb9Oz68msFXU8t9kBz8soLmNJPDKpGRp0a6Kdc91BbpR0xrpmsreBKrrOFwWKmvoZwKgTk1eaHnZyVkO09aA54X1WSA3HWGLlyHnW5C7R3yfY67MLFUwUHen71N680xeFB2i0uZnNI7q5d328FJg83ywU6fUnPGdXSLSeOLfL38YFuSslI2vb_L1aBjUKQ4LKv5AJf4NIwqG5SVRqe9jru_dJkiovOJcP06-moPdVQe9hHnlU" />
+                        <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">Giỏ hàng</h2>
+                    </div>
+                    <button onclick="window.SAFEALL_CART.toggleSideCart(false)"
+                        class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+                </div>
+                <div id="sideCartItems" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide"></div>
+                <div class="border-t border-slate-100 p-6 bg-slate-50">
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between text-sm text-slate-500"><span>Tạm tính</span><span
+                                class="cart-total-price">0đ</span></div>
+                        <div
+                            class="flex justify-between text-lg font-black text-slate-900 border-t border-slate-200 pt-3">
+                            <span>Tổng cộng</span><span class="text-primary cart-total-price">0đ</span></div>
+                    </div>
+                    <button onclick="window.location.href='checkout.html'"
+                        class="w-full bg-primary hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group">
+                        <span>THANH TOÁN NGAY</span>
+                        <span
+                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="container footer-bottom">
-            <p>&copy; 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.</p>
-            <!-- Image Modal -->
-            <div id="imageModal" class="modal">
-                <span class="modal-close">&times;</span>
-                <img class="modal-content" id="modalImg">
-                <div id="modalCaption"></div>
-            </div>
 
-            <script src="js/lang.js"></script>
-            <script src="js/api.js"></script>
-            <script src="js/auth.js"></script>
-            <script src="js/api.js"></script>
-            <script src="js/auth.js"></script>
-            <script src="js/lang.js"></script>
-            <script src="js/cart.js"></script>
-            <script src="js/script.js"></script>
+        <!-- Mobile Sticky CTA -->
+        <div id="mobileStickyBar"
+            class="fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-slate-200 p-4 shadow-2xl md:hidden transition-transform duration-300 translate-y-full">
+            <div class="flex items-center gap-4 max-w-lg mx-auto">
+                <div class="flex-1">
+                    <p class="text-[10px] font-black uppercase text-slate-400">Mua ngay hôm nay</p>
+                    <p class="font-black text-primary text-lg">1.200.000đ</p>
+                </div>
+                <button
+                    onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
+                    class="bg-primary text-white px-8 py-3 rounded-xl font-black uppercase tracking-tighter shadow-lg shadow-primary/20">
+                    MUA NGAY
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/lang.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Sticky CTA logic for mobile
+        if (window.innerWidth <= 768) {
+            const bar = document.getElementById('mobileStickyBar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 400) bar.classList.remove('translate-y-full');
+                else bar.classList.add('translate-y-full');
+            });
+        }
+    </script>
 </body>
-
 
 </html>

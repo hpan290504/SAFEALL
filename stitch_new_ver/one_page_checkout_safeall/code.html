@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ea2a33",
+                        "secondary": "#1e40af",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211111",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<title>SAFEALL - Thanh toán</title>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-[1200px] mx-auto px-4 lg:px-10 py-8">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<img alt="SAFEALL Logo" class="h-10 w-auto" data-alt="SAFEALL company logo in professional style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhvakR-RkjNeOXVR6LTsqaNBZqGiUvSBdvnhXI8ri_VeLEWndQR9zEJ5aeiH04fcTvevVAEhf1vq0S5wQHwobeTi6he5jXl5mcarjCyhEs_vXOmvC-1sBbaEkbtLJjOuB6cuj8mOkoRQvwyWGY9NERiDrTPsWuuXl-cbxXwu1zzef84EIofUxIb2I9NOKVOMKM3wMYxJvPv3ellc-GLNxZmD3N0IDoeI-Lq7XuySIgw2Q4vnVOJYENtlY332emtyO-lyW4QL2dvlg"/>
+</div>
+<div class="flex items-center gap-2 text-slate-500 text-sm">
+<span class="hover:text-primary cursor-pointer">Giỏ hàng</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="font-bold text-slate-900 dark:text-slate-100">Thanh toán</span>
+</div>
+</header>
+<main class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+<!-- Left Column: Shipping Form & Payment -->
+<div class="lg:col-span-7 flex flex-col gap-8">
+<section>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl">local_shipping</span>
+<h2 class="text-2xl font-bold tracking-tight text-secondary">Thông tin giao hàng</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="md:col-span-2">
+<label class="block text-sm font-medium mb-1.5">Họ tên khách hàng</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3" placeholder="Nhập họ và tên" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Số điện thoại</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3" placeholder="Nhập số điện thoại" type="tel"/>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Email (Tùy chọn)</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3" placeholder="Nhập địa chỉ email" type="email"/>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Tỉnh/Thành phố</label>
+<select class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3">
+<option>Chọn Tỉnh/Thành phố</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Quận/Huyện</label>
+<select class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3">
+<option>Chọn Quận/Huyện</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Xã/Phường</label>
+<select class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3">
+<option>Chọn Xã/Phường</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium mb-1.5">Địa chỉ chi tiết</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3" placeholder="Số nhà, tên đường..." type="text"/>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-medium mb-1.5">Ghi chú đơn hàng</label>
+<textarea class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary/20 bg-white p-3 resize-none" placeholder="Yêu cầu đặc biệt về giao hàng..." rows="3"></textarea>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl">account_balance_wallet</span>
+<h2 class="text-2xl font-bold tracking-tight text-secondary">Phương thức thanh toán</h2>
+</div>
+<div class="space-y-3">
+<label class="flex items-center gap-4 p-4 border border-slate-300 rounded-xl cursor-pointer hover:border-primary bg-white transition-colors">
+<input checked="" class="text-primary focus:ring-primary h-5 w-5" name="payment" type="radio" value="cod"/>
+<div class="flex-1">
+<p class="font-semibold">Thanh toán khi nhận hàng (COD)</p>
+<p class="text-xs text-slate-500">Thanh toán bằng tiền mặt khi shipper giao hàng</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">payments</span>
+</label>
+<label class="flex items-center gap-4 p-4 border border-slate-300 rounded-xl cursor-pointer hover:border-primary bg-white transition-colors">
+<input class="text-primary focus:ring-primary h-5 w-5" name="payment" type="radio" value="bank"/>
+<div class="flex-1">
+<p class="font-semibold">Chuyển khoản ngân hàng</p>
+<p class="text-xs text-slate-500">Thông tin tài khoản sẽ hiển thị sau khi đặt hàng</p>
+</div>
+<span class="material-symbols-outlined text-slate-400">account_balance</span>
+</label>
+</div>
+</section>
+</div>
+<!-- Right Column: Order Summary -->
+<div class="lg:col-span-5">
+<div class="sticky top-8 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">shopping_cart</span>
+                        Tóm tắt đơn hàng
+                    </h3>
+<div class="space-y-4 mb-6">
+<!-- Product Item -->
+<div class="flex gap-4">
+<div class="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+<div class="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">1</div>
+<div class="w-full h-full bg-cover bg-center" data-alt="High quality safety equipment product image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDJNm2y3bId0-3bZNva0BK-j3YWPkHgEBrPuF3pkNjOBcJ_-9vtNgt8SJ0yM4j7aRZ3RCSvZA0r4vLOqLmeiTsZvfeW4kpG2wkS1OtkT1SnS06YvOOzBYEu_ZBI5YgEL00W54rYJ8-rBg26ZugxAWyhISgFHjUiIWu9sCE8My-iNXKLYGqXQEPQoeEkmw-W0zfCLJEn1uO4ikifReC9k_qjK-21KnF7euZ71AHoMysOwODgqoJ53TTAxIqnKvEkYiwDm7dHIQG8p1c')"></div>
+</div>
+<div class="flex-1">
+<h4 class="font-medium text-sm line-clamp-2">Nón bảo hộ lao động SAFEALL Pro S1 - Trắng</h4>
+<p class="text-xs text-slate-500 mt-1">Loại: S1-White</p>
+<p class="text-sm font-bold mt-1 text-primary">450.000₫</p>
+</div>
+</div>
+<!-- Product Item -->
+<div class="flex gap-4">
+<div class="w-20 h-20 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 relative">
+<div class="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">2</div>
+<div class="w-full h-full bg-cover bg-center" data-alt="Protective gloves equipment product image" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBJJ9a0qaS3soVlgInJC2Lqnuy2HapE_8LjPpCyj6an0m8wFOGaNosEO1_gvVAx3iOOct2vlzMuIrw7nVsYRQR72vqJ1dJORbgYcOp6GR0yAwTCYo7e83bHJ6xl26mTbBZ_j1R_nWzC0-k_hFEwoIj6VHABYEzGVYkutyNJs_73lSrXl7ZIoGLqNP9FFPbv64w523kbLOtMvtFBlH3d2QWc1z51Z9-1Z2xMtrtzSIKCH0qNvDkh5QbFe7N1Aoy2Tra0h5HhIaG6ytE')"></div>
+</div>
+<div class="flex-1">
+<h4 class="font-medium text-sm line-clamp-2">Găng tay chống cắt cấp độ 5 SAFEALL Grip</h4>
+<p class="text-xs text-slate-500 mt-1">Size: L</p>
+<p class="text-sm font-bold mt-1 text-primary">125.000₫</p>
+</div>
+</div>
+</div>
+<div class="border-t border-dashed border-slate-200 pt-4 space-y-3">
+<div class="flex justify-between text-slate-600">
+<span>Tạm tính</span>
+<span>700.000₫</span>
+</div>
+<div class="flex justify-between text-slate-600">
+<span>Phí vận chuyển</span>
+<span class="text-green-600 font-medium">Miễn phí</span>
+</div>
+<div class="flex justify-between text-lg font-bold border-t border-slate-100 pt-3">
+<span>Tổng cộng</span>
+<span class="text-primary text-2xl">700.000₫</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl mt-8 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+<span class="material-symbols-outlined">verified_user</span>
+                        XÁC NHẬN ĐƠN HÀNG
+                    </button>
+<p class="text-[11px] text-center text-slate-400 mt-4 leading-relaxed">
+                        Bằng cách đặt hàng, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của SAFEALL.
+                    </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-16 pt-8 border-t border-slate-200 text-center text-slate-500 text-sm">
+<p>© 2024 SAFEALL - Bảo hộ lao động toàn diện</p>
+<div class="flex justify-center gap-6 mt-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">shield</span> An toàn &amp; Bảo mật</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">local_shipping</span> Giao hàng toàn quốc</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-base">autorenew</span> Đổi trả trong 7 ngày</span>
+</div>
+</footer>
+</div>
+</body></html>
