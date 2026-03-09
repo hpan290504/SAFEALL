@@ -79,7 +79,7 @@
                         placeholder="Nhập mã PIN tra cứu (6 số)"
                         class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all tracking-[0.3em] font-bold" />
                     <button type="button"
-                        onclick="alert('Vui lòng liên hệ Hotline +84 775 605 303 để được cấp lại mã PIN.')"
+                        onclick="window.SAFEALL_API.forgotPin(document.getElementById('orderSearchInput').value)"
                         class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-primary transition-colors">Quên
                         mã PIN?</button>
                 </div>
@@ -112,9 +112,89 @@
         </div>
     </main>
 
-    <footer class="mt-20 py-10 text-center text-slate-400 text-xs">
+    <footer class="mt-20 py-10 text-center text-slate-400 text-xs text-center">
         © 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.
     </footer>
+
+    <!-- Forgot PIN Modal -->
+    <div id="forgotPinModal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div
+            class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <!-- Header -->
+            <div
+                class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 class="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tight">Khôi phục mã PIN
+                </h3>
+                <button onclick="closeForgotPinModal()"
+                    class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
+                    <i class="codicon codicon-close"></i>
+                </button>
+            </div>
+
+            <!-- Content -->
+            <div class="p-8">
+                <!-- Step 1: Select Method -->
+                <div id="forgotStep1" class="space-y-6">
+                    <p class="text-sm text-slate-500">Chọn phương thức bạn muốn nhận mã xác thực (OTP):</p>
+                    <div id="contactOptions" class="space-y-3">
+                        <!-- Options injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Step 2: Enter OTP -->
+                <div id="forgotStep2" class="hidden space-y-6">
+                    <div class="text-center">
+                        <div
+                            class="size-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="codicon codicon-mail text-3xl"></i>
+                        </div>
+                        <p class="text-sm text-slate-500">Mã xác thực đã được gửi. Vui lòng kiểm tra tin nhắn/email của
+                            bạn.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Nhập mã OTP
+                            (123456)</label>
+                        <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
+                            class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
+                    </div>
+                    <button onclick="verifyOtp()"
+                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all">XÁC
+                        NHẬN MÃ</button>
+                </div>
+
+                <!-- Step 3: New PIN -->
+                <div id="forgotStep3" class="hidden space-y-6">
+                    <div class="text-center">
+                        <div
+                            class="size-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="codicon codicon-check text-3xl"></i>
+                        </div>
+                        <p class="text-sm text-slate-500">Xác thực thành công! Hãy tạo mã PIN mới 6 số.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Mã PIN
+                                mới</label>
+                            <input id="newPinInput" type="password" inputmode="numeric" maxlength="6"
+                                placeholder="******"
+                                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Xác nhận PIN
+                                mới</label>
+                            <input id="newPinConfirmInput" type="password" inputmode="numeric" maxlength="6"
+                                placeholder="******"
+                                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
+                        </div>
+                    </div>
+                    <button onclick="submitNewPin()"
+                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all uppercase">Cập
+                        nhật mã PIN</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
@@ -129,38 +209,36 @@
         async function searchOrder() {
             const input = document.getElementById('orderSearchInput').value.trim().replace('#', '');
             const pin = document.getElementById('orderSearchPin').value.trim();
-
-            if (!input) {
-                alert('Vui lòng nhập Mã đơn hàng hoặc Số điện thoại để tra cứu.');
-                return;
-            }
-            if (!pin || pin.length !== 6) {
-                alert('Vui lòng nhập mã PIN hợp lệ (6 số) để xác minh bảo mật.');
-                return;
-            }
-
             const container = document.getElementById('ordersContainer');
             const loading = document.getElementById('loadingState');
             const empty = document.getElementById('emptyState');
 
+            if (!input) return alert('Vui lòng nhập Mã đơn hàng hoặc Số điện thoại để tra cứu.');
+            if (!pin || pin.length !== 6) return alert('Vui lòng nhập mã PIN hợp lệ (6 số) để xác minh bảo mật.');
+
             loading.classList.remove('hidden');
             empty.classList.add('hidden');
+            container.innerHTML = '';
 
-            // Call the unified guest-tracking endpoint securely with PIN
-            const res = await window.SAFEALL_API.trackOrder(input, pin);
+            try {
+                const resData = await window.SAFEALL_API.trackOrder(input, pin);
+                loading.classList.add('hidden');
 
-            loading.classList.add('hidden');
-
-            if (res.success && res.orders && res.orders.length > 0) {
-                renderOrder(res.orders[0]); // Render the first/most recent match
-            } else {
-                container.innerHTML = `
-                     <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
-                        <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
-                        <h3 class="font-black text-slate-900 dark:text-white text-xl">Tra cứu thất bại</h3>
-                        <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">${res.message || 'Mã PIN hoặc thông tin tra cứu không chính xác. Vui lòng kiểm tra lại.'}</p>
-                    </div>
-                `;
+                if (resData.success && resData.orders && resData.orders.length > 0) {
+                    renderOrder(resData.orders[0]);
+                } else {
+                    container.innerHTML = `
+                         <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
+                            <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
+                            <h3 class="font-black text-slate-900 dark:text-white text-xl">Tra cứu thất bại</h3>
+                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">${resData.message || 'Mã PIN hoặc thông tin tra cứu không chính xác. Vui lòng kiểm tra lại.'}</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                loading.classList.add('hidden');
+                console.error(err);
+                alert('Có lỗi xảy ra khi tra cứu: ' + err.message);
             }
         }
 
@@ -168,21 +246,19 @@
             if (!name) return '***';
             const parts = name.trim().split(' ');
             if (parts.length <= 1) return name.substring(0, 1) + '***';
-            if (parts.length === 2) return parts[0] + ' ***';
-            return parts[0] + ' *** ' + parts[parts.length - 1];
+            return parts[0] + ' *** ' + (parts.length > 1 ? parts[parts.length - 1] : '');
         }
 
         function maskPhone(phone) {
             if (!phone) return '***';
-            return phone.trim().replace(/(\d{3})\d{3,4}(\d{3})/, '$1***$2');
+            const p = phone.trim();
+            return p.substring(0, 3) + '***' + p.substring(p.length - 3);
         }
 
         function maskAddress(address) {
             if (!address) return '***';
             const parts = address.split(',');
-            if (parts.length > 1) {
-                return '***, ' + parts.slice(-2).join(',').trim();
-            }
+            if (parts.length > 1) return '***, ' + parts.slice(-2).join(',').trim();
             return address.substring(0, 4) + '***';
         }
 
@@ -193,7 +269,6 @@
             container.innerHTML = `
                 <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div class="p-8 md:p-12 space-y-12">
-                        <!-- Header & Status -->
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                             <div>
                                 <span class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Trạng thái đơn hàng</span>
@@ -204,11 +279,10 @@
                             </div>
                         </div>
 
-                        <!-- Tracking Timeline -->
                         <div class="relative pb-10">
                             <div class="absolute left-0 top-6 w-full h-1 bg-slate-100 dark:bg-slate-800 -z-10"></div>
                             <div class="grid grid-cols-4 gap-2">
-                                ${['Xác nhận', 'Xử lý', 'Giao hàng', 'Hoàn tất'].map((label, idx) => {
+                                ${['Xác nhận', 'Xử lý', 'Giao giá', 'Hoàn tất'].map((label, idx) => {
                 const active = (idx + 1) <= status.step;
                 return `
                                         <div class="flex flex-col items-center gap-4 text-center">
@@ -222,7 +296,6 @@
                             </div>
                         </div>
 
-                        <!-- Details Grid -->
                         <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
                             <div class="space-y-6">
                                 <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Người nhận</h4>
@@ -234,7 +307,7 @@
                                 </div>
                             </div>
                             <div class="space-y-6">
-                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Vật dụng đặt mua</h4>
+                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Sản phẩm</h4>
                                 <div class="space-y-4">
                                     ${order.items.map(item => `
                                         <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
@@ -254,12 +327,94 @@
             `;
         }
 
-        // Check for order in URL if navigating from success page
+        // --- PIN RECOVERY FLOW ---
+        let recoveryPhone = '';
+        let recoveryChannel = '';
+
+        window.showForgotPinModal = (phone, options) => {
+            recoveryPhone = phone;
+            const modal = document.getElementById('forgotPinModal');
+            const container = document.getElementById('contactOptions');
+            container.innerHTML = '';
+
+            if (!options || options.length === 0) {
+                container.innerHTML = `<p class="text-sm text-red-500 italic">Không có thông tin liên hệ khôi phục. Vui lòng liên hệ Hotline.</p>`;
+            } else {
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-primary/5 border border-slate-100 dark:border-slate-800 rounded-2xl transition-all group";
+                    btn.onclick = () => sendRecoveryOtp(opt.type, opt.value);
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="size-10 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
+                                <i class="codicon codicon-${opt.type === 'email' ? 'mail' : 'device-mobile'} text-slate-500 group-hover:text-primary"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-[10px] font-black uppercase text-slate-400">Gửi qua ${opt.type === 'email' ? 'Email' : 'SMS'}</p>
+                                <p class="font-bold text-slate-700 dark:text-slate-200">${opt.label}</p>
+                            </div>
+                        </div>
+                        <i class="codicon codicon-chevron-right text-slate-300 group-hover:translate-x-1 transition-transform"></i>
+                    `;
+                    container.appendChild(btn);
+                });
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('forgotStep1').classList.remove('hidden');
+            document.getElementById('forgotStep2').classList.add('hidden');
+            document.getElementById('forgotStep3').classList.add('hidden');
+        };
+
+        function closeForgotPinModal() {
+            const modal = document.getElementById('forgotPinModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function sendRecoveryOtp(channel, value) {
+            recoveryChannel = channel;
+            const res = await window.SAFEALL_API.requestOtp(recoveryPhone, channel, value);
+            if (res.success) {
+                document.getElementById('forgotStep1').classList.add('hidden');
+                document.getElementById('forgotStep2').classList.remove('hidden');
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function verifyOtp() {
+            const otpCode = document.getElementById('otpInput').value.trim();
+            if (otpCode === '123456') { // Mock logic
+                document.getElementById('forgotStep2').classList.add('hidden');
+                document.getElementById('forgotStep3').classList.remove('hidden');
+            } else {
+                alert('Mã OTP không chính xác. Thử lại với 123456');
+            }
+        }
+
+        async function submitNewPin() {
+            const otpCode = document.getElementById('otpInput').value.trim();
+            const newPin = document.getElementById('newPinInput').value.trim();
+            const confirm = document.getElementById('newPinConfirmInput').value.trim();
+
+            if (newPin.length !== 6) return alert('Mã PIN phải có 6 số');
+            if (newPin !== confirm) return alert('Mã PIN xác nhận không khớp');
+
+            const res = await window.SAFEALL_API.resetPin(recoveryPhone, otpCode, newPin);
+            if (res.success) {
+                alert('Chúc mừng! Mã PIN của bạn đã được cập nhật.');
+                closeForgotPinModal();
+            } else {
+                alert(res.message);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const orderId = urlParams.get('id');
             if (orderId) {
-                // Pre-fill ID but require user to manually enter PIN for security
                 document.getElementById('orderSearchInput').value = orderId;
                 document.getElementById('orderSearchPin').focus();
             }

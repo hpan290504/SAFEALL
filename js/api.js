@@ -170,8 +170,6 @@ const API = {
 
     async trackOrder(query, pin) {
         try {
-            // Note: Does not use _fetch to avoid auto-logout on 401 if missing token, 
-            // but the new track endpoint doesn't require a token anyway.
             const url = '/api/orders/track';
             const resp = await fetch(url, {
                 method: 'POST',
@@ -181,6 +179,47 @@ const API = {
             const data = await resp.json();
             if (!resp.ok) throw new Error(data.message || 'Lỗi tìm kiếm');
             return { success: true, orders: data.orders };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
+    // --- Forgot PIN Flow ---
+    async forgotPin(phone) {
+        try {
+            if (!phone) throw new Error('Vui lòng nhập số điện thoại trước khi bấm quên mã PIN.');
+            const res = await this._fetch('user/forgot-pin', {
+                method: 'POST',
+                body: JSON.stringify({ phone })
+            });
+            // This should trigger the UI to show contact options
+            if (window.showForgotPinModal) {
+                window.showForgotPinModal(phone, res.options);
+            }
+            return { success: true, options: res.options };
+        } catch (e) {
+            alert(e.message);
+            return { success: false, message: e.message };
+        }
+    },
+
+    async requestOtp(phone, channel, value) {
+        try {
+            return await this._fetch('user/request-otp', {
+                method: 'POST',
+                body: JSON.stringify({ phone, channel, value })
+            });
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
+    async resetPin(phone, otp, newPin) {
+        try {
+            return await this._fetch('user/reset-pin', {
+                method: 'POST',
+                body: JSON.stringify({ phone, otp, newPin })
+            });
         } catch (e) {
             return { success: false, message: e.message };
         }

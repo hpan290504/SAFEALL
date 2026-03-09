@@ -11,7 +11,9 @@ export default async function handler(req, res) {
 
     // Safety: ensure body exists
     const body = req.body || {};
-    const { name, phone, password, gender } = body;
+    const { name, phone: rawPhone, password, gender } = body;
+    const phone = rawPhone ? rawPhone.toString().replace(/\D/g, '') : null;
+
     console.log(`[Register] Validating body for: ${phone || 'unknown'}`);
 
     if (!name || !phone || !password) {

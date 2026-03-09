@@ -119,7 +119,7 @@
                                     placeholder="Nhập mã PIN 6 số của bạn"
                                     class="w-full bg-white dark:bg-slate-900 border border-blue-100 dark:border-blue-900/50 rounded-xl py-3 pl-4 pr-24 focus:ring-2 focus:ring-secondary/20 transition-all font-medium tracking-[0.5em] text-lg" />
                                 <button type="button"
-                                    onclick="alert('Vui lòng liên hệ Hotline +84 775 605 303 để cấp lại mã PIN.')"
+                                    onclick="window.SAFEALL_API.forgotPin(document.getElementById('checkoutPhone').value)"
                                     class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-primary transition-colors">Quên
                                     mã PIN?</button>
                             </div>
@@ -131,6 +131,8 @@
                                 chọn)</label>
                             <input id="checkoutEmail" type="email" placeholder="example@gmail.com"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 px-5 focus:ring-2 focus:ring-primary/20 transition-all font-medium" />
+                            <p class="text-[10px] text-slate-400 italic">Email giúp bạn dễ khôi phục mã PIN và nhận cập
+                                nhật đơn hàng.</p>
                         </div>
 
                         <div class="space-y-2">

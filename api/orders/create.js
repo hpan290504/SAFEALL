@@ -33,7 +33,8 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: 'Vui lòng cung cấp mã PIN hợp lệ (6 số) để tra cứu đơn hàng.' });
             }
 
-            const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 LIMIT 1', [customer.phone]);
+            const normalizedPhone = customer.phone.replace(/\D/g, '');
+            const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, customer.phone]);
             if (userCheck.rows.length > 0) {
                 // Return User: Verify PIN
                 const user = userCheck.rows[0];
@@ -47,9 +48,10 @@ export default async function handler(req, res) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPin = await bcrypt.hash(pin, salt);
 
+                const normalizedPhone = customer.phone.replace(/\D/g, '');
                 const newUser = await db.query(
                     'INSERT INTO users (name, phone, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
-                    [customer.name, customer.phone, hashedPin, 'user']
+                    [customer.name, normalizedPhone, hashedPin, 'user']
                 );
                 userId = newUser.rows[0].id;
             }

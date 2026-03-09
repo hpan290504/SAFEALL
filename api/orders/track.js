@@ -15,16 +15,23 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Vui lòng nhập mã PIN (6 số) để bảo mật tra cứu' });
         }
 
-        const searchTerm = query.trim();
+        const input = query.trim();
+        const normalizedPhone = input.replace(/\D/g, ''); // Keep only digits
+        const isOrderId = input.toUpperCase().startsWith('SA');
 
-        // Check if length suggests phone number (e.g. 10 digits) vs OrderID (e.g. SAXXXXXX)
-        // We will just search both:
-        const result = await db.query(
-            `SELECT * FROM orders 
-             WHERE order_id ILIKE $1 OR customer_phone = $1 
-             ORDER BY created_at DESC LIMIT 10`,
-            [searchTerm]
-        );
+        let result;
+        if (isOrderId) {
+            result = await db.query(
+                `SELECT * FROM orders WHERE order_id ILIKE $1 ORDER BY created_at DESC LIMIT 10`,
+                [input]
+            );
+        } else {
+            // Search by normalized phone or exact entered string
+            result = await db.query(
+                `SELECT * FROM orders WHERE customer_phone = $1 OR customer_phone = $2 ORDER BY created_at DESC LIMIT 10`,
+                [normalizedPhone, input]
+            );
+        }
 
         if (result.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin phù hợp, vui lòng kiểm tra lại.' });
