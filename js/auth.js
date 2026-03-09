@@ -39,7 +39,7 @@ function initAuthUI() {
 
         authSection.innerHTML = `
             <div class="guest-nav">
-                <a href="login.html${currentParams}" class="auth-btn" data-i18n="nav_login">Đăng nhập (PIN)</a>
+                <a href="my-orders.html" class="auth-btn" data-i18n="nav_track">Tra cứu đơn hàng</a>
             </div>
         `;
     }
