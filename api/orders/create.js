@@ -7,21 +7,32 @@ export default async function handler(req, res) {
     }
 
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Unauthorized' });
+    let userId = null;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1];
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userId = decoded.id === 'admin' ? null : decoded.id;
+        } catch (e) {
+            console.warn('[CreateOrder] Invalid optional token, proceeding as guest');
+        }
     }
 
-    const token = authHeader.split(' ')[1];
-
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const { orderId, items, subtotal, shippingFee, total, paymentMethod, note, customer } = req.body;
 
-        // Save order to PostgreSQL
-        // Assuming orders table: id (SERIAL), order_id (TEXT UNIQUE), user_id (INT/NULL for guest), 
-        // items (JSONB), total (DECIMAL), status (TEXT), created_at (TIMESTAMP)
+        if (!customer || !customer.phone) {
+            return res.status(400).json({ message: 'Customer phone is required' });
+        }
 
-        const userId = decoded.id === 'admin' ? null : decoded.id;
+        // Auto-link to existing user by phone if guest
+        if (!userId) {
+            const userCheck = await db.query('SELECT id FROM users WHERE phone = $1 LIMIT 1', [customer.phone]);
+            if (userCheck.rows.length > 0) {
+                userId = userCheck.rows[0].id;
+            }
+        }
 
         // 1. Save order to PostgreSQL
         await db.query(

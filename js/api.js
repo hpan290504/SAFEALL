@@ -154,6 +154,24 @@ const API = {
         } catch (e) {
             return { success: false, message: e.message };
         }
+    },
+
+    async trackOrder(query) {
+        try {
+            // Note: Does not use _fetch to avoid auto-logout on 401 if missing token, 
+            // but the new track endpoint doesn't require a token anyway.
+            const url = '/api/orders/track';
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.message || 'Lỗi tìm kiếm');
+            return { success: true, orders: data.orders };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
     }
 };
 

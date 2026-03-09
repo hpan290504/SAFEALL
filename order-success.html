@@ -50,8 +50,8 @@
             <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">Cảm ơn bạn đã đặt hàng!</h1>
             <p class="text-slate-500 text-lg">Mã đơn hàng của bạn là: <span id="displayOrderId"
                     class="font-black text-primary uppercase">#000000</span></p>
-            <p class="text-slate-400 text-sm mt-2">Thông tin xác nhận đã được lưu lại. Chúng tôi sẽ sớm liên hệ để giao
-                hàng.</p>
+            <p class="text-slate-400 text-sm mt-2">Thông tin xác nhận đã được lưu lại. Bạn có thể tra cứu đơn hàng bằng
+                Mã đơn hàng hoặc Số điện thoại ở bất kỳ đâu mà không cần tạo tài khoản.</p>
         </div>
 
         <div
@@ -135,7 +135,7 @@
 
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-4 mt-12">
-            <a href="my-orders.html"
+            <a id="trackOrderBtn" href="my-orders.html"
                 class="flex-1 bg-secondary text-white font-black py-5 rounded-2xl shadow-xl shadow-secondary/20 text-center hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
                 <i class="codicon codicon-sync"></i>
                 THEO DÕI ĐƠN HÀNG
@@ -156,6 +156,8 @@
             }
 
             document.getElementById('displayOrderId').innerText = '#' + lastOrder.orderId;
+            document.getElementById('trackOrderBtn').href = 'my-orders.html?id=' + lastOrder.orderId;
+
             document.getElementById('displayCustomerName').innerText = lastOrder.customer.name;
             document.getElementById('displayCustomerPhone').innerText = lastOrder.customer.phone;
             document.getElementById('displayCustomerAddress').innerText = lastOrder.customer.address;

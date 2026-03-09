@@ -121,24 +121,24 @@
             loading.classList.remove('hidden');
             empty.classList.add('hidden');
 
-            // For now, we search in local history first, then mock API search
-            const localOrders = await window.SAFEALL_API.getMyOrders();
-            const order = localOrders.orders?.find(o => o.id.toLowerCase() === input.toLowerCase());
+            // Call the unified guest-tracking endpoint securely
+            const res = await window.SAFEALL_API.trackOrder(input);
 
-            setTimeout(() => {
-                loading.classList.add('hidden');
-                if (order) {
-                    renderOrder(order);
-                } else {
-                    container.innerHTML = `
-                         <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
-                            <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
-                            <h3 class="font-black text-slate-900 dark:text-white text-xl">Không tìm thấy đơn hàng</h3>
-                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">Vui lòng kiểm tra lại mã đơn hàng hoặc liên hệ hotline +84 775 605 303 để được hỗ trợ.</p>
-                        </div>
-                    `;
-                }
-            }, 800);
+            loading.classList.add('hidden');
+
+            if (res.success && res.orders && res.orders.length > 0) {
+                // If there are multiple (e.g., searched by phone), just render the first / most recent one for now
+                // Or potentially render a list if multiple orders exist. For simplicity, render the first one exactly as before.
+                renderOrder(res.orders[0]);
+            } else {
+                container.innerHTML = `
+                     <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
+                        <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
+                        <h3 class="font-black text-slate-900 dark:text-white text-xl">Không tìm thấy đơn hàng</h3>
+                        <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">Vui lòng kiểm tra lại mã đơn hàng hoặc số điện thoại, hoặc liên hệ hotline +84 775 605 303 để được hỗ trợ.</p>
+                    </div>
+                `;
+            }
         }
 
         function renderOrder(order) {

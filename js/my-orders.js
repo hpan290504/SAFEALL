@@ -3,18 +3,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Sync session with server (Source of Truth)
     const user = await window.SAFEALL_API.initSession();
 
-    // 2. Auth Guard
+    // 2. Auth Guard - Relaxed for Guest Tracking
     if (!user) {
-        window.location.href = 'login.html';
-        return;
+        // Guest mode: Hide the tabs and personal labels, rely on the search bar in HTML
+        const userLabel = document.getElementById('sidebarUserName');
+        if (userLabel) userLabel.innerText = "Khách hàng";
+
+        // Hide Tabs as guests only track specific orders
+        const tabsRender = document.querySelector('.border-b.mb-8.overflow-x-auto');
+        if (tabsRender) tabsRender.style.display = 'none';
+
+        // Let the inline searchOrder() in HTML handle the rest when user searches
+        const list = document.getElementById('userOrdersList');
+        if (list) list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px;">Đang ở chế độ khách. Vui lòng sử dụng <b>Tra cứu đơn hàng</b> phía trên bằng Mã đơn hoặc Số điện thoại.</td></tr>';
+
+        return; // Stop authenticated fetch
     }
 
-    // 3. UI Setup
+    // 3. UI Setup (Logged In)
     document.getElementById('sidebarUserName').innerText = user.name || user.phone;
 
     // 4. Source of Truth: Data already fetched from server via API.initSession()
-    // No more local forced removal needed here as it's handled globally.
-
     // 5. Fetch and Render
     loadOrdersFromServer('all');
 
