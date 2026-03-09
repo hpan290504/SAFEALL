@@ -8,13 +8,15 @@ export default async function handler(req, res) {
     // STRICT METHOD CHECK (Fix for GET 500)
     if (req.method !== 'POST') {
         console.warn(`[Login] Method Not Allowed: ${req.method}`);
-        return res.status(405).json({ message: 'Method not allowed. Use POST to login.' });
+        return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    const { phone, password } = req.body;
+    // Safety: ensure body exists
+    const body = req.body || {};
+    const { phone, password } = body;
 
     if (!phone || !password) {
-        console.log(`[Login] Error: Missing phone or password fields`);
+        console.log(`[Login] Error: Missing phone or password fields in body`);
         return res.status(400).json({ message: 'Vui lòng nhập số điện thoại và mật khẩu.' });
     }
 

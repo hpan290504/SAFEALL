@@ -9,7 +9,9 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Method not allowed' });
     }
 
-    const { name, phone, password, gender } = req.body;
+    // Safety: ensure body exists
+    const body = req.body || {};
+    const { name, phone, password, gender } = body;
     console.log(`[Register] Validating body for: ${phone || 'unknown'}`);
 
     if (!name || !phone || !password) {
