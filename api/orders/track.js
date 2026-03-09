@@ -1,7 +1,6 @@
 import * as db from '../_utils/db.js';
-import bcrypt from 'bcryptjs';
 import { normalizePhone } from '../_utils/normalization.js';
-
+import { verifyPin } from '../_utils/auth.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -9,19 +8,19 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { query, pin } = req.body;
-        if (!query || query.trim() === '') {
+        const { query: searchQuery, pin } = req.body;
+        if (!searchQuery || searchQuery.trim() === '') {
             return res.status(400).json({ message: 'Vui lòng nhập Mã đơn hàng hoặc Số điện thoại' });
         }
         if (!pin || pin.trim().length !== 6) {
             return res.status(400).json({ message: 'Vui lòng nhập mã PIN (6 số) để bảo mật tra cứu' });
         }
 
-        const input = query.trim();
-        const normalizedPhone = normalizePhone(input);
+        const input = searchQuery.trim();
+        const normalizedInput = normalizePhone(input);
         const isOrderId = input.toUpperCase().startsWith('SA');
 
-        console.log(`[TrackOrder] Input: "${input}" | Normalized: "${normalizedPhone}"`);
+        console.log(`[TrackOrder] Input: "${input}" | Normalized: "${normalizedInput}"`);
 
         let result;
         if (isOrderId) {
@@ -30,51 +29,42 @@ export default async function handler(req, res) {
                 [input]
             );
         } else {
-            // Priority Search: Strict normalized, fallback to raw input matching
+            // Find orders by phone (strict lookup)
             result = await db.query(
-                `SELECT * FROM orders WHERE customer_phone = $1 OR customer_phone = $2 OR customer_phone = $3 ORDER BY created_at DESC LIMIT 10`,
-                [normalizedPhone, input, normalizedPhone.startsWith('0') ? '84' + normalizedPhone.substring(1) : normalizedPhone]
+                `SELECT * FROM orders WHERE customer_phone = $1 ORDER BY created_at DESC LIMIT 10`,
+                [normalizedInput]
             );
         }
-
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin phù hợp, vui lòng kiểm tra lại.' });
+            return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đơn hàng phù hợp.' });
         }
 
-        // --- NEW SECURITY CHECK: Verify PIN using bcrypt ---
+        // --- SECURITY VERIFICATION ---
         const firstOrder = result.rows[0];
         const userId = firstOrder.user_id;
-        const rawCustomerPhone = firstOrder.customer_phone;
-        const normalizedCustomerPhone = normalizePhone(rawCustomerPhone);
+        const customerPhone = firstOrder.customer_phone;
 
-        console.log(`[TrackOrder] Order found. Linked UserID: ${userId || 'GUEST'} | Order Phone: ${rawCustomerPhone}`);
-
-        let userCheck;
+        let user;
         if (userId) {
-            userCheck = await db.query('SELECT id, password, track_pin_hash, phone FROM users WHERE id = $1 LIMIT 1', [userId]);
+            const userCheck = await db.query('SELECT * FROM users WHERE id = $1 LIMIT 1', [userId]);
+            user = userCheck.rows[0];
         } else {
-            // Robust fallback if user_id is missing (legacy orders)
-            userCheck = await db.query('SELECT id, password, track_pin_hash, phone FROM users WHERE phone = $1 OR phone = $2 OR phone = $3 LIMIT 1',
-                [normalizedCustomerPhone, rawCustomerPhone, normalizedCustomerPhone.startsWith('0') ? '84' + normalizedCustomerPhone.substring(1) : normalizedCustomerPhone]
-            );
+            // Fallback for guest/legacy orders: lookup user by the phone on the order
+            const userCheck = await db.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [normalizePhone(customerPhone)]);
+            user = userCheck.rows[0];
         }
 
-        if (!userCheck || userCheck.rows.length === 0) {
-            console.warn(`[TrackOrder] Verification FAIL: No matching user found for phone ${normalizedCustomerPhone}`);
-            return res.status(401).json({ message: 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.' });
+        if (!user) {
+            console.warn(`[TrackOrder] No user record found for order link. Access denied.`);
+            return res.status(401).json({ message: 'Thông tin xác thực không khả dụng. Vui lòng liên hệ hỗ trợ.' });
         }
 
-        const user = userCheck.rows[0];
-        const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
-
-        console.log(`[TrackOrder] User identified: ${user.id}. PIN Match: ${isMatch}`);
-
+        const isMatch = await verifyPin(user, pin);
         if (!isMatch) {
-            console.warn(`[TrackOrder] Verification FAIL for user ${user.id} - Incorrect PIN`);
-            return res.status(401).json({ message: 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.' });
+            return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác. Vui lòng thử lại.' });
         }
-        // --- END SECURITY CHECK ---
+        // --- END SECURITY VERIFICATION ---
 
         const orders = result.rows.map(row => ({
             id: row.order_id,
@@ -96,6 +86,6 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, orders });
     } catch (error) {
         console.error('[TrackOrder] Error:', error);
-        return res.status(500).json({ message: 'Lỗi máy chủ' });
+        return res.status(500).json({ message: 'Lỗi hệ thống khi tra cứu đơn hàng.' });
     }
 }

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Đặt lại mã PIN | SAFEALL</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/icons.css" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#ea2a33", "secondary": "#1e3a8a" },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div
+        class="max-w-md w-full bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-800">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-block mb-6">
+                <span class="text-2xl font-black tracking-tighter"><span class="text-secondary">SAFE</span><span
+                        class="text-primary">ALL</span></span>
+            </a>
+            <h1 class="text-2xl font-black uppercase tracking-tight">Đặt lại mã PIN</h1>
+            <p class="text-slate-500 text-sm mt-2">Nhập mã PIN mới gồm 6 chữ số để bảo mật tài khoản của bạn.</p>
+        </div>
+
+        <form id="resetPinForm" class="space-y-6">
+            <div id="resetError"
+                class="hidden p-4 bg-red-50 text-red-600 rounded-xl text-sm font-bold border border-red-100"></div>
+            <div id="resetSuccess"
+                class="hidden p-4 bg-green-50 text-green-600 rounded-xl text-sm font-bold border border-green-100">
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Mã PIN mới (6 số)</label>
+                <input id="newPin" type="password" inputmode="numeric" maxlength="6" required placeholder="xxxxxx"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 px-5 focus:ring-2 focus:ring-primary/20 transition-all font-bold text-center tracking-[0.5em] text-xl" />
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Xác nhận mã PIN</label>
+                <input id="confirmPin" type="password" inputmode="numeric" maxlength="6" required placeholder="xxxxxx"
+                    class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 px-5 focus:ring-2 focus:ring-primary/20 transition-all font-bold text-center tracking-[0.5em] text-xl" />
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full bg-primary text-white font-black py-4 rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                CẬP NHẬT MÃ PIN
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="login.html" class="text-sm font-bold text-slate-400 hover:text-primary transition-colors">Quay lại
+                Đăng nhập</a>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const phone = urlParams.get('phone');
+
+        if (!token || !phone) {
+            document.getElementById('resetError').innerText = 'Liên kết không hợp lệ hoặc thiếu thông tin.';
+            document.getElementById('resetError').classList.remove('hidden');
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').classList.add('opacity-50');
+        }
+
+        document.getElementById('resetPinForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newPin = document.getElementById('newPin').value;
+            const confirmPin = document.getElementById('confirmPin').value;
+            const errorEl = document.getElementById('resetError');
+            const successEl = document.getElementById('resetSuccess');
+            const btn = document.getElementById('submitBtn');
+
+            errorEl.classList.add('hidden');
+            successEl.classList.add('hidden');
+
+            if (newPin.length !== 6) {
+                errorEl.innerText = 'Mã PIN phải có đúng 6 chữ số.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                errorEl.innerText = 'Mã PIN xác nhận không khớp.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-spin text-lg">...</span> Đang xử lý';
+
+            try {
+                const res = await window.SAFEALL_API.resetPin(phone, token, newPin);
+                if (res.success) {
+                    successEl.innerText = res.message;
+                    successEl.classList.remove('hidden');
+                    document.getElementById('resetPinForm').reset();
+                    setTimeout(() => window.location.href = 'login.html', 3000);
+                } else {
+                    errorEl.innerText = res.message;
+                    errorEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerText = 'CẬP NHẬT MÃ PIN';
+                }
+            } catch (err) {
+                errorEl.innerText = 'Lỗi kết nối hệ thống.';
+                errorEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerText = 'CẬP NHẬT MÃ PIN';
+            }
+        };
+    </script>
+</body>
+
+</html>

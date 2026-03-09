@@ -26,23 +26,27 @@ window.SAFEALL_CHECKOUT = {
         const phoneInput = document.getElementById('checkoutPhone');
         if (phoneInput) {
             const handlePhoneInput = async () => {
-                const phone = phoneInput.value.trim();
+                const phone = phoneInput.value.trim().replace(/\s/g, '');
                 const newPinContainer = document.getElementById('newPinContainer');
                 const existingPinContainer = document.getElementById('existingPinContainer');
 
-                // Allow simple validation - typically >=9 or 10 digits
-                if (phone.length >= 9) {
-                    const result = await window.SAFEALL_API.checkPhone(phone);
-                    if (result.success) {
-                        if (result.exists) {
-                            newPinContainer.classList.add('hidden');
-                            existingPinContainer.classList.remove('hidden');
-                            window.SAFEALL_CHECKOUT.isExistingUser = true;
-                        } else {
-                            existingPinContainer.classList.add('hidden');
-                            newPinContainer.classList.remove('hidden');
-                            window.SAFEALL_CHECKOUT.isExistingUser = false;
+                // Standard VN phone length is 10 digits
+                if (phone.length >= 10) {
+                    try {
+                        const result = await window.SAFEALL_API.checkPhone(phone);
+                        if (result.success) {
+                            if (result.exists) {
+                                newPinContainer.classList.add('hidden');
+                                existingPinContainer.classList.remove('hidden');
+                                window.SAFEALL_CHECKOUT.isExistingUser = true;
+                            } else {
+                                existingPinContainer.classList.add('hidden');
+                                newPinContainer.classList.remove('hidden');
+                                window.SAFEALL_CHECKOUT.isExistingUser = false;
+                            }
                         }
+                    } catch (err) {
+                        console.error('Phone check failed', err);
                     }
                 } else {
                     newPinContainer.classList.add('hidden');
@@ -150,6 +154,7 @@ window.SAFEALL_CHECKOUT = {
         // Read from INPUT fields
         const name = document.getElementById('checkoutFullName').value.trim();
         const phone = document.getElementById('checkoutPhone').value.trim();
+        const email = document.getElementById('checkoutEmail')?.value.trim() || '';
         const address = document.getElementById('checkoutAddress').value.trim();
         const note = document.getElementById('orderNote')?.value.trim() || '';
         const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'cod';
@@ -194,7 +199,7 @@ window.SAFEALL_CHECKOUT = {
 
         const newOrder = {
             orderId,
-            customer: { name, phone, address },
+            customer: { name, phone, address, email },
             items: items.map(i => ({ title: i.title, price: i.price, qty: i.qty, total: i.price * i.qty })),
             note,
             subtotal,

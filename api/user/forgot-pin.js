@@ -1,4 +1,6 @@
 import * as db from '../_utils/db.js';
+import { normalizePhone } from '../_utils/normalization.js';
+import crypto from 'crypto';
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
@@ -6,41 +8,40 @@ export default async function handler(req, res) {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ message: 'Số điện thoại là bắt buộc' });
 
-    const normalizedPhone = phone.replace(/\D/g, '');
-
     try {
-        const result = await db.query('SELECT phone, email FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, phone]);
+        const normalizedPhone = normalizePhone(phone);
+        const result = await db.query('SELECT id, name, email FROM users WHERE phone = $1 LIMIT 1', [normalizedPhone]);
 
         if (result.rows.length === 0) {
-            // Generic error for security
-            return res.status(404).json({ message: 'Không tìm thấy tài khoản phù hợp với thông tin cung cấp.' });
+            return res.status(404).json({ message: 'Không tìm thấy tài khoản với số điện thoại này.' });
         }
 
         const user = result.rows[0];
-        const options = [];
-
-        if (user.phone) {
-            const p = user.phone;
-            options.push({
-                type: 'phone',
-                label: `Số điện thoại: ${p.substring(0, 3)}***${p.substring(p.length - 3)}`,
-                value: p
+        if (!user.email) {
+            return res.status(400).json({
+                message: 'Tài khoản này chưa đăng ký email để khôi phục. Vui lòng liên hệ bộ phận hỗ trợ.'
             });
         }
 
-        if (user.email) {
-            const e = user.email;
-            const parts = e.split('@');
-            options.push({
-                type: 'email',
-                label: `Email: ${parts[0].substring(0, 2)}***@${parts[1]}`,
-                value: e
-            });
-        }
+        // Generate reset token
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiry = new Date(Date.now() + 3600000); // 1 hour
 
-        return res.status(200).json({ success: true, options });
+        await db.query(
+            'UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3',
+            [token, expiry, user.id]
+        );
+
+        // In a real app, send email here. Mocking for now.
+        const resetLink = `https://safeall.vercel.app/reset-pin.html?token=${token}&phone=${normalizedPhone}`;
+        console.log(`[ForgotPIN] Reset link for ${user.email}: ${resetLink}`);
+
+        return res.status(200).json({
+            success: true,
+            message: `Một liên kết đặt lại mã PIN đã được gửi đến email ${user.email.substring(0, 3)}***@${user.email.split('@')[1]}`
+        });
     } catch (error) {
         console.error('[ForgotPin] Error:', error);
-        return res.status(500).json({ message: 'Lỗi máy chủ' });
+        return res.status(500).json({ message: 'Lỗi hệ thống khi yêu cầu khôi phục mã PIN.' });
     }
 }

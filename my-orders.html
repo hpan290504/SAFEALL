@@ -135,64 +135,23 @@
             </div>
 
             <!-- Content -->
-            <div class="p-8">
-                <!-- Step 1: Select Method -->
-                <div id="forgotStep1" class="space-y-6">
-                    <p class="text-sm text-slate-500">Chọn phương thức bạn muốn nhận mã xác thực (OTP):</p>
-                    <div id="contactOptions" class="space-y-3">
-                        <!-- Options injected by JS -->
-                    </div>
+            <div class="p-8 space-y-6">
+                <div id="forgotSuccess"
+                    class="hidden p-4 bg-green-50 text-green-600 rounded-2xl text-sm font-bold border border-green-100 italic">
+                </div>
+                <div id="forgotError"
+                    class="hidden p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-bold border border-red-100 italic">
                 </div>
 
-                <!-- Step 2: Enter OTP -->
-                <div id="forgotStep2" class="hidden space-y-6">
-                    <div class="text-center">
-                        <div
-                            class="size-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="codicon codicon-mail text-3xl"></i>
-                        </div>
-                        <p class="text-sm text-slate-500">Mã xác thực đã được gửi. Vui lòng kiểm tra tin nhắn/email của
-                            bạn.</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Nhập mã OTP
-                            (123456)</label>
-                        <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000"
-                            class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
-                    </div>
-                    <button onclick="verifyOtp()"
-                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all">XÁC
-                        NHẬN MÃ</button>
-                </div>
-
-                <!-- Step 3: New PIN -->
-                <div id="forgotStep3" class="hidden space-y-6">
-                    <div class="text-center">
-                        <div
-                            class="size-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="codicon codicon-check text-3xl"></i>
-                        </div>
-                        <p class="text-sm text-slate-500">Xác thực thành công! Hãy tạo mã PIN mới 6 số.</p>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Mã PIN
-                                mới</label>
-                            <input id="newPinInput" type="password" inputmode="numeric" maxlength="6"
-                                placeholder="******"
-                                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Xác nhận PIN
-                                mới</label>
-                            <input id="newPinConfirmInput" type="password" inputmode="numeric" maxlength="6"
-                                placeholder="******"
-                                class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl py-4 text-center text-xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary/20 transition-all" />
-                        </div>
-                    </div>
-                    <button onclick="submitNewPin()"
-                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all uppercase">Cập
-                        nhật mã PIN</button>
+                <div id="forgotMain">
+                    <p class="text-sm text-slate-500 mb-6">Chúng tôi sẽ gửi một liên kết khôi phục qua Email đã đăng ký
+                        với số điện thoại này.</p>
+                    <button id="sendLinkBtn" onclick="handleForgotPin()"
+                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all uppercase shadow-lg shadow-primary/20">
+                        Gửi liên kết khôi phục
+                    </button>
+                    <p class="text-[10px] text-center text-slate-400 mt-4 uppercase font-bold tracking-widest">Mã PIN sẽ
+                        được đặt lại sau khi bạn nhấn vào liên kết</p>
                 </div>
             </div>
         </div>
@@ -330,44 +289,18 @@
             `;
         }
 
-        // --- PIN RECOVERY FLOW ---
+        // --- PIN RECOVERY FLOW (Simplified Token Flow) ---
         let recoveryPhone = '';
-        let recoveryChannel = '';
 
-        window.showForgotPinModal = (phone, options) => {
+        window.showForgotPinModal = (phone) => {
             recoveryPhone = phone;
             const modal = document.getElementById('forgotPinModal');
-            const container = document.getElementById('contactOptions');
-            container.innerHTML = '';
-
-            if (!options || options.length === 0) {
-                container.innerHTML = `<p class="text-sm text-red-500 italic">Không có thông tin liên hệ khôi phục. Vui lòng liên hệ Hotline.</p>`;
-            } else {
-                options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = "w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-primary/5 border border-slate-100 dark:border-slate-800 rounded-2xl transition-all group";
-                    btn.onclick = () => sendRecoveryOtp(opt.type, opt.value);
-                    btn.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="size-10 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm">
-                                <i class="codicon codicon-${opt.type === 'email' ? 'mail' : 'device-mobile'} text-slate-500 group-hover:text-primary"></i>
-                            </div>
-                            <div class="text-left">
-                                <p class="text-[10px] font-black uppercase text-slate-400">Gửi qua ${opt.type === 'email' ? 'Email' : 'SMS'}</p>
-                                <p class="font-bold text-slate-700 dark:text-slate-200">${opt.label}</p>
-                            </div>
-                        </div>
-                        <i class="codicon codicon-chevron-right text-slate-300 group-hover:translate-x-1 transition-transform"></i>
-                    `;
-                    container.appendChild(btn);
-                });
-            }
+            document.getElementById('forgotSuccess').classList.add('hidden');
+            document.getElementById('forgotError').classList.add('hidden');
+            document.getElementById('forgotMain').classList.remove('hidden');
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            document.getElementById('forgotStep1').classList.remove('hidden');
-            document.getElementById('forgotStep2').classList.add('hidden');
-            document.getElementById('forgotStep3').classList.add('hidden');
         };
 
         function closeForgotPinModal() {
@@ -376,41 +309,32 @@
             modal.classList.remove('flex');
         }
 
-        async function sendRecoveryOtp(channel, value) {
-            recoveryChannel = channel;
-            const res = await window.SAFEALL_API.requestOtp(recoveryPhone, channel, value);
-            if (res.success) {
-                document.getElementById('forgotStep1').classList.add('hidden');
-                document.getElementById('forgotStep2').classList.remove('hidden');
-            } else {
-                alert(res.message);
-            }
-        }
+        async function handleForgotPin() {
+            const btn = document.getElementById('sendLinkBtn');
+            const successEl = document.getElementById('forgotSuccess');
+            const errorEl = document.getElementById('forgotError');
+            const mainEl = document.getElementById('forgotMain');
 
-        function verifyOtp() {
-            const otpCode = document.getElementById('otpInput').value.trim();
-            if (otpCode === '123456') { // Mock logic
-                document.getElementById('forgotStep2').classList.add('hidden');
-                document.getElementById('forgotStep3').classList.remove('hidden');
-            } else {
-                alert('Mã OTP không chính xác. Thử lại với 123456');
-            }
-        }
+            btn.disabled = true;
+            btn.innerHTML = 'ĐANG GỬI...';
 
-        async function submitNewPin() {
-            const otpCode = document.getElementById('otpInput').value.trim();
-            const newPin = document.getElementById('newPinInput').value.trim();
-            const confirm = document.getElementById('newPinConfirmInput').value.trim();
-
-            if (newPin.length !== 6) return alert('Mã PIN phải có 6 số');
-            if (newPin !== confirm) return alert('Mã PIN xác nhận không khớp');
-
-            const res = await window.SAFEALL_API.resetPin(recoveryPhone, otpCode, newPin);
-            if (res.success) {
-                alert('Chúc mừng! Mã PIN của bạn đã được cập nhật.');
-                closeForgotPinModal();
-            } else {
-                alert(res.message);
+            try {
+                const res = await window.SAFEALL_API.forgotPin(recoveryPhone);
+                if (res.success) {
+                    mainEl.classList.add('hidden');
+                    successEl.innerText = res.message;
+                    successEl.classList.remove('hidden');
+                } else {
+                    errorEl.innerText = res.message;
+                    errorEl.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerText = 'GỬI LIÊN KẾT KHÔI PHỤC';
+                }
+            } catch (err) {
+                errorEl.innerText = 'Lỗi kết nối máy chủ.';
+                errorEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerText = 'GỬI LIÊN KẾT KHÔI PHỤC';
             }
         }
 
