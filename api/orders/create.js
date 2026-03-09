@@ -36,12 +36,12 @@ export default async function handler(req, res) {
             }
 
             const normalizedPhone = normalizePhone(customer.phone);
-            const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, customer.phone]);
+            const userCheck = await db.query('SELECT id, password, track_pin_hash FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, customer.phone]);
 
             if (userCheck.rows.length > 0) {
                 // Return User: Verify PIN
                 const user = userCheck.rows[0];
-                const isMatch = await bcrypt.compare(pin, user.password);
+                const isMatch = await bcrypt.compare(pin, user.track_pin_hash || user.password);
                 if (!isMatch) {
                     return res.status(401).json({ message: 'Mã PIN tra cứu không chính xác.' });
                 }
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
                 const normalizedPhoneForUser = normalizePhone(customer.phone);
                 const newUser = await db.query(
-                    'INSERT INTO users (name, phone, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
+                    'INSERT INTO users (name, phone, track_pin_hash, role) VALUES ($1, $2, $3, $4) RETURNING id',
                     [customer.name, normalizedPhoneForUser, hashedPin, 'user']
                 );
 

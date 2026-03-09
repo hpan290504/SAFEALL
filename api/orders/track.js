@@ -52,10 +52,10 @@ export default async function handler(req, res) {
 
         let userCheck;
         if (userId) {
-            userCheck = await db.query('SELECT id, password, phone FROM users WHERE id = $1 LIMIT 1', [userId]);
+            userCheck = await db.query('SELECT id, password, track_pin_hash, phone FROM users WHERE id = $1 LIMIT 1', [userId]);
         } else {
             // Robust fallback if user_id is missing (legacy orders)
-            userCheck = await db.query('SELECT id, password, phone FROM users WHERE phone = $1 OR phone = $2 OR phone = $3 LIMIT 1',
+            userCheck = await db.query('SELECT id, password, track_pin_hash, phone FROM users WHERE phone = $1 OR phone = $2 OR phone = $3 LIMIT 1',
                 [normalizedCustomerPhone, rawCustomerPhone, normalizedCustomerPhone.startsWith('0') ? '84' + normalizedCustomerPhone.substring(1) : normalizedCustomerPhone]
             );
         }

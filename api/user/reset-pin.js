@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         const hashedPin = await bcrypt.hash(newPin, salt);
 
         const result = await db.query(
-            'UPDATE users SET password = $1 WHERE phone = $2 OR phone = $3 RETURNING id',
+            'UPDATE users SET track_pin_hash = $1 WHERE phone = $2 OR phone = $3 RETURNING id',
             [hashedPin, normalizedPhone, phone]
         );
 
