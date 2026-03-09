@@ -1,5 +1,7 @@
 import * as db from '../_utils/db.js';
 import bcrypt from 'bcryptjs';
+import { normalizePhone } from '../_utils/normalization.js';
+
 
 export default async function handler(req, res) {
     console.log(`[Register] ${req.method} request received`);
@@ -12,7 +14,8 @@ export default async function handler(req, res) {
     // Safety: ensure body exists
     const body = req.body || {};
     const { name, phone: rawPhone, password, gender } = body;
-    const phone = rawPhone ? rawPhone.toString().replace(/\D/g, '') : null;
+    const phone = normalizePhone(rawPhone);
+
 
     console.log(`[Register] Validating body for: ${phone || 'unknown'}`);
 

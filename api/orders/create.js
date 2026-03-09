@@ -1,6 +1,8 @@
 import * as db from '../_utils/db.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { normalizePhone } from '../_utils/normalization.js';
+
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -33,8 +35,9 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: 'Vui lòng cung cấp mã PIN hợp lệ (6 số) để tra cứu đơn hàng.' });
             }
 
-            const normalizedPhone = customer.phone.replace(/\D/g, '');
+            const normalizedPhone = normalizePhone(customer.phone);
             const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, customer.phone]);
+
             if (userCheck.rows.length > 0) {
                 // Return User: Verify PIN
                 const user = userCheck.rows[0];
@@ -48,11 +51,12 @@ export default async function handler(req, res) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPin = await bcrypt.hash(pin, salt);
 
-                const normalizedPhone = customer.phone.replace(/\D/g, '');
+                const normalizedPhoneForUser = normalizePhone(customer.phone);
                 const newUser = await db.query(
                     'INSERT INTO users (name, phone, password, role) VALUES ($1, $2, $3, $4) RETURNING id',
-                    [customer.name, normalizedPhone, hashedPin, 'user']
+                    [customer.name, normalizedPhoneForUser, hashedPin, 'user']
                 );
+
                 userId = newUser.rows[0].id;
             }
         }
@@ -65,8 +69,9 @@ export default async function handler(req, res) {
                 orderId,
                 userId,
                 customer.name,
-                customer.phone.toString().replace(/\D/g, ''),
+                normalizePhone(customer.phone),
                 customer.address,
+
 
                 JSON.stringify(items),
                 subtotal,

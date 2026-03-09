@@ -1,4 +1,6 @@
 import * as db from '../_utils/db.js';
+import { normalizePhone } from '../_utils/normalization.js';
+
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -12,8 +14,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        const normalizedPhone = phone.toString().replace(/\D/g, '');
+        const normalizedPhone = normalizePhone(phone);
         const result = await db.query('SELECT id FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, phone]);
+
 
 
         if (result.rows.length > 0) {

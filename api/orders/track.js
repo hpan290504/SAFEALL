@@ -1,5 +1,7 @@
 import * as db from '../_utils/db.js';
 import bcrypt from 'bcryptjs';
+import { normalizePhone } from '../_utils/normalization.js';
+
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -16,8 +18,10 @@ export default async function handler(req, res) {
         }
 
         const input = query.trim();
-        const normalizedPhone = input.replace(/\D/g, ''); // Keep only digits
+        const normalizedPhone = normalizePhone(input);
         const isOrderId = input.toUpperCase().startsWith('SA');
+
+        console.log(`[TrackOrder] Input: "${input}" | Normalized: "${normalizedPhone}"`);
 
         let result;
         if (isOrderId) {
@@ -26,12 +30,13 @@ export default async function handler(req, res) {
                 [input]
             );
         } else {
-            // Search by normalized phone or exact entered string
+            // Priority Search: Strict normalized, fallback to raw input matching
             result = await db.query(
-                `SELECT * FROM orders WHERE customer_phone = $1 OR customer_phone = $2 ORDER BY created_at DESC LIMIT 10`,
-                [normalizedPhone, input]
+                `SELECT * FROM orders WHERE customer_phone = $1 OR customer_phone = $2 OR customer_phone = $3 ORDER BY created_at DESC LIMIT 10`,
+                [normalizedPhone, input, normalizedPhone.startsWith('0') ? '84' + normalizedPhone.substring(1) : normalizedPhone]
             );
         }
+
 
         if (result.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin phù hợp, vui lòng kiểm tra lại.' });
@@ -41,25 +46,32 @@ export default async function handler(req, res) {
         const firstOrder = result.rows[0];
         const userId = firstOrder.user_id;
         const rawCustomerPhone = firstOrder.customer_phone;
-        const normalizedCustomerPhone = rawCustomerPhone ? rawCustomerPhone.replace(/\D/g, '') : '';
+        const normalizedCustomerPhone = normalizePhone(rawCustomerPhone);
+
+        console.log(`[TrackOrder] Order found. Linked UserID: ${userId || 'GUEST'} | Order Phone: ${rawCustomerPhone}`);
 
         let userCheck;
         if (userId) {
-            // Priority 1: Search by user_id linked to the order
-            userCheck = await db.query('SELECT id, password FROM users WHERE id = $1 LIMIT 1', [userId]);
+            userCheck = await db.query('SELECT id, password, phone FROM users WHERE id = $1 LIMIT 1', [userId]);
         } else {
-            // Priority 2: Fallback to phone search for legacy/unlinked orders
-            userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedCustomerPhone, rawCustomerPhone]);
+            // Robust fallback if user_id is missing (legacy orders)
+            userCheck = await db.query('SELECT id, password, phone FROM users WHERE phone = $1 OR phone = $2 OR phone = $3 LIMIT 1',
+                [normalizedCustomerPhone, rawCustomerPhone, normalizedCustomerPhone.startsWith('0') ? '84' + normalizedCustomerPhone.substring(1) : normalizedCustomerPhone]
+            );
         }
 
         if (!userCheck || userCheck.rows.length === 0) {
-            return res.status(401).json({ message: 'Không tìm thấy thông tin xác thực. Vui lòng liên hệ Hotline.' });
+            console.warn(`[TrackOrder] Verification FAIL: No matching user found for phone ${normalizedCustomerPhone}`);
+            return res.status(401).json({ message: 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.' });
         }
 
         const user = userCheck.rows[0];
         const isMatch = await bcrypt.compare(pin, user.password);
+
+        console.log(`[TrackOrder] User identified: ${user.id}. PIN Match: ${isMatch}`);
+
         if (!isMatch) {
-            return res.status(401).json({ message: 'Mã PIN không chính xác' });
+            return res.status(401).json({ message: 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.' });
         }
         // --- END SECURITY CHECK ---
 

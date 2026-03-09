@@ -1,6 +1,8 @@
 import * as db from '../_utils/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { normalizePhone } from '../_utils/normalization.js';
+
 
 export default async function handler(req, res) {
     console.log(`[Login] ${req.method} request received`);
@@ -42,8 +44,9 @@ export default async function handler(req, res) {
 
         // Find user
         console.log(`[Login] Step 1: Querying database for ${phone}...`);
-        const normalizedPhone = phone.toString().replace(/\D/g, '');
+        const normalizedPhone = normalizePhone(phone);
         const result = await db.query('SELECT * FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, phone]);
+
         const user = result.rows[0];
 
 
