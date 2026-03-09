@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import * as db from '../utils/db.js';
+import * as db from '../_utils/db.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         }
 
         // Fetch fresh user data from DB
-        const result = await db.query('SELECT name, phone, gender, role FROM users WHERE id = $1', [decoded.id]);
+        const result = await db.query('SELECT name, phone, gender, role, address, sale_deadline FROM users WHERE id = $1', [decoded.id]);
         const user = result.rows[0];
 
         if (!user) {
@@ -38,7 +38,9 @@ export default async function handler(req, res) {
                 phone: user.phone,
                 name: user.name,
                 role: user.role,
-                gender: user.gender
+                gender: user.gender,
+                address: user.address || '',
+                sale_deadline: user.sale_deadline ? parseInt(user.sale_deadline) : null
             }
         });
     } catch (error) {

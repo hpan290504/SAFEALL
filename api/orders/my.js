@@ -1,4 +1,4 @@
-import * as db from '../utils/db.js';
+import * as db from '../_utils/db.js';
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {

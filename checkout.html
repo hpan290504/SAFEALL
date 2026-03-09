@@ -537,12 +537,6 @@
         // Initial Calculation
         calculateCart();
 
-        // Persistent Form Data Logic
-        const formFields = ['fullName', 'phoneNumber', 'address', 'orderNote'];
-
-        // Restore saved data
-        const savedDataStr = localStorage.getItem('safeall_checkout_form');
-
         // Sync session first
         (async () => {
             const activeSession = await window.SAFEALL_API.initSession();
@@ -552,6 +546,7 @@
                 return;
             }
 
+            // POPULATE FROM SERVER SESSION (Source of Truth)
             if (activeSession.phone) {
                 const phoneEl = document.getElementById('phoneNumber');
                 if (phoneEl) phoneEl.value = activeSession.phone;
@@ -560,37 +555,29 @@
                 const nameEl = document.getElementById('fullName');
                 if (nameEl) nameEl.value = activeSession.name;
             }
-
-            if (savedDataStr) {
-                try {
-                    const savedData = JSON.parse(savedDataStr);
-                    formFields.forEach(id => {
-                        if (id === 'phoneNumber' || id === 'fullName') return; // Không ghi đè thông tin định danh
-                        const el = document.getElementById(id);
-                        if (el && savedData[id]) {
-                            el.value = savedData[id];
-                        }
-                    });
-                } catch (e) { console.error("Error parsing saved form data", e); }
+            if (activeSession.address) {
+                const addressEl = document.getElementById('address');
+                if (addressEl) addressEl.value = activeSession.address;
             }
+
+            // Xóa rác local cũ nếu còn
+            localStorage.removeItem('safeall_checkout_form');
         })();
 
-        // Save data on input
-        function saveFormData() {
-            const formData = {};
-            formFields.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) formData[id] = el.value;
-            });
-            localStorage.setItem('safeall_checkout_form', JSON.stringify(formData));
+        // SYNC TO SERVER ON CHANGE
+        async function syncProfileToServer() {
+            const name = document.getElementById('fullName').value.trim();
+            const address = document.getElementById('address').value.trim();
+
+            // Only sync if logged in and data exists
+            const user = window.SAFEALL_API.getActiveUser();
+            if (user && user.phone !== 'admin') {
+                await window.SAFEALL_API.updateProfile({ name, address });
+            }
         }
 
-        formFields.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('input', saveFormData);
-            }
-        });
+        document.getElementById('fullName').addEventListener('blur', syncProfileToServer);
+        document.getElementById('address').addEventListener('blur', syncProfileToServer);
 
         let isSubmitting = false;
         // Submit form

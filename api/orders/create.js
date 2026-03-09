@@ -1,4 +1,4 @@
-import * as db from '../utils/db.js';
+import * as db from '../_utils/db.js';
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
@@ -23,6 +23,7 @@ export default async function handler(req, res) {
 
         const userId = decoded.id === 'admin' ? null : decoded.id;
 
+        // 1. Save order to PostgreSQL
         await db.query(
             `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, customer_address, items, subtotal, shipping_fee, total, payment_method, note, status) 
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
@@ -41,6 +42,11 @@ export default async function handler(req, res) {
                 'pending'
             ]
         );
+
+        // 2. Synchronize address to user profile if logged in
+        if (userId) {
+            await db.query('UPDATE users SET address = $1 WHERE id = $2', [customer.address, userId]);
+        }
 
         return res.status(201).json({ success: true, message: 'Order created successfully', orderId });
     } catch (error) {

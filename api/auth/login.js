@@ -1,4 +1,4 @@
-import * as db from '../utils/db.js';
+import * as db from '../_utils/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 

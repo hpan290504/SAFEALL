@@ -76,21 +76,36 @@ document.addEventListener('DOMContentLoaded', () => {
     langEnBtn.addEventListener('click', () => changeLanguage('en'));
 
     // Countdown Timer Logic
-    const initCountdown = () => {
+    const initCountdown = async () => {
         const timers = document.querySelectorAll('.countdown-timer');
         if (timers.length === 0) return;
 
-        // Set deadline to 24 hours from first visit
-        let deadline = localStorage.getItem('safeall_sale_deadline');
-        if (!deadline) {
-            deadline = new Date().getTime() + (24 * 60 * 60 * 1000);
-            localStorage.setItem('safeall_sale_deadline', deadline);
+        // Sync session to get potential server-side deadline
+        const user = await window.SAFEALL_API.initSession();
+
+        // 1. Determine Source of Truth for Deadline
+        let deadline;
+
+        if (user && user.sale_deadline) {
+            // Priority: Server-side deadline
+            deadline = parseInt(user.sale_deadline, 10);
         } else {
-            deadline = parseInt(deadline, 10);
-            if (new Date().getTime() > deadline) {
-                // If past deadline, reset for another 24h
+            // Fallback: localStorage for guest or first-time user
+            deadline = localStorage.getItem('safeall_sale_deadline');
+            if (!deadline) {
                 deadline = new Date().getTime() + (24 * 60 * 60 * 1000);
                 localStorage.setItem('safeall_sale_deadline', deadline);
+            } else {
+                deadline = parseInt(deadline, 10);
+                if (new Date().getTime() > deadline) {
+                    deadline = new Date().getTime() + (24 * 60 * 60 * 1000);
+                    localStorage.setItem('safeall_sale_deadline', deadline);
+                }
+            }
+
+            // If logged in but no server deadline, sync this one up
+            if (user && user.phone !== 'admin') {
+                await window.SAFEALL_API.updateProfile({ sale_deadline: deadline });
             }
         }
 
@@ -98,16 +113,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const now = new Date().getTime();
             const distance = deadline - now;
 
-            if (distance < 0) return; // Optional: handle expiration
+            if (distance < 0) {
+                // Reset for another 24h if expired
+                deadline = new Date().getTime() + (24 * 60 * 60 * 1000);
+                if (user && user.phone !== 'admin') {
+                    window.SAFEALL_API.updateProfile({ sale_deadline: deadline });
+                } else {
+                    localStorage.setItem('safeall_sale_deadline', deadline);
+                }
+                return;
+            }
 
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            // Fetch translated strings
             const dayStr = langData[currentLang]?.time_days || 'Ngày';
-
             const h = hours.toString().padStart(2, '0');
             const m = minutes.toString().padStart(2, '0');
             const s = seconds.toString().padStart(2, '0');

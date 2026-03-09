@@ -54,8 +54,10 @@ const API = {
     logout() {
         this._session = null;
         localStorage.removeItem('safeall_token');
-        localStorage.removeItem('safeall_active_user'); // EXPLICIT PURGE for legacy
-        localStorage.removeItem('safeall_orders');      // EXPLICIT PURGE for legacy
+        // PURGE ALL LEGACY KEYS
+        localStorage.removeItem('safeall_active_user');
+        localStorage.removeItem('safeall_orders');
+        localStorage.removeItem('safeall_checkout_form');
     },
 
     // --- Auth ---
@@ -67,6 +69,7 @@ const API = {
                 body: JSON.stringify({ phone, password })
             });
             if (res.success) {
+                // SỰ THẬT: Chỉ lưu token. Dữ liệu user sẽ được lấy qua initSession()
                 localStorage.setItem('safeall_token', res.token);
                 this._session = res.user;
                 return { success: true, data: res.user };
@@ -89,6 +92,27 @@ const API = {
         }
     },
 
+    // --- Profile & User Data ---
+
+    async updateProfile(profileData) {
+        try {
+            const res = await this._fetch('user/update-profile', {
+                method: 'POST',
+                body: JSON.stringify(profileData)
+            });
+            if (res.success) {
+                // Cập nhật session in-memory để frontend phản ứng ngay lập tức
+                if (this._session) {
+                    this._session = { ...this._session, ...profileData };
+                }
+                return { success: true };
+            }
+            return { success: false, message: res.message };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
     // --- Orders ---
 
     async createOrder(orderData) {
@@ -97,6 +121,10 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify(orderData)
             });
+
+            // Nếu đặt hàng thành công, ta xóa note local (nếu còn)
+            localStorage.removeItem('safeall_checkout_form');
+
             return { success: true, orderId: res.orderId };
         } catch (e) {
             return { success: false, message: e.message };

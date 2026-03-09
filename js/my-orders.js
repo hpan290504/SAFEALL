@@ -10,11 +10,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 3. UI Setup
-    document.getElementById('sidebarUserName').innerText = user.identifier;
+    document.getElementById('sidebarUserName').innerText = user.name || user.phone;
 
-    // 4. Force Cleanup of legacy local data (just in case)
-    localStorage.removeItem('safeall_orders');
-    localStorage.removeItem('safeall_active_user');
+    // 4. Source of Truth: Data already fetched from server via API.initSession()
+    // No more local forced removal needed here as it's handled globally.
 
     // 5. Fetch and Render
     loadOrdersFromServer('all');
