@@ -94,6 +94,7 @@ window.SAFEALL_CART = {
         let items = this.getItems();
         items = items.filter(i => i.id !== productId);
         this.saveItems(items);
+        this.toggleSideCart(true); // Always open side cart when adding
     },
 
     /**
