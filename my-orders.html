@@ -231,10 +231,11 @@
                          <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
                             <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
                             <h3 class="font-black text-slate-900 dark:text-white text-xl">Tra cứu thất bại</h3>
-                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">${resData.message || 'Mã PIN hoặc thông tin tra cứu không chính xác. Vui lòng kiểm tra lại.'}</p>
+                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.</p>
                         </div>
                     `;
                 }
+
             } catch (err) {
                 loading.classList.add('hidden');
                 console.error(err);
