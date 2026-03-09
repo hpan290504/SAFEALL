@@ -128,7 +128,7 @@ window.SAFEALL_CART = {
         if (items.length === 0) {
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-20 text-slate-400">
-                    <span class="material-symbols-outlined text-6xl mb-4">shopping_cart</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor" class="mb-4 opacity-30"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03L21 4H5.21l-.94-2H1v2h2l3.6 7.59L5.25 14c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H16z"/></svg>
                     <p>Giỏ hàng đang trống</p>
                 </div>
             `;
@@ -147,17 +147,17 @@ window.SAFEALL_CART = {
                         <div class="flex justify-between text-sm font-semibold text-slate-900">
                             <h3>${item.title}</h3>
                             <button onclick="window.SAFEALL_CART.removeItem('${item.id}')" class="text-slate-400 hover:text-primary">
-                                <span class="material-symbols-outlined text-lg">delete</span>
+                                <i class="codicon codicon-trash text-base"></i>
                             </button>
                         </div>
                         <div class="flex flex-1 items-end justify-between text-sm pt-2">
                             <div class="flex items-center border border-slate-200 rounded-lg bg-white overflow-hidden">
                                 <button onclick="window.SAFEALL_CART.updateQty('${item.id}', -1)" class="px-2 py-0.5 text-slate-600 hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined text-xs">remove</span>
+                                    <i class="codicon codicon-dash text-xs"></i>
                                 </button>
                                 <span class="w-6 text-center text-xs font-bold">${item.qty}</span>
                                 <button onclick="window.SAFEALL_CART.updateQty('${item.id}', 1)" class="px-2 py-0.5 text-slate-600 hover:text-primary transition-colors">
-                                    <span class="material-symbols-outlined text-xs">add</span>
+                                    <i class="codicon codicon-add text-xs"></i>
                                 </button>
                             </div>
                             <p class="font-bold text-primary text-sm">${this.formatPrice(item.price * item.qty)}</p>
@@ -193,7 +193,7 @@ window.SAFEALL_CART = {
             html += `
                 <div class="mb-8">
                     <h3 class="text-sm font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-lg">category</span>
+                        <i class="codicon codicon-package text-base"></i>
                         ${catLabel}
                     </h3>
                     <div class="space-y-4">
@@ -211,10 +211,10 @@ window.SAFEALL_CART = {
                         <div class="text-right">
                             <p class="font-bold text-primary">${this.formatPrice(item.price * item.qty)}</p>
                             <div class="flex items-center gap-2 mt-2">
-                                <button onclick="window.SAFEALL_CART.updateQty('${item.id}', -1)" class="p-1 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-sm">remove</span></button>
+                                <button onclick="window.SAFEALL_CART.updateQty('${item.id}', -1)" class="p-1 text-slate-400 hover:text-primary"><i class="codicon codicon-dash text-xs"></i></button>
                                 <span class="text-sm font-bold w-4 text-center">${item.qty}</span>
-                                <button onclick="window.SAFEALL_CART.updateQty('${item.id}', 1)" class="p-1 text-slate-400 hover:text-primary"><span class="material-symbols-outlined text-sm">add</span></button>
-                                <button onclick="window.SAFEALL_CART.removeItem('${item.id}')" class="ml-2 p-1 text-slate-300 hover:text-red-500"><span class="material-symbols-outlined text-sm">delete</span></button>
+                                <button onclick="window.SAFEALL_CART.updateQty('${item.id}', 1)" class="p-1 text-slate-400 hover:text-primary"><i class="codicon codicon-add text-xs"></i></button>
+                                <button onclick="window.SAFEALL_CART.removeItem('${item.id}')" class="ml-2 p-1 text-slate-300 hover:text-red-500"><i class="codicon codicon-trash text-xs"></i></button>
                             </div>
                         </div>
                     </div>

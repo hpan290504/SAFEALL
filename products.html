@@ -9,8 +9,7 @@
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap"
-        rel="stylesheet" />
+    <link rel="stylesheet" href="css/icons.css" />
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -30,10 +29,6 @@
         }
     </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
         }
@@ -69,7 +64,11 @@
                 <div class="flex items-center gap-4">
                     <button onclick="window.SAFEALL_CART.toggleSideCart(true)"
                         class="relative p-2 text-slate-600 hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="currentColor" class="icon-svg">
+                            <path
+                                d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03L21 4H5.21l-.94-2H1v2h2l3.6 7.59L5.25 14c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H16z" />
+                        </svg>
                         <span id="cartBadge"
                             class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                     </button>
@@ -119,11 +118,11 @@
                             Ứng Phó Lũ Lụt SAFEALL</h1>
                         <div class="flex items-center gap-4">
                             <div class="flex text-yellow-400">
-                                <span class="material-symbols-outlined fill-1">star</span>
-                                <span class="material-symbols-outlined fill-1">star</span>
-                                <span class="material-symbols-outlined fill-1">star</span>
-                                <span class="material-symbols-outlined fill-1">star</span>
-                                <span class="material-symbols-outlined fill-1">star</span>
+                                <i class="codicon codicon-star-full text-lg"></i>
+                                <i class="codicon codicon-star-full text-lg"></i>
+                                <i class="codicon codicon-star-full text-lg"></i>
+                                <i class="codicon codicon-star-full text-lg"></i>
+                                <i class="codicon codicon-star-full text-lg"></i>
                             </div>
                             <span class="text-slate-500 text-sm font-medium">(1.2k+ đánh giá)</span>
                         </div>
@@ -142,12 +141,16 @@
                     <div class="flex flex-wrap gap-3">
                         <div
                             class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-bold border border-blue-100">
-                            <span class="material-symbols-outlined text-lg">verified</span>
+                            <i class="codicon codicon-shield text-lg"></i>
                             Đạt chuẩn an toàn
                         </div>
                         <div
                             class="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-sm font-bold border border-green-100">
-                            <span class="material-symbols-outlined text-lg">local_shipping</span>
+                            <span class="icon-svg w-5 h-5"><svg xmlns="http://www.w3.org/2000/svg" width="18"
+                                    height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9 1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+                                </svg></span>
                             Giao hàng hỏa tốc
                         </div>
                     </div>
@@ -156,13 +159,13 @@
                         <a href="checkout.html"
                             onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
                             class="flex-1 text-center bg-primary hover:opacity-90 text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 uppercase tracking-wider text-xl flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                            <i class="codicon codicon-arrow-right text-xl"></i>
                             Mua ngay
                         </a>
                         <button
                             onclick="window.SAFEALL_CART.addItem({id: 'flood_kit', title: 'Bộ kit ứng phó lũ lụt', price: 1200000, image: 'assets/safeall_flood_kit_1772701309096.png', category: 'flood'})"
                             class="flex-1 bg-white border-2 border-secondary hover:bg-secondary text-secondary hover:text-white font-black py-5 rounded-2xl transition-all active:scale-95 uppercase tracking-wider flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">add_shopping_cart</span>
+                            <i class="codicon codicon-add text-xl"></i>
                             Thêm vào giỏ
                         </button>
                     </div>
@@ -177,7 +180,7 @@
                     <div
                         class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
                         <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
-                            <span class="material-symbols-outlined text-3xl">backpack</span>
+                            <i class="codicon codicon-package text-3xl"></i>
                         </div>
                         <h4 class="font-black text-xl mb-3">Balo cứu hộ chống nước</h4>
                         <p class="text-sm text-slate-500 leading-relaxed">Chất liệu TPU cao cấp, dung tích 40L, có thể
@@ -186,7 +189,7 @@
                     <div
                         class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
                         <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
-                            <span class="material-symbols-outlined text-3xl">flashlight_on</span>
+                            <i class="codicon codicon-lightbulb text-3xl"></i>
                         </div>
                         <h4 class="font-black text-xl mb-3">Đèn pin sạc năng lượng</h4>
                         <p class="text-sm text-slate-500 leading-relaxed">Ánh sáng 1000 lumen, tích hợp sạc năng lượng
@@ -195,7 +198,11 @@
                     <div
                         class="group p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary transition-colors shadow-sm">
                         <div class="p-3 bg-primary/10 text-primary rounded-xl w-fit mb-6">
-                            <span class="material-symbols-outlined text-3xl">medical_services</span>
+                            <span class="icon-svg text-primary w-8 h-8"><svg xmlns="http://www.w3.org/2000/svg"
+                                    width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z" />
+                                </svg></span>
                         </div>
                         <h4 class="font-black text-xl mb-3">Túi y tế 50 món</h4>
                         <p class="text-sm text-slate-500 leading-relaxed">Bao gồm đầy đủ bông băng, thuốc sát trùng,
@@ -223,7 +230,7 @@
                             <button
                                 onclick="window.SAFEALL_CART.addItem({id: 'multi_kit', title: 'Bộ kit đa tình huống', price: 2500000, image: 'assets/safeall_multi_kit_1772701607502.png', category: 'multi'})"
                                 class="mt-3 text-xs font-bold text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">
-                                Thêm vào giỏ <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                                Thêm vào giỏ <i class="codicon codicon-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -240,7 +247,7 @@
                             <button
                                 onclick="window.SAFEALL_CART.addItem({id: 'basic_kit', title: 'Bộ kit cơ bản', price: 950000, image: 'assets/safeall_individual_items_1772704234519.png', category: 'basic'})"
                                 class="mt-3 text-xs font-bold text-secondary uppercase hover:text-primary transition-colors flex items-center gap-1">
-                                Thêm vào giỏ <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                                Thêm vào giỏ <i class="codicon codicon-arrow-right text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -283,7 +290,7 @@
                     </div>
                     <button onclick="window.SAFEALL_CART.toggleSideCart(false)"
                         class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <span class="material-symbols-outlined text-slate-500">close</span>
+                        <i class="codicon codicon-close text-slate-500 text-xl"></i>
                     </button>
                 </div>
                 <div id="sideCartItems" class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide"></div>
@@ -299,8 +306,7 @@
                     <button onclick="window.location.href='checkout.html'"
                         class="w-full bg-primary hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group">
                         <span>THANH TOÁN NGAY</span>
-                        <span
-                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        <i class="codicon codicon-arrow-right group-hover:translate-x-1 transition-transform"></i>
                     </button>
                 </div>
             </div>
