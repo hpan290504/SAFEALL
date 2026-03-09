@@ -98,6 +98,42 @@ export default async function handler(req, res) {
             }
         }
 
+        // 3. Optional: Write Test
+        if (req.query.test === '1') {
+            report.writeTest = { status: 'Running' };
+            const testPhone = '0000000000';
+            const testOrderId = 'TEST-' + Date.now();
+
+            try {
+                // Cleanup old test
+                await db.query('DELETE FROM orders WHERE order_id LIKE $1', ['TEST-%']);
+                await db.query('DELETE FROM users WHERE phone = $1', [testPhone]);
+
+                // Test Insert User
+                const userRes = await db.query(
+                    'INSERT INTO users (name, phone, track_pin_hash, role) VALUES ($1, $2, $3, $4) RETURNING id',
+                    ['Test Bot', testPhone, 'test_hash', 'user']
+                );
+                const testUserId = userRes.rows[0].id;
+
+                // Test Insert Order
+                await db.query(
+                    `INSERT INTO orders (order_id, user_id, customer_name, customer_phone, total, status)
+                     VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [testOrderId, testUserId, 'Test Bot', testPhone, 1000, 'pending']
+                );
+
+                report.writeTest.status = 'SUCCESS: Database is fully writable';
+
+                // Cleanup
+                await db.query('DELETE FROM orders WHERE order_id = $1', [testOrderId]);
+                await db.query('DELETE FROM users WHERE id = $1', [testUserId]);
+            } catch (e) {
+                report.writeTest.status = `FAILED: ${e.message}`;
+                report.writeTest.error = e;
+            }
+        }
+
         return res.status(200).json({ success: true, report });
 
     } catch (error) {
