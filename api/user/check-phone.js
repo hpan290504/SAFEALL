@@ -12,7 +12,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        const result = await db.query('SELECT id FROM users WHERE phone = $1 LIMIT 1', [phone]);
+        const normalizedPhone = phone.toString().replace(/\D/g, '');
+        const result = await db.query('SELECT id FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, phone]);
+
 
         if (result.rows.length > 0) {
             return res.status(200).json({ success: true, exists: true });

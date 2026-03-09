@@ -65,8 +65,9 @@ export default async function handler(req, res) {
                 orderId,
                 userId,
                 customer.name,
-                customer.phone,
+                customer.phone.toString().replace(/\D/g, ''),
                 customer.address,
+
                 JSON.stringify(items),
                 subtotal,
                 shippingFee,

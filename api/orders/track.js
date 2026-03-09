@@ -39,9 +39,11 @@ export default async function handler(req, res) {
 
         // --- NEW SECURITY CHECK: Verify PIN using bcrypt ---
         const firstOrder = result.rows[0]; // All returned orders should realistically belong to the same phone number
-        const customerPhone = firstOrder.customer_phone;
+        const rawCustomerPhone = firstOrder.customer_phone;
+        const normalizedCustomerPhone = rawCustomerPhone.replace(/\D/g, '');
 
-        const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 LIMIT 1', [customerPhone]);
+        const userCheck = await db.query('SELECT id, password FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedCustomerPhone, rawCustomerPhone]);
+
 
         // If a user doesn't exist for this old order or the user exists but the pin is wrong:
         if (userCheck.rows.length === 0) {

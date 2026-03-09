@@ -42,8 +42,10 @@ export default async function handler(req, res) {
 
         // Find user
         console.log(`[Login] Step 1: Querying database for ${phone}...`);
-        const result = await db.query('SELECT * FROM users WHERE phone = $1', [phone]);
+        const normalizedPhone = phone.toString().replace(/\D/g, '');
+        const result = await db.query('SELECT * FROM users WHERE phone = $1 OR phone = $2 LIMIT 1', [normalizedPhone, phone]);
         const user = result.rows[0];
+
 
         if (!user) {
             console.log(`[Login] Fail: Phone ${phone} not found in database`);
