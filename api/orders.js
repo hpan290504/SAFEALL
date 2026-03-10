@@ -6,62 +6,83 @@ import jwt from 'jsonwebtoken';
 
 // ========== AUTO-MIGRATION: runs once per cold start ==========
 let migrated = false;
+
 async function ensureSchema() {
     if (migrated) return;
-    try {
-        await db.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                name TEXT, phone TEXT UNIQUE, email TEXT, password TEXT,
-                track_pin_hash TEXT, role TEXT DEFAULT 'user',
-                reset_token TEXT, reset_token_expiry TIMESTAMP,
-                created_at TIMESTAMP DEFAULT NOW()
-            );
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT;
-            ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
+    console.log('[Orders] Running auto-migration...');
 
-            CREATE TABLE IF NOT EXISTS orders (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                short_id VARCHAR(12) UNIQUE NOT NULL,
-                client_token VARCHAR(50),
-                user_id INTEGER REFERENCES users(id),
-                payment_status VARCHAR(20) DEFAULT 'pending',
-                fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled',
-                subtotal DECIMAL(12,2) NOT NULL,
-                shipping_fee DECIMAL(12,2) DEFAULT 0,
-                total DECIMAL(12,2) NOT NULL,
-                payment_method VARCHAR(30),
-                customer_note TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            ALTER TABLE orders ADD COLUMN IF NOT EXISTS short_id VARCHAR(12);
-            ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_token VARCHAR(50);
-            ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'pending';
-            ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled';
+    // Each statement runs independently so one failure doesn't block the rest
+    const statements = [
+        // Users table
+        `CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY, name TEXT, phone TEXT UNIQUE, email TEXT,
+            password TEXT, track_pin_hash TEXT, role TEXT DEFAULT 'user',
+            reset_token TEXT, reset_token_expiry TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW()
+        )`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`,
 
-            CREATE TABLE IF NOT EXISTS order_items (
-                id SERIAL PRIMARY KEY,
-                order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-                product_id INTEGER, quantity INTEGER NOT NULL,
-                unit_price DECIMAL(12,2) NOT NULL,
-                total_price DECIMAL(12,2) NOT NULL,
-                title TEXT
-            );
+        // Orders table - DROP and recreate if incompatible with new schema
+        // First check if orders exists with old schema (no short_id)
+        `DO $$ BEGIN
+            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'orders')
+               AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'short_id') THEN
+                -- Old table exists without short_id. Drop dependent tables first, then orders.
+                DROP TABLE IF EXISTS order_addresses CASCADE;
+                DROP TABLE IF EXISTS order_items CASCADE;
+                DROP TABLE IF EXISTS orders CASCADE;
+                RAISE NOTICE 'Dropped old orders tables to recreate with new schema';
+            END IF;
+        END $$`,
 
-            CREATE TABLE IF NOT EXISTS order_addresses (
-                order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
-                full_name TEXT NOT NULL, phone VARCHAR(20) NOT NULL,
-                email TEXT, address_line TEXT NOT NULL,
-                city TEXT, province TEXT, postal_code VARCHAR(10)
-            );
-        `);
-        migrated = true;
-        console.log('[Orders] Auto-migration complete.');
-    } catch (e) {
-        console.error('[Orders] Auto-migration failed:', e.message);
+        // Now create orders with new schema (will run if table was dropped or never existed)
+        `CREATE TABLE IF NOT EXISTS orders (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            short_id VARCHAR(12) UNIQUE NOT NULL,
+            client_token VARCHAR(50),
+            user_id INTEGER REFERENCES users(id),
+            payment_status VARCHAR(20) DEFAULT 'pending',
+            fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled',
+            subtotal DECIMAL(12,2) NOT NULL,
+            shipping_fee DECIMAL(12,2) DEFAULT 0,
+            total DECIMAL(12,2) NOT NULL,
+            payment_method VARCHAR(30),
+            customer_note TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+
+        // Order items
+        `CREATE TABLE IF NOT EXISTS order_items (
+            id SERIAL PRIMARY KEY,
+            order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+            product_id INTEGER, quantity INTEGER NOT NULL,
+            unit_price DECIMAL(12,2) NOT NULL,
+            total_price DECIMAL(12,2) NOT NULL,
+            title TEXT
+        )`,
+
+        // Order addresses
+        `CREATE TABLE IF NOT EXISTS order_addresses (
+            order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+            full_name TEXT NOT NULL, phone VARCHAR(20) NOT NULL,
+            email TEXT, address_line TEXT NOT NULL,
+            city TEXT, province TEXT, postal_code VARCHAR(10)
+        )`
+    ];
+
+    for (const sql of statements) {
+        try {
+            await db.query(sql);
+        } catch (e) {
+            console.error('[Orders] Migration statement failed:', e.message, '| SQL:', sql.substring(0, 80));
+        }
     }
+
+    migrated = true;
+    console.log('[Orders] Auto-migration complete.');
 }
 
 // ========== HANDLER ==========
