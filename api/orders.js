@@ -1,6 +1,6 @@
 import * as db from './_utils/db.js';
 import { normalizePhone } from './_utils/normalization.js';
-import { verifyPin } from './_utils/auth.js';
+import { verifyPin, hashPin } from './_utils/auth.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
@@ -36,8 +36,8 @@ async function handleCreate(req, res) {
             if (!(await verifyPin(userRes.rows[0], pin))) throw new Error('Sai mã PIN.');
             userId = userRes.rows[0].id;
         } else {
-            const hashedPin = await crypto.createHash('sha256').update(pin).digest('hex'); // Simplified for brevity, use real hash utility if available
-            const newUser = await client.query('INSERT INTO users (name, phone, track_pin_hash) VALUES ($1, $2, $3) RETURNING id', [customer.name, phone, hashedPin]);
+            const hashedPin = await hashPin(pin);
+            const newUser = await client.query('INSERT INTO users (name, phone, password, track_pin_hash) VALUES ($1, $2, $3, $4) RETURNING id', [customer.name, phone, hashedPin, hashedPin]);
             userId = newUser.rows[0].id;
         }
 
