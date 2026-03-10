@@ -54,30 +54,31 @@ async function loadOrders() {
     currentOrders.forEach((order, index) => {
         const tr = document.createElement('tr');
 
-        // Status Badge Logic
-        let statusBadge = '';
-        if (order.status === 'pending') statusBadge = '<span class="badge badge-warning">Chờ xử lý</span>';
-        else if (order.status === 'shipping' || order.status === 'delivering') statusBadge = '<span class="badge badge-info">Đang giao</span>';
-        else if (order.status === 'completed') statusBadge = '<span class="badge badge-success">Đã hoàn thành</span>';
-        else statusBadge = `<span class="badge badge-secondary">${order.status}</span>`;
+        // Status Badge Logic (Fulfillment & Payment)
+        let fStatusBadge = '';
+        if (order.fulfillment_status === 'unfulfilled') fStatusBadge = '<span class="badge badge-warning">Chờ xử lý</span>';
+        else if (order.fulfillment_status === 'fulfilled') fStatusBadge = '<span class="badge badge-success">Đã giao</span>';
+        else fStatusBadge = `<span class="badge badge-secondary">${order.fulfillment_status}</span>`;
 
-        let paymentBadge = '';
-        if (order.paymentMethod === 'cod') paymentBadge = '<span class="badge badge-secondary">COD</span>';
-        else if (order.paymentMethod === 'bank') paymentBadge = '<span class="badge badge-primary">Chuyển khoản</span>';
-        else paymentBadge = '<span class="badge badge-dark">Thẻ</span>';
+        let pStatusBadge = '';
+        if (order.payment_status === 'pending') pStatusBadge = '<span class="badge badge-outline-secondary">Chưa thanh toán</span>';
+        else if (order.payment_status === 'paid') pStatusBadge = '<span class="badge badge-success">Đã thanh toán</span>';
 
-        // Brief items summary
-        const itemsSummary = order.items.map(i => `${i.title} (x${i.qty})`).join(', ');
+        let methodBadge = '';
+        if (order.payment_method === 'cod') methodBadge = '<span class="badge badge-secondary">COD</span>';
+        else if (order.payment_method === 'bank') methodBadge = '<span class="badge badge-primary">Chuyển khoản</span>';
+
+        const itemsSummary = order.items?.map(i => `${i.title} (x${i.quantity})`).join(', ') || 'Không có sản phẩm';
 
         tr.innerHTML = `
-            <td><strong>#${order.id.toUpperCase()}</strong></td>
-            <td>${formatDate(order.date)}</td>
-            <td>${order.customer.name}</td>
-            <td>${order.customer.phone}</td>
+            <td><strong>#${order.short_id}</strong></td>
+            <td>${formatDate(order.created_at)}</td>
+            <td>${order.full_name}</td>
+            <td>${order.phone}</td>
             <td class="text-truncate" style="max-width: 200px;" title="${itemsSummary}">${itemsSummary}</td>
             <td class="text-primary-red font-bold">${formatCurrency(order.total)}</td>
-            <td>${paymentBadge}</td>
-            <td>${statusBadge}</td>
+            <td>${methodBadge} ${pStatusBadge}</td>
+            <td>${fStatusBadge}</td>
             <td>
                 <button class="btn btn-sm btn-outline-primary" onclick="viewOrder(${index})">Chi tiết</button>
             </td>
@@ -90,27 +91,27 @@ window.viewOrder = function (index) {
     const order = currentOrders[index];
     if (!order) return;
 
-    document.getElementById('detailOrderId').innerText = '#' + order.id.toUpperCase();
-    document.getElementById('detailCustomerName').innerText = order.customer.name;
-    document.getElementById('detailCustomerPhone').innerText = order.customer.phone;
-    document.getElementById('detailCustomerAddress').innerText = order.customer.address;
-    document.getElementById('detailOrderNote').innerText = order.note || "Không có lời nhắn.";
+    document.getElementById('detailOrderId').innerText = '#' + order.short_id;
+    document.getElementById('detailCustomerName').innerText = order.full_name;
+    document.getElementById('detailCustomerPhone').innerText = order.phone;
+    document.getElementById('detailCustomerAddress').innerText = order.address_line;
+    document.getElementById('detailOrderNote').innerText = order.customer_note || "Không có lời nhắn.";
 
     const pList = document.getElementById('detailProductsList');
     pList.innerHTML = '';
-    order.items.forEach(item => {
+    order.items?.forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${item.title}</td>
-            <td>${item.qty}</td>
-            <td class="text-right">${formatCurrency(item.price)}</td>
-            <td class="text-right text-primary-red">${formatCurrency(item.total)}</td>
+            <td>${item.quantity}</td>
+            <td class="text-right">${formatCurrency(item.unit_price)}</td>
+            <td class="text-right text-primary-red">${formatCurrency(item.total_price)}</td>
         `;
         pList.appendChild(tr);
     });
 
     document.getElementById('detailSubtotal').innerText = formatCurrency(order.subtotal);
-    document.getElementById('detailShipping').innerText = formatCurrency(order.shippingFee);
+    document.getElementById('detailShipping').innerText = formatCurrency(order.shipping_fee);
     document.getElementById('detailTotal').innerText = formatCurrency(order.total);
 
     document.getElementById('orderDetailModal').style.display = 'flex';

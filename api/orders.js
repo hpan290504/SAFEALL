@@ -23,13 +23,23 @@ export default async function handler(req, res) {
 
 async function handleCreate(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
-    const { items, subtotal, shippingFee, total, paymentMethod, note, customer, pin } = req.body;
+    const { items, subtotal, shippingFee, total, paymentMethod, note, customer, pin, clientToken } = req.body;
     if (!items?.length || !customer?.phone || !pin) return res.status(400).json({ message: 'Thiếu thông tin bắt buộc.' });
 
     const phone = normalizePhone(customer.phone);
     const client = await db.getClient();
     try {
         await client.query('BEGIN');
+
+        // Idempotency check
+        if (clientToken) {
+            const existing = await client.query('SELECT short_id FROM orders WHERE client_token = $1', [clientToken]);
+            if (existing.rows.length > 0) {
+                await client.query('ROLLBACK');
+                return res.status(200).json({ success: true, orderId: existing.rows[0].short_id, message: 'Re-delivered existing order.' });
+            }
+        }
+
         let userId;
         const userRes = await client.query('SELECT * FROM users WHERE phone = $1 LIMIT 1', [phone]);
         if (userRes.rows.length > 0) {
@@ -42,7 +52,10 @@ async function handleCreate(req, res) {
         }
 
         const shortId = `SA-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
-        const orderRes = await client.query('INSERT INTO orders (short_id, user_id, subtotal, shipping_fee, total, payment_method) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id', [shortId, userId, subtotal, shippingFee, total, paymentMethod]);
+        const orderRes = await client.query(
+            'INSERT INTO orders (short_id, client_token, user_id, subtotal, shipping_fee, total, payment_method) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+            [shortId, clientToken, userId, subtotal, shippingFee, total, paymentMethod]
+        );
         const orderId = orderRes.rows[0].id;
 
         for (const item of items) {

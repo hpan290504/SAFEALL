@@ -49,7 +49,7 @@ async function loadOrdersFromServer(status) {
     }
 
     let orders = res.orders;
-    if (status !== 'all') orders = orders.filter(o => o.status === status);
+    if (status !== 'all') orders = orders.filter(o => o.fulfillment_status === status || o.payment_status === status);
 
     if (orders.length === 0) {
         list.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Không có đơn hàng nào.</td></tr>';
@@ -58,12 +58,12 @@ async function loadOrdersFromServer(status) {
 
     list.innerHTML = orders.map(o => `
         <tr style="border-bottom:1px solid #eee;">
-            <td style="padding:15px;">#${o.id.toUpperCase()}</td>
-            <td style="padding:15px;">${new Date(o.date).toLocaleDateString('vi-VN')}</td>
-            <td style="padding:15px;">${o.items.map(i => i.title).join(', ')}</td>
-            <td style="padding:15px;">${o.paymentMethod.toUpperCase()}</td>
+            <td style="padding:15px;">#${o.short_id}</td>
+            <td style="padding:15px;">${new Date(o.created_at).toLocaleDateString('vi-VN')}</td>
+            <td style="padding:15px;">${o.items?.map(i => i.title).join(', ') || 'Sản phẩm...'}</td>
+            <td style="padding:15px;">${o.payment_method?.toUpperCase()}</td>
             <td style="padding:15px; font-weight:bold;">${new Intl.NumberFormat('vi-VN').format(o.total)}đ</td>
-            <td style="padding:15px;"><span class="status-badge ${o.status}">${o.status}</span></td>
+            <td style="padding:15px;"><span class="status-badge ${o.fulfillment_status}">${o.fulfillment_status === 'unfulfilled' ? 'Chờ xử lý' : 'Đã giao'}</span></td>
         </tr>
     `).join('');
 }

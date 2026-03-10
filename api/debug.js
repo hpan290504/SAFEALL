@@ -27,8 +27,13 @@ export default async function handler(req, res) {
                     -- ORDERS transformations
                     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'orders') THEN
                         ALTER TABLE orders ADD COLUMN IF NOT EXISTS short_id VARCHAR(12);
+                        ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_token VARCHAR(50);
                         ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'pending';
                         ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled';
+                        
+                        -- Add constraints if they don't exist
+                        -- Note: Adding UNIQUE constraints via IF NOT EXISTS is tricky in plain SQL,
+                        -- but adding the columns is the priority.
                     END IF;
                 END $$;
 
@@ -49,6 +54,7 @@ export default async function handler(req, res) {
                 CREATE TABLE IF NOT EXISTS orders (
                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                     short_id VARCHAR(12) UNIQUE NOT NULL,
+                    client_token VARCHAR(50) UNIQUE,
                     user_id INTEGER REFERENCES users(id),
                     payment_status VARCHAR(20) DEFAULT 'pending',
                     fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled',
