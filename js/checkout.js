@@ -250,8 +250,11 @@ const Checkout = {
                 clientToken: `CT-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
             };
 
+            console.log('[Checkout] Payload sent:', payload);
+
             const res = await window.SAFEALL_API.createOrder(payload);
             if (res.success) {
+                console.log('[Checkout] Order created successfully:', res.orderId);
                 window.SAFEALL_CART.clear();
                 sessionStorage.setItem('safeall_last_order', JSON.stringify({
                     orderId: res.orderId,
@@ -262,12 +265,15 @@ const Checkout = {
                 }));
                 window.location.href = 'order-success.html';
             } else {
-                this.showError(res.message);
+                console.warn('[Checkout] Order creation failed:', res.message);
+                this.showError(res.message || 'Lỗi không xác định khi tạo đơn hàng.');
                 btn.disabled = false;
                 btn.innerHTML = originalText;
             }
         } catch (err) {
-            this.showError('Lỗi kết nối máy chủ. Vui lòng thử lại.');
+            console.error('[Checkout] Fatal error:', err);
+            const errMsg = err.message || 'Lỗi kết nối máy chủ. Vui lòng thử lại.';
+            this.showError(errMsg);
             btn.disabled = false;
             btn.innerHTML = originalText;
         }

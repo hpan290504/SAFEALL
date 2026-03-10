@@ -96,8 +96,14 @@ export default async function handler(req, res) {
 // ========== CREATE ==========
 async function handleCreate(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
+
+    // Aligned with js/checkout.js payload
     const { items, subtotal, shippingFee, total, paymentMethod, note, customer, pin, clientToken } = req.body;
-    if (!items?.length || !customer?.phone || !pin) return res.status(400).json({ message: 'Thiếu thông tin bắt buộc.' });
+
+    if (!items?.length || !customer?.phone || !pin) {
+        console.warn('[Orders] Missing required fields:', { items: !!items?.length, phone: !!customer?.phone, pin: !!pin });
+        return res.status(400).json({ message: 'Thiếu thông tin bắt buộc (sản phẩm, SĐT hoặc mã PIN).' });
+    }
 
     const phone = normalizePhone(customer.phone);
     const client = await db.getClient();
