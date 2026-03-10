@@ -13,7 +13,7 @@ async function ensureSchema() {
 
     // Each statement runs independently so one failure doesn't block the rest
     const statements = [
-        // Users table
+        // Users table (safe to keep - additive only)
         `CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY, name TEXT, phone TEXT UNIQUE, email TEXT,
             password TEXT, track_pin_hash TEXT, role TEXT DEFAULT 'user',
@@ -24,20 +24,12 @@ async function ensureSchema() {
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`,
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`,
 
-        // Orders table - DROP and recreate if incompatible with new schema
-        // First check if orders exists with old schema (no short_id)
-        `DO $$ BEGIN
-            IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'orders')
-               AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'short_id') THEN
-                -- Old table exists without short_id. Drop dependent tables first, then orders.
-                DROP TABLE IF EXISTS order_addresses CASCADE;
-                DROP TABLE IF EXISTS order_items CASCADE;
-                DROP TABLE IF EXISTS orders CASCADE;
-                RAISE NOTICE 'Dropped old orders tables to recreate with new schema';
-            END IF;
-        END $$`,
+        // FORCE clean slate for order tables - drop in correct dependency order
+        `DROP TABLE IF EXISTS order_addresses CASCADE`,
+        `DROP TABLE IF EXISTS order_items CASCADE`,
+        `DROP TABLE IF EXISTS orders CASCADE`,
 
-        // Now create orders with new schema (will run if table was dropped or never existed)
+        // Recreate with correct UUID schema
         `CREATE TABLE IF NOT EXISTS orders (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             short_id VARCHAR(12) UNIQUE NOT NULL,
@@ -54,7 +46,6 @@ async function ensureSchema() {
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`,
 
-        // Order items
         `CREATE TABLE IF NOT EXISTS order_items (
             id SERIAL PRIMARY KEY,
             order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
@@ -64,7 +55,6 @@ async function ensureSchema() {
             title TEXT
         )`,
 
-        // Order addresses
         `CREATE TABLE IF NOT EXISTS order_addresses (
             order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
             full_name TEXT NOT NULL, phone VARCHAR(20) NOT NULL,
