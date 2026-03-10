@@ -61,7 +61,10 @@ async function handleRegister(req, res) {
 
     const salt = await bcrypt.genSalt(10);
     const hashedPw = await bcrypt.hash(password, salt);
-    await db.query('INSERT INTO users (name, phone, password, gender, role) VALUES ($1, $2, $3, $4, $5)', [name, phone, hashedPw, gender || 'male', 'user']);
+    await db.query(
+        'INSERT INTO users (name, phone, password, track_pin_hash, gender, role) VALUES ($1, $2, $3, $4, $5, $6)',
+        [name, phone, hashedPw, hashedPw, gender || 'male', 'user']
+    );
 
     return res.status(201).json({ success: true, message: 'Đăng ký thành công!' });
 }
