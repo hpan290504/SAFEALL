@@ -40,7 +40,9 @@ async function ensureSchema() {
             payment_method VARCHAR(30),
             customer_note TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            carrier_tracking_code VARCHAR(100),
+            access_code VARCHAR(20)
         )`,
 
         `CREATE TABLE IF NOT EXISTS order_items (
@@ -52,6 +54,8 @@ async function ensureSchema() {
             title TEXT
         )`,
 
+        `ALTER TABLE orders ADD COLUMN IF NOT EXISTS carrier_tracking_code VARCHAR(100)`,
+        `ALTER TABLE orders ADD COLUMN IF NOT EXISTS access_code VARCHAR(20)`,
         `CREATE TABLE IF NOT EXISTS order_addresses (
             order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
             full_name TEXT NOT NULL, phone VARCHAR(20) NOT NULL,
@@ -84,7 +88,8 @@ export default async function handler(req, res) {
         if (action === 'create') return await handleCreate(req, res);
         if (action === 'my') return await handleMy(req, res);
         if (action === 'status') return await handleStatus(req, res);
-        if (action === 'track') return await handleTrack(req, res);
+        if (action === 'track-quick') return await handleTrackQuick(req, res);
+        if (action === 'track-detail') return await handleTrackDetail(req, res);
 
         return res.status(404).json({ message: 'Order action not found' });
     } catch (error) {
@@ -131,9 +136,10 @@ async function handleCreate(req, res) {
         }
 
         const shortId = `SA-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+        const accessCode = crypto.randomBytes(4).toString('hex').toUpperCase(); // 8 char unique code
         const orderRes = await client.query(
-            'INSERT INTO orders (short_id, client_token, user_id, subtotal, shipping_fee, total, payment_method, customer_note) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-            [shortId, clientToken || null, userId, subtotal, shippingFee, total, paymentMethod, note || null]
+            'INSERT INTO orders (short_id, client_token, user_id, subtotal, shipping_fee, total, payment_method, customer_note, access_code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+            [shortId, clientToken || null, userId, subtotal, shippingFee, total, paymentMethod, note || null, accessCode]
         );
         const orderId = orderRes.rows[0].id;
 
@@ -144,7 +150,7 @@ async function handleCreate(req, res) {
         await client.query('INSERT INTO order_addresses (order_id, full_name, phone, email, address_line) VALUES ($1, $2, $3, $4, $5)', [orderId, customer.name, phone, customer.email || null, customer.address]);
 
         await client.query('COMMIT');
-        return res.status(201).json({ success: true, orderId: shortId });
+        return res.status(201).json({ success: true, orderId: shortId, accessCode: accessCode });
     } catch (e) {
         if (client) await client.query('ROLLBACK');
         console.error('[Orders] Create failed:', e.message, e.stack);
@@ -163,14 +169,27 @@ async function handleMy(req, res) {
     if (!authHeader) return res.status(401).json({ message: 'Unauthorized' });
     const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
 
-    let queryText = `SELECT o.*, a.full_name, a.phone, a.address_line, (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items FROM orders o LEFT JOIN order_addresses a ON o.id = a.order_id`;
-    let params = [];
-    if (decoded.role !== 'admin') {
-        queryText += ' WHERE o.user_id = $1';
-        params.push(decoded.id);
+    if (decoded.role === 'admin') {
+        // Admin gets everything
+        const result = await db.query(`
+            SELECT o.*, a.full_name, a.phone, a.address_line, 
+            (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items 
+            FROM orders o 
+            LEFT JOIN order_addresses a ON o.id = a.order_id
+            ORDER BY o.created_at DESC
+        `);
+        return res.status(200).json({ success: true, orders: result.rows });
     }
-    queryText += ' ORDER BY o.created_at DESC';
-    const result = await db.query(queryText, params);
+
+    // Regular users can only see their own orders based on their user_id
+    const result = await db.query(`
+        SELECT o.*, a.full_name, a.phone, a.address_line, 
+        (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items 
+        FROM orders o 
+        LEFT JOIN order_addresses a ON o.id = a.order_id
+        WHERE o.user_id = $1
+        ORDER BY o.created_at DESC
+    `, [decoded.id]);
     return res.status(200).json({ success: true, orders: result.rows });
 }
 
@@ -180,21 +199,58 @@ async function handleStatus(req, res) {
     const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
     if (decoded.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
 
-    const { id, paymentStatus, fulfillmentStatus } = req.body;
-    await db.query('UPDATE orders SET payment_status = COALESCE($1, payment_status), fulfillment_status = COALESCE($2, fulfillment_status) WHERE id = $3 OR short_id = $3', [paymentStatus, fulfillmentStatus, id]);
+    const { id, paymentStatus, fulfillmentStatus, carrierTrackingCode } = req.body;
+    await db.query(`
+        UPDATE orders 
+        SET payment_status = COALESCE($1, payment_status), 
+            fulfillment_status = COALESCE($2, fulfillment_status),
+            carrier_tracking_code = COALESCE($3, carrier_tracking_code),
+            updated_at = NOW()
+        WHERE id = $4 OR short_id = $4
+    `, [paymentStatus, fulfillmentStatus, carrierTrackingCode, id]);
     return res.status(200).json({ success: true });
 }
 
-// ========== TRACK ==========
-async function handleTrack(req, res) {
-    const { orderId, pin } = req.body;
-    const normalizedPhone = normalizePhone(orderId);
-    const isPhone = normalizedPhone.length >= 10;
+// ========== TRACK QUICK (Tier 1: Phone Only) ==========
+async function handleTrackQuick(req, res) {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ message: 'Vui lòng cung cấp số điện thoại' });
+    const normalizedPhone = normalizePhone(phone);
 
-    let userQuery = isPhone ? 'SELECT * FROM users WHERE phone = $1' : 'SELECT u.* FROM users u JOIN orders o ON u.id = o.user_id WHERE o.short_id = $1';
-    const userRes = await db.query(userQuery, [isPhone ? normalizedPhone : orderId.toUpperCase()]);
-    if (!userRes.rows[0] || !(await verifyPin(userRes.rows[0], pin))) return res.status(401).json({ message: 'Sai thông tin.' });
+    // Only return minimal, non-sensitive info
+    const orders = await db.query(`
+        SELECT short_id, fulfillment_status, payment_status, created_at 
+        FROM orders o 
+        JOIN order_addresses a ON o.id = a.order_id 
+        WHERE a.phone = $1 OR EXISTS (SELECT 1 FROM users u WHERE u.id = o.user_id AND u.phone = $1)
+        ORDER BY o.created_at DESC
+    `, [normalizedPhone]);
 
-    const orders = await db.query('SELECT o.*, a.full_name, (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items FROM orders o JOIN order_addresses a ON o.id = a.order_id WHERE o.user_id = $1', [userRes.rows[0].id]);
-    return res.status(200).json({ success: true, orders: orders.rows, order: orders.rows[0] });
+    return res.status(200).json({ success: true, orders: orders.rows });
+}
+
+// ========== TRACK DETAIL (Tier 2: Phone + Access Code) ==========
+async function handleTrackDetail(req, res) {
+    const { phone, accessCode } = req.body;
+    if (!phone || !accessCode) return res.status(400).json({ message: 'Thiếu thông tin tra cứu.' });
+    const normalizedPhone = normalizePhone(phone);
+
+    const result = await db.query(`
+        SELECT o.*, a.full_name, a.phone, a.address_line,
+        (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items 
+        FROM orders o 
+        JOIN order_addresses a ON o.id = a.order_id 
+        WHERE (a.phone = $1 OR EXISTS (SELECT 1 FROM users u WHERE u.id = o.user_id AND u.phone = $1))
+        AND o.access_code = $2
+        LIMIT 1
+    `, [normalizedPhone, accessCode.toUpperCase()]);
+
+    if (result.rows.length === 0) {
+        return res.status(401).json({ message: 'Mã tra cứu không chính xác cho số điện thoại này.' });
+    }
+
+    return res.status(200).json({
+        success: true,
+        order: result.rows[0]
+    });
 }

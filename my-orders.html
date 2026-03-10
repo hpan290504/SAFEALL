@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Theo dõi đơn hàng | SAFEALL</title>
+    <title>Tra cứu đơn hàng | SAFEALL</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
@@ -26,13 +26,6 @@
             },
         }
     </script>
-    <style>
-        .tab-active {
-            border-color: #ea2a33;
-            color: #ea2a33;
-            font-weight: 900;
-        }
-    </style>
 </head>
 
 <body class="bg-background-light dark:bg-slate-950 font-display text-slate-900 dark:text-slate-100 min-h-screen">
@@ -47,334 +40,307 @@
                 <a class="text-sm font-semibold hover:text-primary transition-colors" href="index.html">Trang chủ</a>
                 <a class="text-sm font-semibold hover:text-primary transition-colors" href="products.html">Sản phẩm</a>
                 <a class="text-sm font-semibold hover:text-primary transition-colors text-primary"
-                    href="my-orders.html">Theo dõi đơn</a>
+                    href="my-orders.html">Tra cứu đơn hàng</a>
             </nav>
-            <a href="products.html"
-                class="hidden sm:block bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20">
-                MUA NGAY
-            </a>
+            <div class="flex items-center gap-4">
+                <a href="login.html"
+                    class="text-xs font-bold text-slate-400 hover:text-primary uppercase tracking-widest hidden sm:block">Admin
+                    Login</a>
+                <a href="products.html"
+                    class="bg-primary text-white px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+                    MUA NGAY
+                </a>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-4 py-12">
+    <main class="max-w-4xl mx-auto px-4 py-12">
         <div class="text-center mb-12">
-            <h1 class="text-3xl md:text-4xl font-black mb-4 uppercase tracking-tight">Tra cứu &amp; Quản lý đơn hàng
-            </h1>
-            <p class="text-slate-500 font-medium">Nhập Số điện thoại và Mã PIN 6 số (bạn đã đặt khi mua hàng) để truy
-                cập lịch sử mua sắm.</p>
+            <h1 class="text-3xl md:text-5xl font-black mb-4 uppercase tracking-tight italic">Tra cứu đơn hàng</h1>
+            <p class="text-slate-500 font-medium">Bảo mật thông tin khách hàng tuyệt đối.</p>
         </div>
 
-        <!-- Secured Search Bar -->
+        <!-- 2-Tier Search Tabs -->
         <div
-            class="max-w-xl mx-auto mb-16 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
-            <div class="space-y-4">
-                <div class="relative group">
-                    <i
-                        class="codicon codicon-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors"></i>
-                    <input id="orderSearchInput" type="text" placeholder="Nhập mã đơn hàng hoặc Số điện thoại"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all font-bold" />
-                </div>
-                <div class="relative group">
-                    <i
-                        class="codicon codicon-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors"></i>
-                    <input id="orderSearchPin" type="password" inputmode="numeric" maxlength="6"
-                        placeholder="Nhập mã PIN tra cứu (6 số)"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 transition-all tracking-[0.3em] font-bold" />
-                    <button type="button"
-                        onclick="window.SAFEALL_API.forgotPin(document.getElementById('orderSearchInput').value)"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 hover:text-primary transition-colors">Quên
-                        mã PIN?</button>
-                </div>
-                <button onclick="searchOrder()"
-                    class="w-full bg-primary text-white px-6 py-4 rounded-xl font-black hover:opacity-90 transition-all flex items-center justify-center gap-2">
-                    <i class="codicon codicon-shield text-lg"></i>
-                    TRA CỨU BẢO MẬT
-                </button>
-            </div>
+            class="max-w-2xl mx-auto mb-16 bg-white dark:bg-slate-900 p-2 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 flex items-center">
+            <button id="tabQuick" onclick="switchTab('quick')"
+                class="flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-primary/20">Tra
+                cứu nhanh</button>
+            <button id="tabDetail" onclick="switchTab('detail')"
+                class="flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">Xem
+                chi tiết</button>
         </div>
 
-        <!-- Order List / Results Container -->
-        <div id="ordersContainer" class="space-y-8">
+        <!-- Tier 1: Quick Phone Search -->
+        <div id="sectionQuick" class="max-w-xl mx-auto mb-16 space-y-6">
+            <div class="relative group">
+                <i
+                    class="codicon codicon-device-mobile absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-xl"></i>
+                <input id="quickPhone" type="tel" placeholder="Nhập số điện thoại đặt hàng..."
+                    class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[1.5rem] py-5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all font-black text-lg placeholder:font-bold placeholder:text-slate-300" />
+            </div>
+            <button onclick="handleQuickSearch()"
+                class="w-full bg-primary text-white px-6 py-5 rounded-[1.5rem] font-black hover:opacity-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/20 uppercase tracking-widest">
+                KIỂM TRA TRẠNG THÁI
+            </button>
+        </div>
+
+        <!-- Tier 2: Detailed Search (Access Code) -->
+        <div id="sectionDetail" class="hidden max-w-xl mx-auto mb-16 space-y-4">
+            <div class="relative group">
+                <i
+                    class="codicon codicon-device-mobile absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-xl"></i>
+                <input id="detailPhone" type="tel" placeholder="Số điện thoại..."
+                    class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[1.5rem] py-5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all font-black text-lg placeholder:font-bold" />
+            </div>
+            <div class="relative group">
+                <i
+                    class="codicon codicon-lock absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors text-xl"></i>
+                <input id="detailAccessCode" type="text" maxlength="8" placeholder="Nhập mã tra cứu (8 ký tự)..."
+                    class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[1.5rem] py-5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all font-black text-lg tracking-[0.3em] uppercase placeholder:font-bold placeholder:tracking-normal placeholder:text-slate-300" />
+            </div>
+            <button onclick="handleDetailSearch()"
+                class="w-full bg-secondary text-white px-6 py-5 rounded-[1.5rem] font-black hover:opacity-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-secondary/20 uppercase tracking-widest">
+                XÁC THỰC & CHI TIẾT
+            </button>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="space-y-8 min-h-[400px]">
             <!-- Dynamic Content -->
-            <div id="loadingState" class="hidden py-20 text-center text-slate-400">
-                <i class="codicon codicon-sync animate-spin text-4xl mb-4"></i>
-                <p class="font-bold uppercase tracking-widest text-xs">Đang tìm kiếm đơn hàng...</p>
+            <div id="loadingState" class="hidden py-40 text-center">
+                <div class="inline-block size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin">
+                </div>
+                <p class="font-black uppercase tracking-[0.2em] text-[10px] mt-6 text-slate-400">Đang truy xuất dữ liệu
+                    SAFEALL...</p>
             </div>
 
             <div id="emptyState"
-                class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor"
-                    class="mb-4 opacity-20">
-                    <path
-                        d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-1.45-5c.75 0 1.41-.41 1.75-1.03L21 4H5.21l-.94-2H1v2h2l3.6 7.59L5.25 14c-.16.28-.25.61-.25.96C5 16.1 5.9 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H16z" />
-                </svg>
-                <h3 class="font-bold text-slate-500">Vui lòng nhập mã đơn hàng của bạn</h3>
-                <p class="text-slate-400 text-sm mt-1">Lịch sử mua hàng sẽ hiển thị tại đây</p>
+                class="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">
+                <div
+                    class="size-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-200 dark:text-slate-700">
+                    <i class="codicon codicon-search text-5xl"></i>
+                </div>
+                <h3 class="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tight">Cổng tra cứu bảo
+                    mật</h3>
+                <p class="text-slate-400 text-sm mt-3 max-w-xs mx-auto font-medium">Kết quả tìm kiếm sẽ hiển thị tại đây
+                    sau khi bạn xác thực thông tin.</p>
             </div>
         </div>
     </main>
 
-    <footer class="mt-20 py-10 text-center text-slate-400 text-xs text-center">
-        © 2026 SAFEALL Vietnam. Tái cấu trúc chuẩn bị khẩn cấp.
+    <footer
+        class="mt-20 py-10 text-center text-slate-400 text-xs text-center border-t border-slate-100 dark:border-slate-800">
+        © 2026 SAFEALL Vietnam. Redesigning Emergency Preparedness.
     </footer>
 
-    <!-- Forgot PIN Modal -->
-    <div id="forgotPinModal"
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-        <div
-            class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-            <!-- Header -->
-            <div
-                class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
-                <h3 class="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tight">Khôi phục mã PIN
-                </h3>
-                <button onclick="closeForgotPinModal()"
-                    class="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition-colors">
-                    <i class="codicon codicon-close"></i>
-                </button>
-            </div>
-
-            <!-- Content -->
-            <div class="p-8 space-y-6">
-                <div id="forgotSuccess"
-                    class="hidden p-4 bg-green-50 text-green-600 rounded-2xl text-sm font-bold border border-green-100 italic">
-                </div>
-                <div id="forgotError"
-                    class="hidden p-4 bg-red-50 text-red-600 rounded-2xl text-sm font-bold border border-red-100 italic">
-                </div>
-
-                <div id="forgotMain">
-                    <p class="text-sm text-slate-500 mb-6">Chúng tôi sẽ gửi một liên kết khôi phục qua Email đã đăng ký
-                        với số điện thoại này.</p>
-                    <button id="sendLinkBtn" onclick="handleForgotPin()"
-                        class="w-full bg-primary text-white py-4 rounded-xl font-black hover:opacity-90 transition-all uppercase shadow-lg shadow-primary/20">
-                        Gửi liên kết khôi phục
-                    </button>
-                    <p class="text-[10px] text-center text-slate-400 mt-4 uppercase font-bold tracking-widest">Mã PIN sẽ
-                        được đặt lại sau khi bạn nhấn vào liên kết</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
     <script>
-        const PAYMENT_STATUS_MAP = {
-            'pending': { text: 'Chờ thanh toán', color: '#f59e0b', icon: 'credit-card' },
-            'paid': { text: 'Đã thanh toán', color: '#10b981', icon: 'check' },
-            'failed': { text: 'Thanh toán lỗi', color: '#ef4444', icon: 'close' },
-            'refunded': { text: 'Đã hoàn tiền', color: '#8b5cf6', icon: 'reply' },
-            'cancelled': { text: 'Đã hủy', color: '#64748b', icon: 'trash' }
+        let currentTier = 'quick';
+
+        const STATUS_MAP = {
+            'pending': { label: 'Chờ thanh toán', bg: 'bg-amber-100', text: 'text-amber-700', icon: 'credit-card' },
+            'paid': { label: 'Đã thanh toán', bg: 'bg-green-100', text: 'text-green-700', icon: 'check' },
+            'unfulfilled': { label: 'Chờ xử lý', bg: 'bg-slate-100', text: 'text-slate-600', icon: 'clock' },
+            'processing': { label: 'Đang chuẩn bị', bg: 'bg-blue-100', text: 'text-blue-700', icon: 'package' },
+            'shipped': { label: 'Đang vận chuyển', bg: 'bg-purple-100', text: 'text-purple-700', icon: 'rocket' },
+            'delivered': { label: 'Đã giao hàng', bg: 'bg-emerald-100', text: 'text-emerald-700', icon: 'pass-filled' }
         };
 
-        const FULFILLMENT_STATUS_MAP = {
-            'unfulfilled': { text: 'Đang chờ', color: '#64748b', step: 1, label: 'Xác nhận' },
-            'processing': { text: 'Đang soạn hàng', color: '#3b82f6', step: 2, label: 'Xử lý' },
-            'shipped': { text: 'Đang vận chuyển', color: '#8b5cf6', step: 3, label: 'Đang giao' },
-            'delivered': { text: 'Đã giao hàng', color: '#10b981', step: 4, label: 'Hoàn tất' },
-            'returned': { text: 'Đã trả hàng', color: '#f59e0b', step: 0, label: 'Trả hàng' }
-        };
+        function switchTab(tier) {
+            currentTier = tier;
+            const tQ = document.getElementById('tabQuick');
+            const tD = document.getElementById('tabDetail');
+            const sQ = document.getElementById('sectionQuick');
+            const sD = document.getElementById('sectionDetail');
 
-        async function searchOrder() {
-            const input = document.getElementById('orderSearchInput').value.trim().replace('#', '');
-            const pin = document.getElementById('orderSearchPin').value.trim();
-            const container = document.getElementById('ordersContainer');
-            const loading = document.getElementById('loadingState');
-            const empty = document.getElementById('emptyState');
+            if (tier === 'quick') {
+                tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-primary/20";
+                tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
+                sQ.classList.remove('hidden');
+                sD.classList.add('hidden');
+            } else {
+                tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-secondary text-white shadow-lg shadow-secondary/20";
+                tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
+                sD.classList.remove('hidden');
+                sQ.classList.add('hidden');
+            }
+            document.getElementById('resultsContainer').innerHTML = document.getElementById('emptyState').outerHTML;
+        }
 
-            if (!input) return alert('Vui lòng nhập Mã đơn hàng hoặc Số điện thoại để tra cứu.');
-            if (!pin || pin.length !== 6) return alert('Vui lòng nhập mã PIN hợp lệ (6 số) để xác minh bảo mật.');
+        async function handleQuickSearch() {
+            const phone = document.getElementById('quickPhone').value.trim();
+            if (!phone) return alert('Vui lòng nhập số điện thoại');
 
-            loading.classList.remove('hidden');
-            empty.classList.add('hidden');
-            container.innerHTML = '';
-
+            showLoading(true);
             try {
-                const resData = await window.SAFEALL_API.trackOrder(input, pin);
-                loading.classList.add('hidden');
-
-                if (resData.success && resData.order) {
-                    renderOrder(resData.order);
+                const res = await window.SAFEALL_API.trackOrderQuick(phone);
+                showLoading(false);
+                if (res.success && res.orders && res.orders.length > 0) {
+                    renderQuickResults(res.orders);
                 } else {
-                    container.innerHTML = `
-                         <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
-                            <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
-                            <h3 class="font-black text-slate-900 dark:text-white text-xl">Tra cứu thất bại</h3>
-                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">${resData.message || 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.'}</p>
-                        </div>
-                    `;
+                    showEmpty('Không tìm thấy đơn hàng nào liên quan đến số điện thoại này.');
                 }
-
             } catch (err) {
-                loading.classList.add('hidden');
-                console.error(err);
-                alert('Có lỗi xảy ra khi tra cứu: ' + (err.message || 'Lỗi kết nối'));
+                showLoading(false);
+                alert('Lỗi: ' + err.message);
             }
         }
 
-        function maskName(name) {
-            if (!name) return '***';
-            const parts = name.trim().split(' ');
-            if (parts.length <= 1) return name.substring(0, 1) + '***';
-            return parts[0] + ' *** ' + (parts.length > 1 ? parts[parts.length - 1] : '');
-        }
+        async function handleDetailSearch() {
+            const phone = document.getElementById('detailPhone').value.trim();
+            const code = document.getElementById('detailAccessCode').value.trim();
+            if (!phone || !code) return alert('Vui lòng nhập đầy đủ Số điện thoại và Mã tra cứu');
 
-        function maskPhone(phone) {
-            if (!phone) return '***';
-            const p = phone.trim();
-            return p.substring(0, 3) + '***' + p.substring(p.length - 3);
-        }
-
-        function maskAddress(address) {
-            if (!address) return '***';
-            const parts = address.split(',');
-            if (parts.length > 1) return '***, ' + parts.slice(-2).join(',').trim();
-            return address.substring(0, 4) + '***';
-        }
-
-        function renderOrder(orderOrOrders) {
-            const container = document.getElementById('ordersContainer');
-            const orders = Array.isArray(orderOrOrders) ? orderOrOrders : [orderOrOrders];
-
-            if (orders.length === 0) {
-                container.innerHTML = '<div class="py-20 text-center text-slate-400">Không tìm thấy đơn hàng nào.</div>';
-                return;
+            showLoading(true);
+            try {
+                const res = await window.SAFEALL_API.trackOrderDetail(phone, code);
+                showLoading(false);
+                if (res.success && res.order) {
+                    renderDetailResult(res.order);
+                } else {
+                    showEmpty('Thông tin tra cứu không chính xác. Mã tra cứu (8 ký tự) được cung cấp khi bạn đặt hàng thành công.');
+                }
+            } catch (err) {
+                showLoading(false);
+                alert('Lỗi: ' + err.message);
             }
+        }
 
-            container.innerHTML = orders.map(order => {
-                const payStatus = PAYMENT_STATUS_MAP[order.paymentStatus] || PAYMENT_STATUS_MAP['pending'];
-                const fullStatus = FULFILLMENT_STATUS_MAP[order.fulfillmentStatus] || FULFILLMENT_STATUS_MAP['unfulfilled'];
-                const dateStr = new Date(order.date).toLocaleDateString('vi-VN');
+        function showLoading(show) {
+            document.getElementById('loadingState').classList.toggle('hidden', !show);
+            document.getElementById('emptyState').classList.toggle('hidden', show);
+            if (show) document.getElementById('resultsContainer').innerHTML = '';
+        }
 
+        function showEmpty(msg) {
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-red-50 dark:border-red-900/10">
+                    <p class="text-slate-500 font-bold px-10">${msg}</p>
+                </div>
+            `;
+        }
+
+        function renderQuickResults(orders) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 px-4">Kết nối thành công: ${orders.length} đơn hàng</h4>
+                    ${orders.map(o => {
+                const s = STATUS_MAP[o.fulfillment_status] || STATUS_MAP['unfulfilled'];
                 return `
-                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 mb-8 last:mb-0">
-                        <div class="p-8 md:p-12 space-y-12">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Đơn hàng ngày ${dateStr}</span>
+                            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-xl transition-all group">
+                                <div class="flex items-center gap-6">
+                                    <div class="size-16 rounded-[1.5rem] ${s.bg} ${s.text} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                                        <i class="codicon codicon-${s.icon}"></i>
                                     </div>
-                                    <h2 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">#${order.id.toUpperCase()}</h2>
-                                </div>
-                                <div class="flex flex-wrap gap-3">
-                                    <div class="px-5 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center gap-2">
-                                        <i class="codicon codicon-${payStatus.icon} text-xs" style="color: ${payStatus.color}"></i>
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">${payStatus.text}</span>
-                                    </div>
-                                    <div class="px-5 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center gap-2">
-                                        <div class="size-2 rounded-full" style="background: ${fullStatus.color}"></div>
-                                        <span class="text-[10px] font-black uppercase tracking-widest" style="color: ${fullStatus.color}">${fullStatus.text}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tracking Stepper -->
-                            <div class="relative pb-10">
-                                <div class="absolute left-0 top-6 w-full h-1 bg-slate-100 dark:bg-slate-800 -z-10"></div>
-                                <div class="grid grid-cols-4 gap-2">
-                                    ${Object.entries(FULFILLMENT_STATUS_MAP).filter(([k, v]) => v.step > 0).sort((a, b) => a[1].step - b[1].step).map(([key, val]) => {
-                    const active = val.step <= fullStatus.step;
-                    const icons = ['codicon-check', 'codicon-package', 'codicon-rocket', 'codicon-pass-filled'];
-                    return `
-                                            <div class="flex flex-col items-center gap-4 text-center">
-                                                <div class="size-12 rounded-full flex items-center justify-center transition-all duration-500 ${active ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white dark:bg-slate-900 text-slate-300 border-4 border-slate-100 dark:border-slate-800'}">
-                                                    <i class="codicon ${icons[val.step - 1]} text-lg"></i>
-                                                </div>
-                                                <span class="text-[10px] font-black uppercase tracking-widest ${active ? 'text-primary' : 'text-slate-400'}">${val.label}</span>
-                                            </div>
-                                        `;
-                }).join('')}
-                                </div>
-                            </div>
-
-                            <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
-                                <div class="space-y-6">
-                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Thông tin người nhận</h4>
-                                    <div class="space-y-1 relative">
-                                        <span class="absolute -top-3 -right-2 text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-primary/20">Bảo mật định danh</span>
-                                        <p class="font-black text-lg">${maskName(order.customer.name)}</p>
-                                        <p class="text-slate-500 text-sm">${maskPhone(order.customer.phone)}</p>
-                                        <p class="text-slate-500 text-sm leading-relaxed">${maskAddress(order.customer.address)}</p>
-                                    </div>
-                                </div>
-                                <div class="space-y-6">
-                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Danh mục vật dụng</h4>
-                                    <div class="space-y-4">
-                                        ${order.items.map(item => `
-                                            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
-                                                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">${item.quantity}x ${item.title}</span>
-                                                <span class="font-black text-slate-900 dark:text-white">${parseFloat(item.total_price).toLocaleString('vi-VN')}đ</span>
-                                            </div>
-                                        `).join('')}
-                                        <div class="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700">
-                                            <span class="font-black uppercase text-xs tracking-widest">Toàn bộ chi phí</span>
-                                            <span class="text-3xl font-black text-primary">${parseFloat(order.total).toLocaleString('vi-VN')}đ</span>
+                                    <div>
+                                        <div class="flex items-center gap-3 mb-1">
+                                            <span class="text-xl font-black text-slate-900 dark:text-white uppercase">#${o.short_id}</span>
+                                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${s.bg} ${s.text}">${s.label}</span>
                                         </div>
+                                        <p class="text-xs font-bold text-slate-400">Ngày đặt: ${new Date(o.created_at).toLocaleDateString('vi-VN')}</p>
                                     </div>
                                 </div>
+                                <button onclick="autoLoginDetail('${o.short_id}')" class="bg-slate-50 dark:bg-slate-800 hover:bg-primary hover:text-white text-slate-400 font-black px-8 py-4 rounded-[1.2rem] transition-all uppercase text-xs tracking-widest italic">Xem chi tiết <i class="codicon codicon-chevron-right ml-2 text-xs"></i></button>
                             </div>
+                        `;
+            }).join('')}
+                </div>
+            `;
+        }
+
+        function autoLoginDetail(shortId) {
+            switchTab('detail');
+            document.getElementById('detailPhone').value = document.getElementById('quickPhone').value;
+            document.getElementById('detailAccessCode').focus();
+        }
+
+        function renderDetailResult(order) {
+            const container = document.getElementById('resultsContainer');
+            const fStatus = STATUS_MAP[order.fulfillment_status] || STATUS_MAP['unfulfilled'];
+            const pStatus = STATUS_MAP[order.payment_status] || STATUS_MAP['pending'];
+
+            container.innerHTML = `
+                <div class="bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-700">
+                    <div class="p-8 md:p-14 space-y-12">
+                        <!-- Heading -->
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    <span class="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em]">Xác thực chi tiết hoàn tất</span>
+                                </div>
+                                <h2 class="text-4xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Đơn hàng #${order.short_id}</h2>
+                            </div>
+                            <div class="flex flex-wrap gap-4">
+                                <div class="px-6 py-3 rounded-2xl ${pStatus.bg} ${pStatus.text} flex items-center gap-3">
+                                    <i class="codicon codicon-credit-card text-sm"></i>
+                                    <span class="text-xs font-black uppercase tracking-widest">${pStatus.label}</span>
+                                </div>
+                                <div class="px-6 py-3 rounded-2xl ${fStatus.bg} ${fStatus.text} flex items-center gap-3">
+                                    <i class="codicon codicon-${fStatus.icon} text-sm"></i>
+                                    <span class="text-xs font-black uppercase tracking-widest">${fStatus.label}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Grid -->
+                        <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
+                             <div class="space-y-8">
+                                <div>
+                                    <h5 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">Người nhận hàng</h5>
+                                    <p class="text-xl font-black">${order.full_name}</p>
+                                    <p class="text-slate-500 font-bold">${order.phone}</p>
+                                    <p class="text-slate-500 text-sm mt-2 leading-relaxed italic">"${order.address_line}"</p>
+                                </div>
+
+                                ${order.carrier_tracking_code ? `
+                                <div class="bg-primary/5 border border-primary/10 p-6 rounded-[2rem] space-y-2">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-primary/60">Mã vận đơn (Carrier Tracking)</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl font-black text-primary tracking-tight">${order.carrier_tracking_code}</span>
+                                        <button onclick="navigator.clipboard.writeText('${order.carrier_tracking_code}'); alert('Đã sao chép!')" class="size-10 rounded-full bg-white text-primary flex items-center justify-center hover:shadow-lg transition-all"><i class="codicon codicon-copy"></i></button>
+                                    </div>
+                                </div>
+                                ` : `
+                                <div class="p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Trạng thái vận đơn</p>
+                                    <p class="text-xs font-bold text-slate-500 mt-1 italic">Đang chờ nhà vận chuyển cung cấp mã...</p>
+                                </div>
+                                `}
+                             </div>
+                             
+                             <div class="space-y-8">
+                                <h5 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Danh sách vật dụng</h5>
+                                <div class="space-y-3">
+                                    ${order.items ? order.items.map(i => `
+                                        <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl group hover:bg-white dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100">
+                                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300"><span class="text-primary font-black mr-2">${i.quantity}x</span> ${i.title}</span>
+                                            <span class="font-black text-slate-900 dark:text-white">${parseFloat(i.total_price || 0).toLocaleString('vi-VN')}đ</span>
+                                        </div>
+                                    `).join('') : ''}
+                                    <div class="flex justify-between items-center pt-8 mt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tổng cộng</span>
+                                            <span class="text-xs font-bold text-slate-500 capitalize underline decoration-primary/30 decoration-2">${order.payment_method}</span>
+                                        </div>
+                                        <span class="text-4xl font-black text-primary tracking-tighter">${parseFloat(order.total || 0).toLocaleString('vi-VN')}đ</span>
+                                    </div>
+                                </div>
+                             </div>
                         </div>
                     </div>
-                `;
-            }).join('');
-        }
-
-        // --- PIN RECOVERY FLOW (Simplified Token Flow) ---
-        let recoveryPhone = '';
-
-        window.showForgotPinModal = (phone) => {
-            recoveryPhone = phone;
-            const modal = document.getElementById('forgotPinModal');
-            document.getElementById('forgotSuccess').classList.add('hidden');
-            document.getElementById('forgotError').classList.add('hidden');
-            document.getElementById('forgotMain').classList.remove('hidden');
-
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        };
-
-        function closeForgotPinModal() {
-            const modal = document.getElementById('forgotPinModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        async function handleForgotPin() {
-            const btn = document.getElementById('sendLinkBtn');
-            const successEl = document.getElementById('forgotSuccess');
-            const errorEl = document.getElementById('forgotError');
-            const mainEl = document.getElementById('forgotMain');
-
-            btn.disabled = true;
-            btn.innerHTML = 'ĐANG GỬI...';
-
-            try {
-                const res = await window.SAFEALL_API.forgotPin(recoveryPhone);
-                if (res.success) {
-                    mainEl.classList.add('hidden');
-                    successEl.innerText = res.message;
-                    successEl.classList.remove('hidden');
-                } else {
-                    errorEl.innerText = res.message;
-                    errorEl.classList.remove('hidden');
-                    btn.disabled = false;
-                    btn.innerText = 'GỬI LIÊN KẾT KHÔI PHỤC';
-                }
-            } catch (err) {
-                errorEl.innerText = 'Lỗi kết nối máy chủ.';
-                errorEl.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerText = 'GỬI LIÊN KẾT KHÔI PHỤC';
-            }
+                </div>
+            `;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderId = urlParams.get('id');
-            if (orderId) {
-                document.getElementById('orderSearchInput').value = orderId;
-                document.getElementById('orderSearchPin').focus();
+            const params = new URLSearchParams(window.location.search);
+            const phone = params.get('phone');
+            if (phone) {
+                document.getElementById('quickPhone').value = phone;
+                handleQuickSearch();
             }
         });
     </script>

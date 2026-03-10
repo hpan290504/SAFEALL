@@ -50,8 +50,29 @@
             <h1 class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">Cảm ơn bạn đã đặt hàng!</h1>
             <p class="text-slate-500 text-lg">Mã đơn hàng của bạn là: <span id="displayOrderId"
                     class="font-black text-primary uppercase">#000000</span></p>
-            <p class="text-slate-400 text-sm mt-2">Thông tin xác nhận đã được lưu lại. Bạn có thể tra cứu đơn hàng bằng
-                Mã đơn hàng hoặc Số điện thoại ở bất kỳ đâu mà không cần tạo tài khoản.</p>
+
+            <!-- Tier 2 Access Code -->
+            <div
+                class="mt-8 max-w-sm mx-auto bg-primary/5 border border-primary/20 p-6 rounded-[2rem] space-y-3 relative overflow-hidden group">
+                <div
+                    class="absolute -right-4 -top-4 size-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors">
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Mã tra cứu chi tiết (Access
+                    Code)</p>
+                <div class="flex items-center justify-center gap-4">
+                    <span id="displayAccessCode"
+                        class="text-4xl font-black text-primary tracking-widest uppercase">--------</span>
+                    <button onclick="copyAccessCode()"
+                        class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors">
+                        <i class="codicon codicon-copy"></i>
+                    </button>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 italic">Dùng mã này cùng Số điện thoại để xem chi tiết
+                    vật dụng & vị trí đơn hàng.</p>
+            </div>
+
+            <p class="text-slate-400 text-sm mt-8">Thông tin xác nhận đã được lưu lại. Bạn có thể tra cứu nhanh trạng
+                thái đơn hàng chỉ với Số điện thoại.</p>
         </div>
 
         <div
@@ -156,12 +177,18 @@
             }
 
             document.getElementById('displayOrderId').innerText = '#' + lastOrder.orderId;
-            document.getElementById('trackOrderBtn').href = 'my-orders.html?id=' + lastOrder.orderId;
+            document.getElementById('displayAccessCode').innerText = lastOrder.accessCode || '--------';
+            document.getElementById('trackOrderBtn').href = 'my-orders.html?phone=' + lastOrder.customer.phone;
 
             document.getElementById('displayCustomerName').innerText = lastOrder.customer.name;
             document.getElementById('displayCustomerPhone').innerText = lastOrder.customer.phone;
             document.getElementById('displayCustomerAddress').innerText = lastOrder.customer.address;
             document.getElementById('displayTotal').innerText = lastOrder.total.toLocaleString('vi-VN') + 'đ';
+
+            window.copyAccessCode = () => {
+                const code = document.getElementById('displayAccessCode').innerText;
+                navigator.clipboard.writeText(code).then(() => alert('Đã sao chép mã tra cứu!'));
+            };
 
             const itemsContainer = document.getElementById('displayItems');
             itemsContainer.innerHTML = lastOrder.items.map(item => `

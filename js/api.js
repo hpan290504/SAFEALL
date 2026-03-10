@@ -20,9 +20,11 @@ const API = {
             const data = await resp.json();
 
             if (!resp.ok) {
-                // Auto-logout on 401
+                // DO NOT auto-redirect to login on 401 globally.
+                // It breaks guest access to public tracking.
                 if (resp.status === 401) {
-                    this.logout(true); // true to reload page/trigger redirect
+                    this._session = null;
+                    localStorage.removeItem('safeall_token');
                 }
                 throw new Error(data.message || 'Server Error');
             }
@@ -36,8 +38,7 @@ const API = {
     // --- Session ---
 
     async initSession() {
-        const token = localStorage.getItem('safeall_token');
-        if (!token) {
+        if (!localStorage.getItem('safeall_token')) {
             this._session = null;
             return null;
         }
@@ -48,7 +49,7 @@ const API = {
                 return res.user;
             }
         } catch (e) {
-            this.logout();
+            // No auto-logout here, let _fetch handle token clearing
             return null;
         }
         return null;
@@ -58,21 +59,13 @@ const API = {
         return this._session;
     },
 
-    logout(forceReload = false) {
+    logout(forceRedirect = false) {
         this._session = null;
         localStorage.removeItem('safeall_token');
-        // PURGE ALL LEGACY KEYS
         localStorage.removeItem('safeall_active_user');
-        localStorage.removeItem('safeall_orders');
-        localStorage.removeItem('safeall_checkout_form');
 
-        if (forceReload) {
-            // Trigger an auth error event for the UI to catch
-            localStorage.setItem('safeall_auth_error', 'expired');
-            // If already on login, do nothing, otherwise redirect
-            if (!window.location.pathname.includes('login.html')) {
-                window.location.href = 'login.html';
-            }
+        if (forceRedirect && !window.location.pathname.includes('login.html')) {
+            window.location.href = 'login.html';
         }
     },
 
@@ -148,11 +141,23 @@ const API = {
         }
     },
 
-    async trackOrder(orderId, contact) {
+    async trackOrderQuick(phone) {
         try {
-            const res = await this._fetch('orders/track', {
+            const res = await this._fetch('orders/track-quick', {
                 method: 'POST',
-                body: JSON.stringify({ orderId, contact })
+                body: JSON.stringify({ phone })
+            });
+            return { success: true, orders: res.orders };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
+    async trackOrderDetail(phone, accessCode) {
+        try {
+            const res = await this._fetch('orders/track-detail', {
+                method: 'POST',
+                body: JSON.stringify({ phone, accessCode })
             });
             return { success: true, order: res.order };
         } catch (e) {

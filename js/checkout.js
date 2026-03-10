@@ -274,6 +274,7 @@ const Checkout = {
                 try {
                     sessionStorage.setItem('safeall_last_order', JSON.stringify({
                         orderId: res.orderId,
+                        accessCode: res.accessCode, // Unique tracking code for 2-tier
                         total,
                         date: new Date().toISOString(),
                         customer,

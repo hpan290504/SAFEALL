@@ -197,12 +197,11 @@
                         <select id="filterStatus" onchange="renderTable()"
                             class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary/20 focus:outline-none">
                             <option value="all">Tất cả trạng thái</option>
-                            <option value="pending">Chờ thanh toán</option>
-                            <option value="shipping">Vận chuyển</option>
-                            <option value="delivering">Chờ giao hàng</option>
-                            <option value="completed">Hoàn thành</option>
-                            <option value="cancelled">Đã hủy</option>
-                            <option value="returned">Trả hàng / Hoàn tiền</option>
+                            <option value="unfulfilled">Chờ xử lý</option>
+                            <option value="processing">Đang soạn hàng</option>
+                            <option value="shipped">Đang giao</option>
+                            <option value="delivered">Đã giao</option>
+                            <option value="returned">Trả hàng</option>
                         </select>
                     </div>
                 </div>
@@ -260,6 +259,8 @@
                                         Thanh toán</th>
                                     <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Vận
                                         chuyển</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Vận
+                                        đơn</th>
                                     <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Thao
                                         tác</th>
                                 </tr>
@@ -316,9 +317,24 @@
                         <p id="detailCustomerName" class="font-semibold text-sm"></p>
                         <p id="detailCustomerPhone" class="text-xs text-slate-500 mt-0.5"></p>
                     </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p class="text-xs text-slate-500 mb-1">Mã tra cứu (Access Code)</p>
+                        <p id="detailAccessCode" class="text-lg font-black text-primary tracking-widest uppercase"></p>
+                    </div>
                     <div class="bg-slate-50 p-3 rounded-xl">
                         <p class="text-xs text-slate-500 mb-1">Địa chỉ giao hàng</p>
                         <p id="detailCustomerAddress" class="text-sm text-slate-700"></p>
+                    </div>
+                </div>
+                <!-- Tracking Code Management -->
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl space-y-2">
+                    <label class="text-xs font-bold text-blue-700 uppercase tracking-widest">Mã vận đơn (Tracking
+                        Code)</label>
+                    <div class="flex gap-2">
+                        <input id="detailTrackingInput" type="text" placeholder="Nhập mã vận đơn..."
+                            class="flex-1 px-4 py-2 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none" />
+                        <button id="btnSaveTracking"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors">LƯU</button>
                     </div>
                 </div>
                 <div class="bg-amber-50 border border-amber-100 p-3 rounded-xl text-sm">
@@ -433,9 +449,9 @@
         // ===== Stats =====
         function updateStats() {
             const total = allOrders.length;
-            const pending = allOrders.filter(o => o.fulfillmentStatus === 'unfulfilled' || o.fulfillmentStatus === 'processing').length;
-            const revenue = allOrders.filter(o => o.paymentStatus === 'paid').reduce((s, o) => s + (o.total || 0), 0);
-            const cancelled = allOrders.filter(o => o.paymentStatus === 'cancelled').length;
+            const pending = allOrders.filter(o => o.fulfillment_status === 'unfulfilled' || o.fulfillment_status === 'processing').length;
+            const revenue = allOrders.filter(o => o.payment_status === 'paid').reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+            const cancelled = allOrders.filter(o => o.payment_status === 'cancelled').length;
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statPending').textContent = pending;
@@ -453,13 +469,15 @@
             const cleanQuery = query.startsWith('#') ? query.slice(1) : query;
 
             filteredOrders = allOrders.filter(o => {
-                const matchStatus = statusFilter === 'all' || o.status === statusFilter;
+                const matchStatus = statusFilter === 'all' || o.fulfillment_status === statusFilter;
                 const matchSearch = !cleanQuery ||
+                    (o.short_id && o.short_id.toLowerCase().includes(cleanQuery)) ||
                     (o.id && o.id.toLowerCase().includes(cleanQuery)) ||
-                    (o.customer && o.customer.phone && o.customer.phone.includes(cleanQuery)) ||
+                    (o.phone && o.phone.includes(cleanQuery)) ||
+                    (o.full_name && o.full_name.toLowerCase().includes(cleanQuery)) ||
                     (o.items && o.items.some(i => i.title.toLowerCase().includes(cleanQuery)));
                 return matchStatus && matchSearch;
-            }).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+            }).sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
             const tbody = document.getElementById('ordersList');
             const emptyMsg = document.getElementById('emptyOrdersMsg');
@@ -487,14 +505,14 @@
             document.getElementById('btnNext').disabled = currentPage === totalPages;
 
             tbody.innerHTML = pageOrders.map(order => {
-                const dateStr = order.date ? new Date(order.date).toLocaleString('vi-VN') : '--';
-                const phone = order.customer?.phone || '--';
-                const itemsSummary = order.items ? order.items.map(i => `${i.title} (x${i.qty})`).join(', ') : '--';
+                const dateStr = order.created_at ? new Date(order.created_at).toLocaleString('vi-VN') : '--';
+                const phone = order.phone || '--';
+                const itemsSummary = order.items ? order.items.map(i => `${i.title} (x${i.quantity})`).join(', ') : '--';
 
                 return `
         <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-5 py-4">
-                <span class="font-mono text-xs font-black text-primary">#${(order.id || '').toUpperCase()}</span>
+                <span class="font-mono text-xs font-black text-primary">#${(order.short_id || '').toUpperCase()}</span>
             </td>
             <td class="px-5 py-4">
                 <div class="flex items-center gap-2">
@@ -502,7 +520,7 @@
                         ${phone.slice(-2)}
                     </div>
                     <div>
-                        <p class="text-xs font-black tracking-tight">${order.customer?.name || 'Khách hàng'}</p>
+                        <p class="text-xs font-black tracking-tight">${order.full_name || 'Khách hàng'}</p>
                         <p class="text-[10px] text-slate-400 font-bold">${phone}</p>
                     </div>
                 </div>
@@ -511,21 +529,24 @@
             <td class="px-5 py-4 text-[11px] text-slate-500 max-w-[150px] truncate" title="${itemsSummary}">${itemsSummary}</td>
             <td class="px-5 py-4 text-sm font-black text-secondary">${formatCurrency(order.total)}</td>
             <td class="px-5 py-4">
-                <select class="status-select pay-${order.paymentStatus}" onchange="updateStatus('${order.uuid}', {paymentStatus: this.value}, this)">
+                <select class="status-select pay-${order.payment_status}" onchange="updateStatus('${order.id}', {paymentStatus: this.value}, this)">
                     ${Object.entries(PAYMENT_STATUS_LABELS).map(([val, label]) =>
-                    `<option value="${val}" ${order.paymentStatus === val ? 'selected' : ''}>${label}</option>`
+                    `<option value="${val}" ${order.payment_status === val ? 'selected' : ''}>${label}</option>`
                 ).join('')}
                 </select>
             </td>
             <td class="px-5 py-4">
-                <select class="status-select full-${order.fulfillmentStatus}" onchange="updateStatus('${order.uuid}', {fulfillmentStatus: this.value}, this)">
+                <select class="status-select full-${order.fulfillment_status}" onchange="updateStatus('${order.id}', {fulfillmentStatus: this.value}, this)">
                     ${Object.entries(FULFILLMENT_STATUS_LABELS).map(([val, label]) =>
-                    `<option value="${val}" ${order.fulfillmentStatus === val ? 'selected' : ''}>${label}</option>`
+                    `<option value="${val}" ${order.fulfillment_status === val ? 'selected' : ''}>${label}</option>`
                 ).join('')}
                 </select>
             </td>
             <td class="px-5 py-4">
-                <button onclick="showDetail('${order.uuid}')" class="text-slate-400 hover:text-primary transition-colors p-1 rounded-lg hover:bg-primary/10">
+                <span class="text-[10px] font-mono bg-slate-100 px-2 py-1 rounded text-slate-600 font-bold">${order.carrier_tracking_code || '--'}</span>
+            </td>
+            <td class="px-5 py-4">
+                <button onclick="showDetail('${order.id}')" class="text-slate-400 hover:text-primary transition-colors p-1 rounded-lg hover:bg-primary/10">
                     <span class="material-symbols-outlined text-xl">visibility</span>
                 </button>
             </td>
@@ -551,14 +572,14 @@
                     showToast('Cập nhật trạng thái thành công!', 'success');
 
                     // Update cache
-                    const order = allOrders.find(o => o.uuid === uuid);
+                    const order = allOrders.find(o => o.id === id);
                     if (order) {
                         if (payload.paymentStatus) {
-                            order.paymentStatus = payload.paymentStatus;
+                            order.payment_status = payload.paymentStatus;
                             selectEl.className = `status-select pay-${payload.paymentStatus}`;
                         }
                         if (payload.fulfillmentStatus) {
-                            order.fulfillmentStatus = payload.fulfillmentStatus;
+                            order.fulfillment_status = payload.fulfillmentStatus;
                             selectEl.className = `status-select full-${payload.fulfillmentStatus}`;
                         }
                     }
@@ -577,15 +598,15 @@
         }
 
         // ===== Order Detail Modal =====
-        function showDetail(uuid) {
-            const order = allOrders.find(o => o.uuid === uuid);
+        function showDetail(id) {
+            const order = allOrders.find(o => o.id === id);
             if (!order) return;
 
-            document.getElementById('detailOrderId').textContent = '#' + orderId.toUpperCase();
-            document.getElementById('detailCustomerName').textContent = order.customer?.name || 'Khách hàng';
-            document.getElementById('detailCustomerPhone').textContent = 'SĐT: ' + (order.customer?.phone || '--');
-            document.getElementById('detailCustomerAddress').textContent = order.customer?.address || 'Không có địa chỉ';
-            document.getElementById('detailOrderNote').textContent = order.note || 'Không có lời nhắn.';
+            document.getElementById('detailOrderId').textContent = '#' + (order.short_id || '').toUpperCase();
+            document.getElementById('detailCustomerName').textContent = order.full_name || 'Khách hàng';
+            document.getElementById('detailCustomerPhone').textContent = 'SĐT: ' + (order.phone || '--');
+            document.getElementById('detailCustomerAddress').textContent = order.address_line || 'Không có địa chỉ';
+            document.getElementById('detailOrderNote').textContent = order.customer_note || 'Không có lời nhắn.';
 
             const items = order.items || [];
             document.getElementById('detailProductsList').innerHTML = items.map(item => `
@@ -598,10 +619,26 @@
     `).join('');
 
             const subtotal = items.reduce((s, i) => s + (parseFloat(i.unit_price) || 0) * i.quantity, 0);
-            const shipping = parseFloat(order.shippingFee || 0);
+            const shipping = parseFloat(order.shipping_fee || 0);
             document.getElementById('detailSubtotal').textContent = formatCurrency(subtotal);
             document.getElementById('detailShipping').textContent = shipping > 0 ? formatCurrency(shipping) : 'Miễn phí';
             document.getElementById('detailTotal').textContent = formatCurrency(order.total);
+
+            const trackInput = document.getElementById('detailTrackingInput');
+            trackInput.value = order.carrier_tracking_code || '';
+
+            const saveBtn = document.getElementById('btnSaveTracking');
+            saveBtn.onclick = async () => {
+                saveBtn.disabled = true;
+                saveBtn.innerText = '...';
+                const success = await updateStatus(order.id, { carrierTrackingCode: trackInput.value.trim() }, trackInput);
+                if (success) {
+                    order.carrier_tracking_code = trackInput.value.trim();
+                    renderTable();
+                }
+                saveBtn.disabled = false;
+                saveBtn.innerText = 'LƯU';
+            };
 
             document.getElementById('orderDetailModal').classList.remove('hidden');
         }
@@ -621,13 +658,13 @@
 
             const headers = ['Mã đơn', 'Ngày đặt', 'SĐT', 'Địa chỉ', 'Sản phẩm', 'Tổng tiền', 'Trạng thái'];
             const rows = allOrders.map(o => [
-                o.id || '',
-                o.date ? new Date(o.date).toLocaleString('vi-VN') : '',
-                o.customer?.phone || '',
-                o.customer?.address || '',
-                (o.items || []).map(i => `${i.title} x${i.qty}`).join(' | '),
+                o.short_id || '',
+                o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : '',
+                o.phone || '',
+                o.address_line || '',
+                (o.items || []).map(i => `${i.title} x${i.quantity}`).join(' | '),
                 o.total || 0,
-                STATUS_LABELS[o.status] || o.status || '',
+                FULFILLMENT_STATUS_LABELS[o.fulfillment_status] || o.fulfillment_status || '',
             ]);
 
             const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
