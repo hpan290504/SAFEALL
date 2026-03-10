@@ -196,19 +196,46 @@ async function handleMy(req, res) {
 // ========== STATUS UPDATE ==========
 async function handleStatus(req, res) {
     if (req.method !== 'PATCH') return res.status(405).json({ message: 'Method not allowed' });
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    if (decoded.role !== 'admin') return res.status(403).json({ message: 'Forbidden' });
 
-    const { id, paymentStatus, fulfillmentStatus, carrierTrackingCode } = req.body;
-    await db.query(`
-        UPDATE orders 
-        SET payment_status = COALESCE($1, payment_status), 
-            fulfillment_status = COALESCE($2, fulfillment_status),
-            carrier_tracking_code = COALESCE($3, carrier_tracking_code),
-            updated_at = NOW()
-        WHERE id = $4 OR short_id = $4
-    `, [paymentStatus, fulfillmentStatus, carrierTrackingCode, id]);
-    return res.status(200).json({ success: true });
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Unauthorized: No token provided' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        if (decoded.role !== 'admin') return res.status(403).json({ message: 'Forbidden: Admin only' });
+
+        const { id, paymentStatus, fulfillmentStatus, carrierTrackingCode } = req.body;
+
+        if (!id) return res.status(400).json({ message: 'Missing order ID' });
+
+        console.log('[Orders] Updating status for:', id, { paymentStatus, fulfillmentStatus, carrierTrackingCode });
+
+        // Ensure undefined values are null for Postgres COALESCE to work correctly
+        const pStatus = paymentStatus !== undefined ? paymentStatus : null;
+        const fStatus = fulfillmentStatus !== undefined ? fulfillmentStatus : null;
+        const cTrack = carrierTrackingCode !== undefined ? carrierTrackingCode : null;
+
+        // Use id::text comparison to stay safe if id is UUID but $4 is short_id string
+        await db.query(`
+            UPDATE orders 
+            SET payment_status = COALESCE($1, payment_status), 
+                fulfillment_status = COALESCE($2, fulfillment_status),
+                carrier_tracking_code = COALESCE($3, carrier_tracking_code),
+                updated_at = NOW()
+            WHERE id::text = $4 OR short_id = $4
+        `, [pStatus, fStatus, cTrack, id]);
+
+        return res.status(200).json({ success: true });
+    } catch (err) {
+        console.error('[Orders] handleStatus failed:', err);
+        return res.status(err.name === 'JsonWebTokenError' ? 401 : 500).json({
+            success: false,
+            message: err.message
+        });
+    }
 }
 
 // ========== TRACK QUICK (Tier 1: Phone Only) ==========

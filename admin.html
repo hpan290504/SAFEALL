@@ -572,7 +572,7 @@
                     showToast('Cập nhật trạng thái thành công!', 'success');
 
                     // Update cache
-                    const order = allOrders.find(o => o.id === id);
+                    const order = allOrders.find(o => o.id === uuid);
                     if (order) {
                         if (payload.paymentStatus) {
                             order.payment_status = payload.paymentStatus;
