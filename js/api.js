@@ -129,19 +129,12 @@ const API = {
                 method: 'POST',
                 body: JSON.stringify(orderData)
             });
+            // res.orderId here is the short_id (e.g. SA-XXXXXX)
             return { success: true, orderId: res.orderId };
         } catch (e) {
-            // Check for retry signal from backend (self-healing)
-            let errorData = {};
-            try {
-                // Attempt to parse text if it's JSON but fetch threw
-                errorData = JSON.parse(e.message);
-            } catch (pErr) { }
-
             return {
                 success: false,
-                message: e.message || 'Lỗi xử lý đơn hàng',
-                retry: e.message.includes('nhấn nút') || e.message.includes('retry')
+                message: e.message || 'Lỗi xử lý đơn hàng'
             };
         }
     },
@@ -155,13 +148,25 @@ const API = {
         }
     },
 
-    async trackOrder(query, pin) {
+    async trackOrder(orderId, contact) {
         try {
             const res = await this._fetch('orders/track', {
                 method: 'POST',
-                body: JSON.stringify({ query, pin })
+                body: JSON.stringify({ orderId, contact })
             });
-            return { success: true, orders: res.orders };
+            return { success: true, order: res.order };
+        } catch (e) {
+            return { success: false, message: e.message };
+        }
+    },
+
+    async updateOrderStatus(payload) {
+        try {
+            const res = await this._fetch('orders/status', {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            });
+            return { success: true, message: res.message };
         } catch (e) {
             return { success: false, message: e.message };
         }

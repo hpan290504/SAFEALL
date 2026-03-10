@@ -2,110 +2,99 @@ import * as db from '../_utils/db.js';
 import { normalizePhone } from '../_utils/normalization.js';
 import { verifyPin } from '../_utils/auth.js';
 
-/**
- * api/orders/track.js - REWRITTEN
- * 
- * Logic:
- * 1. Receive query (Order ID or Phone) and PIN.
- * 2. If query is Phone: Normalize and find the user first.
- * 3. If query is Order ID: Find the order first, then find the associated user.
- * 4. Verify PIN against the correct user.
- * 5. Return orders if PIN matches.
- */
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
 
     try {
-        const { query: searchQuery, pin } = req.body;
+        const { orderId, pin } = req.body;
 
-        if (!searchQuery || searchQuery.trim() === '') {
-            return res.status(400).json({ message: 'Vui lòng nhập Mã đơn hàng hoặc Số điện thoại' });
-        }
-        if (!pin || pin.trim().length !== 6) {
-            return res.status(400).json({ message: 'Vui lòng nhập mã PIN (6 số) để bảo mật tra cứu' });
+        if (!orderId || !pin) {
+            return res.status(400).json({ success: false, message: 'Vui lòng nhập Mã đơn hàng/SĐT và Mã PIN.' });
         }
 
-        const input = searchQuery.trim();
+        const input = orderId.trim();
         const normalizedPhone = normalizePhone(input);
-        const isOrderId = input.toUpperCase().startsWith('SA');
+        const isPhone = normalizedPhone.length >= 10;
 
-        console.log(`[TrackOrder] Search: "${input}" | IsOrderID: ${isOrderId}`);
+        // 1. Find the user first to verify PIN
+        let userQuery = isPhone
+            ? 'SELECT * FROM users WHERE phone = $1 LIMIT 1'
+            : 'SELECT u.* FROM users u JOIN orders o ON u.id = o.user_id WHERE o.short_id = $1 LIMIT 1';
 
-        let user = null;
-        let orders = [];
+        const userRes = await db.query(userQuery, [isPhone ? normalizedPhone : input.toUpperCase()]);
 
-        if (isOrderId) {
-            // LOOKUP BY ORDER ID
-            const orderResult = await db.query(
-                `SELECT o.*, u.id as db_user_id FROM orders o 
-                 LEFT JOIN users u ON o.user_id = u.id 
-                 WHERE o.order_id ILIKE $1 LIMIT 1`,
-                [input]
-            );
-
-            if (orderResult.rows.length === 0) {
-                return res.status(404).json({ message: 'Không tìm thấy thông tin đơn hàng này.' });
-            }
-
-            const order = orderResult.rows[0];
-
-            // Find user associated with this order
-            if (order.user_id) {
-                const userResult = await db.query('SELECT * FROM users WHERE id = $1', [order.user_id]);
-                user = userResult.rows[0];
-            } else {
-                // Fallback: try lookup user by the phone on the order for legacy/guest
-                const userResult = await db.query('SELECT * FROM users WHERE phone = $1', [normalizePhone(order.customer_phone)]);
-                user = userResult.rows[0];
-            }
-            orders = [order];
-        } else {
-            // LOOKUP BY PHONE
-            const userResult = await db.query('SELECT * FROM users WHERE phone = $1', [normalizedPhone]);
-            if (userResult.rows.length === 0) {
-                return res.status(404).json({ message: 'Số điện thoại này chưa có đơn hàng nào hoặc chưa đăng ký.' });
-            }
-            user = userResult.rows[0];
-
-            const ordersResult = await db.query(
-                `SELECT * FROM orders WHERE user_id = $1 OR customer_phone = $2 ORDER BY created_at DESC LIMIT 20`,
-                [user.id, normalizedPhone]
-            );
-            orders = ordersResult.rows;
+        if (userRes.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đơn hàng.' });
         }
 
-        // VERIFY PIN
-        if (!user) {
-            return res.status(401).json({ message: 'Thông tin tài khoản không khớp. Vui lòng liên hệ hỗ trợ.' });
+        const user = userRes.rows[0];
+        const isPinValid = await verifyPin(user, pin);
+
+        if (!isPinValid) {
+            return res.status(401).json({ success: false, message: 'Mã PIN tra cứu không chính xác.' });
         }
 
-        const isMatch = await verifyPin(user, pin);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Mã PIN không chính xác. Vui lòng thử lại.' });
+        // 2. Fetch orders for this user
+        // We show either the specific order if it was a short_id, or all orders if it was a phone
+        let orderQuery = `
+            SELECT o.*, 
+                   a.full_name, a.phone as customer_phone, a.email as customer_email, a.address_line,
+                   (
+                       SELECT json_agg(item)
+                       FROM (
+                           SELECT id, product_id, quantity, unit_price, total_price, title
+                           FROM order_items
+                           WHERE order_id = o.id
+                       ) item
+                   ) as items
+            FROM orders o
+            JOIN order_addresses a ON o.id = a.order_id
+            WHERE o.user_id = $1
+        `;
+        let queryParams = [user.id];
+
+        if (!isPhone) {
+            orderQuery += ' AND o.short_id = $2';
+            queryParams.push(input.toUpperCase());
         }
 
-        // FORMAT RESULTS
-        const formattedOrders = orders.map(row => ({
-            id: row.order_id,
+        orderQuery += ' ORDER BY o.created_at DESC';
+
+        const ordersRes = await db.query(orderQuery, queryParams);
+
+        if (ordersRes.rows.length === 0) {
+            return res.status(200).json({ success: true, orders: [], message: 'Bạn chưa có đơn hàng nào.' });
+        }
+
+        const orders = ordersRes.rows.map(row => ({
+            id: row.short_id,
+            uuid: row.id,
             date: row.created_at,
             customer: {
-                name: row.customer_name,
+                name: row.full_name,
                 phone: row.customer_phone,
-                address: row.customer_address
+                email: row.customer_email,
+                address: row.address_line
             },
-            items: typeof row.items === 'string' ? JSON.parse(row.items) : row.items,
+            items: row.items || [],
             subtotal: parseFloat(row.subtotal),
             shippingFee: parseFloat(row.shipping_fee),
             total: parseFloat(row.total),
-            status: row.status,
+            paymentStatus: row.payment_status,
+            fulfillmentStatus: row.fulfillment_status,
             paymentMethod: row.payment_method,
-            note: row.note
+            note: row.customer_note
         }));
 
-        return res.status(200).json({ success: true, orders: formattedOrders });
+        // For frontend compatibility, if it's a single order search, we return 'order' too
+        return res.status(200).json({
+            success: true,
+            orders,
+            order: orders[0]
+        });
 
     } catch (error) {
         console.error('[TrackOrder] ERROR:', error);
-        return res.status(500).json({ message: 'Lỗi hệ thống khi tra cứu đơn hàng.' });
+        return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi tra cứu đơn hàng.' });
     }
 }

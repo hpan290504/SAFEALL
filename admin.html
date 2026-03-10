@@ -42,41 +42,68 @@
             appearance: none;
             cursor: pointer;
             font-weight: 700;
-            font-size: 12px;
-            padding: 4px 10px;
+            font-size: 11px;
+            padding: 4px 12px;
             border-radius: 999px;
-            border: none;
+            border: 1px solid transparent;
             outline: none;
+            transition: all 0.2s;
         }
 
-        select.status-select.s-pending {
+        /* Payment Status Styles */
+        select.pay-pending {
             background: #fffbeb;
             color: #d97706;
+            border-color: #fde68a;
         }
 
-        select.status-select.s-shipping {
-            background: #f0f9ff;
-            color: #0284c7;
-        }
-
-        select.status-select.s-delivering {
-            background: #f5f3ff;
-            color: #7c3aed;
-        }
-
-        select.status-select.s-completed {
+        select.pay-paid {
             background: #f0fdf4;
             color: #16a34a;
+            border-color: #bbf7d0;
         }
 
-        select.status-select.s-cancelled {
+        select.pay-failed {
             background: #fef2f2;
             color: #dc2626;
+            border-color: #fecaca;
         }
 
-        select.status-select.s-returned {
+        select.pay-refunded {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+
+        /* Fulfillment Status Styles */
+        select.full-unfulfilled {
+            background: #f8fafc;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+
+        select.full-processing {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        select.full-shipped {
+            background: #f0f9ff;
+            color: #0284c7;
+            border-color: #bae6fd;
+        }
+
+        select.full-delivered {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+
+        select.full-returned {
             background: #fff7ed;
             color: #ea580c;
+            border-color: #ffedd5;
         }
     </style>
     <title>SAFEALL - Quản lý đơn hàng</title>
@@ -230,7 +257,9 @@
                                     <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng
                                         tiền</th>
                                     <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                                        Trạng thái</th>
+                                        Thanh toán</th>
+                                    <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Vận
+                                        chuyển</th>
                                     <th class="px-5 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Thao
                                         tác</th>
                                 </tr>
@@ -332,13 +361,20 @@
         // ===== Helpers =====
         function formatCurrency(n) { return new Intl.NumberFormat('vi-VN').format(n || 0) + 'đ'; }
 
-        const STATUS_LABELS = {
+        const PAYMENT_STATUS_LABELS = {
             pending: 'Chờ thanh toán',
-            shipping: 'Vận chuyển',
-            delivering: 'Chờ giao hàng',
-            completed: 'Hoàn thành',
-            cancelled: 'Đã hủy',
-            returned: 'Trả hàng / Hoàn tiền',
+            paid: 'Đã thanh toán',
+            failed: 'Thất bại',
+            refunded: 'Đã hoàn tiền',
+            cancelled: 'Đã hủy'
+        };
+
+        const FULFILLMENT_STATUS_LABELS = {
+            unfulfilled: 'Chờ xử lý',
+            processing: 'Đang soạn hàng',
+            shipped: 'Đang giao',
+            delivered: 'Đã giao',
+            returned: 'Đã trả hàng'
         };
 
         // ===== Auth Guard & Init =====
@@ -397,9 +433,9 @@
         // ===== Stats =====
         function updateStats() {
             const total = allOrders.length;
-            const pending = allOrders.filter(o => o.status === 'pending' || o.status === 'delivering').length;
-            const revenue = allOrders.filter(o => o.status === 'completed').reduce((s, o) => s + (o.total || 0), 0);
-            const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+            const pending = allOrders.filter(o => o.fulfillmentStatus === 'unfulfilled' || o.fulfillmentStatus === 'processing').length;
+            const revenue = allOrders.filter(o => o.paymentStatus === 'paid').reduce((s, o) => s + (o.total || 0), 0);
+            const cancelled = allOrders.filter(o => o.paymentStatus === 'cancelled').length;
 
             document.getElementById('statTotal').textContent = total;
             document.getElementById('statPending').textContent = pending;
@@ -454,38 +490,43 @@
                 const dateStr = order.date ? new Date(order.date).toLocaleString('vi-VN') : '--';
                 const phone = order.customer?.phone || '--';
                 const itemsSummary = order.items ? order.items.map(i => `${i.title} (x${i.qty})`).join(', ') : '--';
-                const statusClass = `s-${order.status || 'pending'}`;
-                const statusLabel = STATUS_LABELS[order.status] || order.status || 'Chờ xử lý';
 
                 return `
         <tr class="hover:bg-slate-50 transition-colors">
             <td class="px-5 py-4">
-                <span class="font-mono text-sm font-semibold text-primary">#${(order.id || '').toUpperCase()}</span>
+                <span class="font-mono text-xs font-black text-primary">#${(order.id || '').toUpperCase()}</span>
             </td>
             <td class="px-5 py-4">
                 <div class="flex items-center gap-2">
-                    <div class="size-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                    <div class="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-[10px] flex-shrink-0">
                         ${phone.slice(-2)}
                     </div>
                     <div>
-                        <p class="text-sm font-medium">${order.customer?.name || 'Khách hàng'}</p>
-                        <p class="text-xs text-slate-500">${phone}</p>
+                        <p class="text-xs font-black tracking-tight">${order.customer?.name || 'Khách hàng'}</p>
+                        <p class="text-[10px] text-slate-400 font-bold">${phone}</p>
                     </div>
                 </div>
             </td>
-            <td class="px-5 py-4 text-sm text-slate-600">${dateStr}</td>
-            <td class="px-5 py-4 text-sm text-slate-600 max-w-[200px] truncate" title="${itemsSummary}">${itemsSummary}</td>
-            <td class="px-5 py-4 text-sm font-semibold">${formatCurrency(order.total)}</td>
+            <td class="px-5 py-4 text-[11px] font-bold text-slate-500">${dateStr}</td>
+            <td class="px-5 py-4 text-[11px] text-slate-500 max-w-[150px] truncate" title="${itemsSummary}">${itemsSummary}</td>
+            <td class="px-5 py-4 text-sm font-black text-secondary">${formatCurrency(order.total)}</td>
             <td class="px-5 py-4">
-                <select class="status-select ${statusClass}" onchange="updateOrderStatus('${order.id}', this)">
-                    ${Object.entries(STATUS_LABELS).map(([val, label]) =>
-                    `<option value="${val}" ${order.status === val ? 'selected' : ''}>${label}</option>`
+                <select class="status-select pay-${order.paymentStatus}" onchange="updateStatus('${order.uuid}', {paymentStatus: this.value}, this)">
+                    ${Object.entries(PAYMENT_STATUS_LABELS).map(([val, label]) =>
+                    `<option value="${val}" ${order.paymentStatus === val ? 'selected' : ''}>${label}</option>`
                 ).join('')}
                 </select>
             </td>
             <td class="px-5 py-4">
-                <button onclick="showDetail('${order.id}')" class="text-slate-400 hover:text-primary transition-colors p-1 rounded-lg hover:bg-primary/10" title="Xem chi tiết">
-                    <span class="material-symbols-outlined">open_in_new</span>
+                <select class="status-select full-${order.fulfillmentStatus}" onchange="updateStatus('${order.uuid}', {fulfillmentStatus: this.value}, this)">
+                    ${Object.entries(FULFILLMENT_STATUS_LABELS).map(([val, label]) =>
+                    `<option value="${val}" ${order.fulfillmentStatus === val ? 'selected' : ''}>${label}</option>`
+                ).join('')}
+                </select>
+            </td>
+            <td class="px-5 py-4">
+                <button onclick="showDetail('${order.uuid}')" class="text-slate-400 hover:text-primary transition-colors p-1 rounded-lg hover:bg-primary/10">
+                    <span class="material-symbols-outlined text-xl">visibility</span>
                 </button>
             </td>
         </tr>`;
@@ -499,23 +540,45 @@
         }
 
         // ===== Update Status =====
-        async function updateOrderStatus(orderId, selectEl) {
-            const newStatus = selectEl.value;
-            // TODO: Implement PATCH /api/orders/update in backend
-            showToast('Tính năng cập nhật trạng thái đang được đồng bộ với backend...', 'info');
+        async function updateStatus(uuid, payload, selectEl) {
+            const originalClass = selectEl.className;
+            selectEl.disabled = true;
+            selectEl.style.opacity = '0.5';
 
-            // Local update for immediate feedback
-            const idx = allOrders.findIndex(o => o.id === orderId);
-            if (idx !== -1) {
-                allOrders[idx].status = newStatus;
+            try {
+                const res = await window.SAFEALL_API.updateOrderStatus({ id: uuid, ...payload });
+                if (res.success) {
+                    showToast('Cập nhật trạng thái thành công!', 'success');
+
+                    // Update cache
+                    const order = allOrders.find(o => o.uuid === uuid);
+                    if (order) {
+                        if (payload.paymentStatus) {
+                            order.paymentStatus = payload.paymentStatus;
+                            selectEl.className = `status-select pay-${payload.paymentStatus}`;
+                        }
+                        if (payload.fulfillmentStatus) {
+                            order.fulfillmentStatus = payload.fulfillmentStatus;
+                            selectEl.className = `status-select full-${payload.fulfillmentStatus}`;
+                        }
+                    }
+                    updateStats();
+                } else {
+                    showToast(res.message, 'error');
+                    selectEl.className = originalClass;
+                }
+            } catch (err) {
+                showToast('Lỗi kết nối máy chủ', 'error');
+                selectEl.className = originalClass;
+            } finally {
+                selectEl.disabled = false;
+                selectEl.style.opacity = '1';
             }
-            selectEl.className = `status-select s-${newStatus}`;
-            updateStats();
         }
 
         // ===== Order Detail Modal =====
-        function showDetail(orderId) {
-            const order = allOrders.find(o => o.id === orderId);
+        function showDetail(uuid) {
+            const order = allOrders.find(o => o.uuid === uuid);
             if (!order) return;
 
             document.getElementById('detailOrderId').textContent = '#' + orderId.toUpperCase();
@@ -527,15 +590,15 @@
             const items = order.items || [];
             document.getElementById('detailProductsList').innerHTML = items.map(item => `
         <tr>
-            <td class="px-4 py-2">${item.title}</td>
-            <td class="px-4 py-2 text-center">${item.qty}</td>
-            <td class="px-4 py-2 text-right">${item.price ? formatCurrency(item.price) : '--'}</td>
-            <td class="px-4 py-2 text-right font-semibold">${item.price ? formatCurrency(item.price * item.qty) : '--'}</td>
+            <td class="px-4 py-3 font-semibold text-slate-700">${item.title}</td>
+            <td class="px-4 py-3 text-center font-black">${item.quantity}</td>
+            <td class="px-4 py-3 text-right text-slate-500">${formatCurrency(item.unit_price)}</td>
+            <td class="px-4 py-3 text-right font-black text-secondary">${formatCurrency(item.total_price)}</td>
         </tr>
     `).join('');
 
-            const subtotal = items.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
-            const shipping = (order.total || 0) - subtotal;
+            const subtotal = items.reduce((s, i) => s + (parseFloat(i.unit_price) || 0) * i.quantity, 0);
+            const shipping = parseFloat(order.shippingFee || 0);
             document.getElementById('detailSubtotal').textContent = formatCurrency(subtotal);
             document.getElementById('detailShipping').textContent = shipping > 0 ? formatCurrency(shipping) : 'Miễn phí';
             document.getElementById('detailTotal').textContent = formatCurrency(order.total);

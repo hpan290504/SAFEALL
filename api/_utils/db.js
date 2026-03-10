@@ -57,11 +57,20 @@ export const query = async (text, params) => {
         console.error(`[DB] ${category} [${err.code || 'NO_CODE'}]: ${err.message}`);
         if (err.detail) console.error(`[DB] Detail: ${err.detail}`);
         if (err.hint) console.error(`[DB] Hint: ${err.hint}`);
-        console.error(`[DB] Failed query:`, text.substring(0, 200));
+        if (text) console.error(`[DB] Failed query:`, text.substring(0, 200));
 
         // Enrich the error object for higher layers
         err.category = category;
         // Keep original code, detail, hint attached
         throw err;
     }
+};
+
+/**
+ * getClient - Returns a client from the pool for manual transaction management
+ * IMPORTANT: You MUST call client.release() when done!
+ */
+export const getClient = async () => {
+    const client = await pool.connect();
+    return client;
 };

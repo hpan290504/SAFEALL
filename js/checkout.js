@@ -1,21 +1,18 @@
 /**
- * js/checkout.js - REWRITTEN
- * 
- * Flow:
- * 1. Watch #custPhone. When 10 digits => API.checkPhone()
- * 2. Toggle Scenario A (Existing) or B (New)
- * 3. Handle Submit => API.createOrder()
- * 4. Render Cart summary.
+ * js/checkout.js - Professional Multi-step Flow
  */
 
 const Checkout = {
+    currentStep: 1,
     isExistingUser: false,
     phoneChecked: false,
+    lastCheckedPhone: '',
 
     init() {
-        console.log('[Checkout] Initializing new flow...');
+        console.log('[Checkout] Initializing multi-step flow...');
         this.renderSummary();
         this.bindEvents();
+        this.updateStepperUI();
     },
 
     bindEvents() {
@@ -32,11 +29,121 @@ const Checkout = {
                 this.placeOrder();
             });
         }
+    },
 
-        const forgotBtn = document.getElementById('btnForgotPin');
-        if (forgotBtn) {
-            forgotBtn.onclick = () => this.handleForgotPin();
+    updateStepperUI() {
+        const indicators = document.querySelectorAll('.step-indicator');
+        const stepLine = document.getElementById('stepLine');
+        const progress = ((this.currentStep - 1) / (indicators.length - 1)) * 100;
+
+        if (stepLine) stepLine.style.width = `${progress}%`;
+
+        indicators.forEach(el => {
+            const step = parseInt(el.dataset.step);
+            const circle = el.querySelector('div');
+            const label = el.querySelector('span');
+
+            if (step < this.currentStep) {
+                // Completed
+                circle.classList.remove('border-primary', 'text-primary', 'border-slate-200', 'text-slate-400');
+                circle.classList.add('bg-primary', 'border-primary', 'text-white');
+                circle.innerHTML = '<i class="codicon codicon-check"></i>';
+                label.classList.add('text-primary');
+                label.classList.remove('text-slate-400');
+            } else if (step === this.currentStep) {
+                // Active
+                circle.classList.remove('bg-primary', 'text-white', 'border-slate-200', 'text-slate-400');
+                circle.classList.add('border-primary', 'text-primary');
+                circle.innerHTML = step;
+                label.classList.add('text-primary');
+                label.classList.remove('text-slate-400');
+            } else {
+                // Future
+                circle.classList.remove('bg-primary', 'border-primary', 'text-white', 'text-primary');
+                circle.classList.add('border-slate-200', 'text-slate-400');
+                circle.innerHTML = step;
+                label.classList.remove('text-primary');
+                label.classList.add('text-slate-400');
+            }
+        });
+
+        // Toggle Sections
+        document.querySelectorAll('.step-section').forEach(sec => sec.classList.add('hidden'));
+        document.getElementById(`stepSection${this.currentStep}`).classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    nextStep(step) {
+        if (this.validateStep(step)) {
+            if (step === 3) this.prepareReview();
+            this.currentStep++;
+            this.updateStepperUI();
         }
+    },
+
+    prevStep(step) {
+        this.currentStep--;
+        this.updateStepperUI();
+    },
+
+    validateStep(step) {
+        this.hideError();
+
+        if (step === 1) {
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const email = document.getElementById('custEmail').value.trim();
+
+            if (!this.phoneChecked || phone.length < 10) {
+                this.showError('Vui lòng nhập số điện thoại hợp lệ.');
+                return false;
+            }
+
+            // PIN Validation
+            if (this.isExistingUser) {
+                const pin = document.getElementById('inputPinVerify').value.trim();
+                if (pin.length !== 6) {
+                    this.showError('Vui lòng nhập mã PIN 6 số.');
+                    return false;
+                }
+            } else {
+                const p1 = document.getElementById('inputPinCreate').value.trim();
+                const p2 = document.getElementById('inputPinConfirm').value.trim();
+                if (p1.length !== 6) {
+                    this.showError('Vui lòng tạo mã PIN 6 số.');
+                    return false;
+                }
+                if (p1 !== p2) {
+                    this.showError('Mã PIN xác nhận không khớp.');
+                    return false;
+                }
+            }
+
+            if (!name) {
+                this.showError('Vui lòng nhập họ tên.');
+                return false;
+            }
+            if (!email || !email.includes('@')) {
+                this.showError('Vui lòng nhập email hợp lệ để nhận hóa đơn.');
+                return false;
+            }
+        }
+
+        if (step === 2) {
+            const address = document.getElementById('custAddress').value.trim();
+            if (address.length < 10) {
+                this.showError('Vui lòng nhập địa chỉ giao hàng chi tiết.');
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    prepareReview() {
+        document.getElementById('reviewName').innerText = document.getElementById('custName').value;
+        document.getElementById('reviewPhone').innerText = document.getElementById('custPhone').value;
+        document.getElementById('reviewAddress').innerText = document.getElementById('custAddress').value;
     },
 
     async handlePhoneInput(val, force = false) {
@@ -54,7 +161,6 @@ const Checkout = {
                     this.phoneChecked = true;
                 }
             } catch (err) {
-                console.error('[Checkout] Phone check failed:', err);
                 this.showPinState('init');
             }
         } else {
@@ -114,88 +220,51 @@ const Checkout = {
     },
 
     async placeOrder() {
-        if (!this.phoneChecked) {
-            this.showError('Vui lòng nhập số điện thoại hợp lệ.');
-            return;
-        }
-
-        const items = window.SAFEALL_CART.getItems();
-        const customer = {
-            name: document.getElementById('custName').value.trim(),
-            phone: document.getElementById('custPhone').value.trim(),
-            email: document.getElementById('custEmail').value.trim(),
-            address: document.getElementById('custAddress').value.trim()
-        };
-        const note = document.getElementById('orderNote').value.trim();
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-
-        // PIN logic
-        let pin = '';
-        if (this.isExistingUser) {
-            pin = document.getElementById('inputPinVerify').value.trim();
-            if (!pin || pin.length !== 6) {
-                this.showError('Vui lòng nhập mã PIN (6 số) để xác nhận.');
-                document.getElementById('inputPinVerify').focus();
-                return;
-            }
-        } else {
-            const p1 = document.getElementById('inputPinCreate').value.trim();
-            const p2 = document.getElementById('inputPinConfirm').value.trim();
-            if (!p1 || p1.length !== 6) {
-                this.showError('Vui lòng tạo mã PIN mới (6 số).');
-                document.getElementById('inputPinCreate').focus();
-                return;
-            }
-            if (p1 !== p2) {
-                this.showError('Mã PIN xác nhận không khớp.');
-                document.getElementById('inputPinConfirm').focus();
-                return;
-            }
-            pin = p1;
-        }
-
-        const subtotal = items.reduce((s, i) => s + (i.price * i.qty), 0);
-        const shippingFee = (subtotal > 0 && subtotal < 500000) ? 30000 : 0;
-        const total = subtotal + shippingFee;
-        const orderId = 'SA' + Math.random().toString(36).substr(2, 6).toUpperCase();
-
-        const payload = {
-            orderId, items, subtotal, shippingFee, total,
-            paymentMethod, note, customer, pin
-        };
-
         const btn = document.getElementById('btnPlaceOrder');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<i class="codicon codicon-loading animate-spin"></i> ĐANG XỬ LÝ...';
+        btn.innerHTML = '<i class="codicon codicon-loading animate-spin"></i> ĐANG TẠO ĐƠN...';
 
         try {
+            const items = window.SAFEALL_CART.getItems();
+            const customer = {
+                name: document.getElementById('custName').value.trim(),
+                phone: document.getElementById('custPhone').value.trim(),
+                email: document.getElementById('custEmail').value.trim(),
+                address: document.getElementById('custAddress').value.trim()
+            };
+            const note = document.getElementById('orderNote').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+            let pin = this.isExistingUser
+                ? document.getElementById('inputPinVerify').value.trim()
+                : document.getElementById('inputPinCreate').value.trim();
+
+            const subtotal = items.reduce((s, i) => s + (i.price * i.qty), 0);
+            const shippingFee = (subtotal > 0 && subtotal < 500000) ? 30000 : 0;
+            const total = subtotal + shippingFee;
+
+            const payload = {
+                items, subtotal, shippingFee, total,
+                paymentMethod, note, customer, pin,
+                clientToken: `CT-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
+            };
+
             const res = await window.SAFEALL_API.createOrder(payload);
             if (res.success) {
-                localStorage.removeItem(window.SAFEALL_CART.storageKey);
-                sessionStorage.setItem('safeall_last_order', JSON.stringify({ ...payload, success: true }));
+                window.SAFEALL_CART.clear();
+                sessionStorage.setItem('safeall_last_order', JSON.stringify({
+                    orderId: res.orderId,
+                    total,
+                    date: new Date().toISOString(),
+                    customer,
+                    items
+                }));
                 window.location.href = 'order-success.html';
             } else {
-                let errorMsg = res.message || 'Lỗi xử lý đơn hàng';
-
-                // Detailed debug info if available
-                let debugInfo = [];
-                if (res.category) debugInfo.push(`Loại: ${res.category}`);
-                if (res.code) debugInfo.push(`Mã: ${res.code}`);
-                if (res.step) debugInfo.push(`Bước: ${res.step}`);
-                if (res.error) debugInfo.push(`Chi tiết: ${res.error}`);
-
-                if (debugInfo.length > 0) {
-                    errorMsg += `<div class="mt-2 pt-2 border-t border-red-200/50 text-[10px] opacity-70 italic leading-relaxed">`;
-                    errorMsg += debugInfo.join('<br/>');
-                    if (res.rawError) errorMsg += `<br/>Raw: ${res.rawError.substring(0, 200)}...`;
-                    errorMsg += `</div>`;
-                }
-
-                this.showError(errorMsg);
+                this.showError(res.message);
                 btn.disabled = false;
                 btn.innerHTML = originalText;
-                if (res.retry) btn.innerHTML = 'NHẤN LẠI ĐẾ XÁC NHẬN <i class="codicon codicon-sync"></i>';
             }
         } catch (err) {
             this.showError('Lỗi kết nối máy chủ. Vui lòng thử lại.');
@@ -210,22 +279,11 @@ const Checkout = {
         el.innerHTML = msg;
         el.classList.remove('hidden');
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => el.classList.add('hidden'), 10000);
     },
 
-    async handleForgotPin() {
-        const phone = document.getElementById('custPhone').value.trim();
-        if (!phone) {
-            this.showError('Vui lòng nhập số điện thoại trước khi yêu cầu khôi phục PIN.');
-            return;
-        }
-
-        try {
-            const res = await window.SAFEALL_API.forgotPin(phone);
-            alert(res.message);
-        } catch (err) {
-            this.showError('Không thể gửi yêu cầu hỗ trợ lúc này.');
-        }
+    hideError() {
+        const el = document.getElementById('checkoutError');
+        if (el) el.classList.add('hidden');
     }
 };
 

@@ -160,11 +160,20 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        const statusMap = {
-            'pending': { text: 'Chờ thanh toán', color: '#f59e0b', step: 1 },
-            'processing': { text: 'Đang xử lý', color: '#3b82f6', step: 2 },
-            'shipping': { text: 'Đang vận chuyển', color: '#8b5cf6', step: 3 },
-            'completed': { text: 'Hoàn thành', color: '#10b981', step: 4 }
+        const PAYMENT_STATUS_MAP = {
+            'pending': { text: 'Chờ thanh toán', color: '#f59e0b', icon: 'credit-card' },
+            'paid': { text: 'Đã thanh toán', color: '#10b981', icon: 'check' },
+            'failed': { text: 'Thanh toán lỗi', color: '#ef4444', icon: 'close' },
+            'refunded': { text: 'Đã hoàn tiền', color: '#8b5cf6', icon: 'reply' },
+            'cancelled': { text: 'Đã hủy', color: '#64748b', icon: 'trash' }
+        };
+
+        const FULFILLMENT_STATUS_MAP = {
+            'unfulfilled': { text: 'Đang chờ', color: '#64748b', step: 1, label: 'Xác nhận' },
+            'processing': { text: 'Đang soạn hàng', color: '#3b82f6', step: 2, label: 'Xử lý' },
+            'shipped': { text: 'Đang vận chuyển', color: '#8b5cf6', step: 3, label: 'Đang giao' },
+            'delivered': { text: 'Đã giao hàng', color: '#10b981', step: 4, label: 'Hoàn tất' },
+            'returned': { text: 'Đã trả hàng', color: '#f59e0b', step: 0, label: 'Trả hàng' }
         };
 
         async function searchOrder() {
@@ -185,14 +194,14 @@
                 const resData = await window.SAFEALL_API.trackOrder(input, pin);
                 loading.classList.add('hidden');
 
-                if (resData.success && resData.orders && resData.orders.length > 0) {
-                    renderOrder(resData.orders[0]);
+                if (resData.success && resData.order) {
+                    renderOrder(resData.order);
                 } else {
                     container.innerHTML = `
                          <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-3xl border border-red-100 dark:border-red-900/20 shadow-xl shadow-red-500/5">
                             <i class="codicon codicon-search-stop text-6xl text-primary/20 mb-4"></i>
                             <h3 class="font-black text-slate-900 dark:text-white text-xl">Tra cứu thất bại</h3>
-                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.</p>
+                            <p class="text-slate-500 text-sm mt-2 max-w-xs mx-auto">${resData.message || 'Thông tin tra cứu không chính xác. Hãy kiểm tra lại số điện thoại và mã PIN 6 số.'}</p>
                         </div>
                     `;
                 }
@@ -200,7 +209,7 @@
             } catch (err) {
                 loading.classList.add('hidden');
                 console.error(err);
-                alert('Có lỗi xảy ra khi tra cứu: ' + err.message);
+                alert('Có lỗi xảy ra khi tra cứu: ' + (err.message || 'Lỗi kết nối'));
             }
         }
 
@@ -224,69 +233,91 @@
             return address.substring(0, 4) + '***';
         }
 
-        function renderOrder(order) {
+        function renderOrder(orderOrOrders) {
             const container = document.getElementById('ordersContainer');
-            const status = statusMap[order.status] || { text: 'Đang xử lý', color: '#3b82f6', step: 2 };
+            const orders = Array.isArray(orderOrOrders) ? orderOrOrders : [orderOrOrders];
 
-            container.innerHTML = `
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div class="p-8 md:p-12 space-y-12">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
-                                <span class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Trạng thái đơn hàng</span>
-                                <h2 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">#${order.id.toUpperCase()}</h2>
-                            </div>
-                            <div class="px-6 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                                <span class="text-xs font-black uppercase tracking-widest" style="color: ${status.color}">${status.text}</span>
-                            </div>
-                        </div>
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="py-20 text-center text-slate-400">Không tìm thấy đơn hàng nào.</div>';
+                return;
+            }
 
-                        <div class="relative pb-10">
-                            <div class="absolute left-0 top-6 w-full h-1 bg-slate-100 dark:bg-slate-800 -z-10"></div>
-                            <div class="grid grid-cols-4 gap-2">
-                                ${['Xác nhận', 'Xử lý', 'Giao giá', 'Hoàn tất'].map((label, idx) => {
-                const active = (idx + 1) <= status.step;
+            container.innerHTML = orders.map(order => {
+                const payStatus = PAYMENT_STATUS_MAP[order.paymentStatus] || PAYMENT_STATUS_MAP['pending'];
+                const fullStatus = FULFILLMENT_STATUS_MAP[order.fulfillmentStatus] || FULFILLMENT_STATUS_MAP['unfulfilled'];
+                const dateStr = new Date(order.date).toLocaleDateString('vi-VN');
+
                 return `
-                                        <div class="flex flex-col items-center gap-4 text-center">
-                                            <div class="size-12 rounded-full flex items-center justify-center transition-all duration-500 ${active ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white dark:bg-slate-900 text-slate-300 border-4 border-slate-100 dark:border-slate-800'}">
-                                                <i class="codicon ${['codicon-check', 'codicon-package', 'codicon-arrow-right', 'codicon-pass-filled'][idx]} text-lg"></i>
-                                            </div>
-                                            <span class="text-[10px] font-black uppercase tracking-widest ${active ? 'text-primary' : 'text-slate-400'}">${label}</span>
-                                        </div>
-                                    `;
-            }).join('')}
-                            </div>
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
-                            <div class="space-y-6">
-                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Người nhận</h4>
-                                <div class="space-y-1 relative">
-                                    <span class="absolute -top-3 -right-2 text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-primary/20">Đã bảo mật</span>
-                                    <p class="font-black text-lg">${maskName(order.customer.name)}</p>
-                                    <p class="text-slate-500 text-sm">${maskPhone(order.customer.phone)}</p>
-                                    <p class="text-slate-500 text-sm leading-relaxed">${maskAddress(order.customer.address)}</p>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 mb-8 last:mb-0">
+                        <div class="p-8 md:p-12 space-y-12">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Đơn hàng ngày ${dateStr}</span>
+                                    </div>
+                                    <h2 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">#${order.id.toUpperCase()}</h2>
+                                </div>
+                                <div class="flex flex-wrap gap-3">
+                                    <div class="px-5 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center gap-2">
+                                        <i class="codicon codicon-${payStatus.icon} text-xs" style="color: ${payStatus.color}"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">${payStatus.text}</span>
+                                    </div>
+                                    <div class="px-5 py-2 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center gap-2">
+                                        <div class="size-2 rounded-full" style="background: ${fullStatus.color}"></div>
+                                        <span class="text-[10px] font-black uppercase tracking-widest" style="color: ${fullStatus.color}">${fullStatus.text}</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="space-y-6">
-                                <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Sản phẩm</h4>
-                                <div class="space-y-4">
-                                    ${order.items.map(item => `
-                                        <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-                                            <span class="text-sm font-bold text-slate-700 dark:text-slate-300">${item.qty}x ${item.title}</span>
-                                            <span class="font-black text-slate-900 dark:text-white">${item.price.toLocaleString('vi-VN')}đ</span>
+
+                            <!-- Tracking Stepper -->
+                            <div class="relative pb-10">
+                                <div class="absolute left-0 top-6 w-full h-1 bg-slate-100 dark:bg-slate-800 -z-10"></div>
+                                <div class="grid grid-cols-4 gap-2">
+                                    ${Object.entries(FULFILLMENT_STATUS_MAP).filter(([k, v]) => v.step > 0).sort((a, b) => a[1].step - b[1].step).map(([key, val]) => {
+                    const active = val.step <= fullStatus.step;
+                    const icons = ['codicon-check', 'codicon-package', 'codicon-rocket', 'codicon-pass-filled'];
+                    return `
+                                            <div class="flex flex-col items-center gap-4 text-center">
+                                                <div class="size-12 rounded-full flex items-center justify-center transition-all duration-500 ${active ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-110' : 'bg-white dark:bg-slate-900 text-slate-300 border-4 border-slate-100 dark:border-slate-800'}">
+                                                    <i class="codicon ${icons[val.step - 1]} text-lg"></i>
+                                                </div>
+                                                <span class="text-[10px] font-black uppercase tracking-widest ${active ? 'text-primary' : 'text-slate-400'}">${val.label}</span>
+                                            </div>
+                                        `;
+                }).join('')}
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-12 pt-12 border-t border-slate-50 dark:border-slate-800">
+                                <div class="space-y-6">
+                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Thông tin người nhận</h4>
+                                    <div class="space-y-1 relative">
+                                        <span class="absolute -top-3 -right-2 text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-primary/20">Bảo mật định danh</span>
+                                        <p class="font-black text-lg">${maskName(order.customer.name)}</p>
+                                        <p class="text-slate-500 text-sm">${maskPhone(order.customer.phone)}</p>
+                                        <p class="text-slate-500 text-sm leading-relaxed">${maskAddress(order.customer.address)}</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-6">
+                                    <h4 class="text-xs font-black uppercase tracking-widest text-slate-400">Danh mục vật dụng</h4>
+                                    <div class="space-y-4">
+                                        ${order.items.map(item => `
+                                            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                                                <span class="text-sm font-bold text-slate-700 dark:text-slate-300">${item.quantity}x ${item.title}</span>
+                                                <span class="font-black text-slate-900 dark:text-white">${parseFloat(item.total_price).toLocaleString('vi-VN')}đ</span>
+                                            </div>
+                                        `).join('')}
+                                        <div class="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700">
+                                            <span class="font-black uppercase text-xs tracking-widest">Toàn bộ chi phí</span>
+                                            <span class="text-3xl font-black text-primary">${parseFloat(order.total).toLocaleString('vi-VN')}đ</span>
                                         </div>
-                                    `).join('')}
-                                    <div class="flex justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700">
-                                        <span class="font-black uppercase text-xs tracking-widest">Tổng cộng</span>
-                                        <span class="text-2xl font-black text-primary">${order.total.toLocaleString('vi-VN')}đ</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }).join('');
         }
 
         // --- PIN RECOVERY FLOW (Simplified Token Flow) ---
