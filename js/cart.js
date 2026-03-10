@@ -29,6 +29,15 @@ window.SAFEALL_CART = {
     },
 
     /**
+     * Clear all items from cart
+     */
+    clear() {
+        localStorage.removeItem(this.storageKey);
+        this.updateBadge();
+        this.renderAllCarts();
+    },
+
+    /**
      * Add item to cart
      * @param {Object} product { id, title, price, image, category }
      */

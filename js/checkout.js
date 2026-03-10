@@ -255,14 +255,35 @@ const Checkout = {
             const res = await window.SAFEALL_API.createOrder(payload);
             if (res.success) {
                 console.log('[Checkout] Order created successfully:', res.orderId);
-                window.SAFEALL_CART.clear();
-                sessionStorage.setItem('safeall_last_order', JSON.stringify({
-                    orderId: res.orderId,
-                    total,
-                    date: new Date().toISOString(),
-                    customer,
-                    items
-                }));
+
+                // --- POST-ORDER SUCCESS HANDLING (Side Effects) ---
+                try {
+                    // Try the formal clear if it exists, otherwise manual fallback
+                    if (typeof window.SAFEALL_CART?.clear === 'function') {
+                        window.SAFEALL_CART.clear();
+                    } else {
+                        localStorage.removeItem('safeall_cart');
+                        if (typeof window.SAFEALL_CART?.updateBadge === 'function') {
+                            window.SAFEALL_CART.updateBadge();
+                        }
+                    }
+                } catch (e) {
+                    console.error('[Checkout] Non-critical error clearing cart:', e);
+                }
+
+                try {
+                    sessionStorage.setItem('safeall_last_order', JSON.stringify({
+                        orderId: res.orderId,
+                        total,
+                        date: new Date().toISOString(),
+                        customer,
+                        items
+                    }));
+                } catch (e) {
+                    console.error('[Checkout] Error saving session order info:', e);
+                }
+
+                // ALWAYS redirect if creation was successful
                 window.location.href = 'order-success.html';
             } else {
                 console.warn('[Checkout] Order creation failed:', res.message);
