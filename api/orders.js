@@ -4,7 +4,70 @@ import { verifyPin, hashPin } from './_utils/auth.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
+// ========== AUTO-MIGRATION: runs once per cold start ==========
+let migrated = false;
+async function ensureSchema() {
+    if (migrated) return;
+    try {
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name TEXT, phone TEXT UNIQUE, email TEXT, password TEXT,
+                track_pin_hash TEXT, role TEXT DEFAULT 'user',
+                reset_token TEXT, reset_token_expiry TIMESTAMP,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS track_pin_hash TEXT;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT;
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP;
+
+            CREATE TABLE IF NOT EXISTS orders (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                short_id VARCHAR(12) UNIQUE NOT NULL,
+                client_token VARCHAR(50),
+                user_id INTEGER REFERENCES users(id),
+                payment_status VARCHAR(20) DEFAULT 'pending',
+                fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled',
+                subtotal DECIMAL(12,2) NOT NULL,
+                shipping_fee DECIMAL(12,2) DEFAULT 0,
+                total DECIMAL(12,2) NOT NULL,
+                payment_method VARCHAR(30),
+                customer_note TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            ALTER TABLE orders ADD COLUMN IF NOT EXISTS short_id VARCHAR(12);
+            ALTER TABLE orders ADD COLUMN IF NOT EXISTS client_token VARCHAR(50);
+            ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'pending';
+            ALTER TABLE orders ADD COLUMN IF NOT EXISTS fulfillment_status VARCHAR(20) DEFAULT 'unfulfilled';
+
+            CREATE TABLE IF NOT EXISTS order_items (
+                id SERIAL PRIMARY KEY,
+                order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+                product_id INTEGER, quantity INTEGER NOT NULL,
+                unit_price DECIMAL(12,2) NOT NULL,
+                total_price DECIMAL(12,2) NOT NULL,
+                title TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS order_addresses (
+                order_id UUID PRIMARY KEY REFERENCES orders(id) ON DELETE CASCADE,
+                full_name TEXT NOT NULL, phone VARCHAR(20) NOT NULL,
+                email TEXT, address_line TEXT NOT NULL,
+                city TEXT, province TEXT, postal_code VARCHAR(10)
+            );
+        `);
+        migrated = true;
+        console.log('[Orders] Auto-migration complete.');
+    } catch (e) {
+        console.error('[Orders] Auto-migration failed:', e.message);
+    }
+}
+
+// ========== HANDLER ==========
 export default async function handler(req, res) {
+    await ensureSchema();
+
     const { pathname } = new URL(req.url, `http://${req.headers.host}`);
     const action = pathname.split('/').pop();
 
@@ -21,6 +84,7 @@ export default async function handler(req, res) {
     }
 }
 
+// ========== CREATE ==========
 async function handleCreate(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' });
     const { items, subtotal, shippingFee, total, paymentMethod, note, customer, pin, clientToken } = req.body;
@@ -53,26 +117,28 @@ async function handleCreate(req, res) {
 
         const shortId = `SA-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
         const orderRes = await client.query(
-            'INSERT INTO orders (short_id, client_token, user_id, subtotal, shipping_fee, total, payment_method) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-            [shortId, clientToken, userId, subtotal, shippingFee, total, paymentMethod]
+            'INSERT INTO orders (short_id, client_token, user_id, subtotal, shipping_fee, total, payment_method, customer_note) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+            [shortId, clientToken || null, userId, subtotal, shippingFee, total, paymentMethod, note || null]
         );
         const orderId = orderRes.rows[0].id;
 
         for (const item of items) {
             await client.query('INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, title) VALUES ($1, $2, $3, $4, $5, $6)', [orderId, item.id, item.qty, item.price, item.total, item.title]);
         }
-        await client.query('INSERT INTO order_addresses (order_id, full_name, phone, email, address_line) VALUES ($1, $2, $3, $4, $5)', [orderId, customer.name, phone, customer.email, customer.address]);
+        await client.query('INSERT INTO order_addresses (order_id, full_name, phone, email, address_line) VALUES ($1, $2, $3, $4, $5)', [orderId, customer.name, phone, customer.email || null, customer.address]);
 
         await client.query('COMMIT');
         return res.status(201).json({ success: true, orderId: shortId });
     } catch (e) {
         await client.query('ROLLBACK');
+        console.error('[Orders] Create failed:', e.message);
         return res.status(e.message === 'Sai mã PIN.' ? 401 : 500).json({ message: e.message });
     } finally {
         client.release();
     }
 }
 
+// ========== MY ORDERS ==========
 async function handleMy(req, res) {
     const authHeader = req.headers.authorization;
     if (!authHeader) return res.status(401).json({ message: 'Unauthorized' });
@@ -89,6 +155,7 @@ async function handleMy(req, res) {
     return res.status(200).json({ success: true, orders: result.rows });
 }
 
+// ========== STATUS UPDATE ==========
 async function handleStatus(req, res) {
     if (req.method !== 'PATCH') return res.status(405).json({ message: 'Method not allowed' });
     const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
@@ -99,6 +166,7 @@ async function handleStatus(req, res) {
     return res.status(200).json({ success: true });
 }
 
+// ========== TRACK ==========
 async function handleTrack(req, res) {
     const { orderId, pin } = req.body;
     const normalizedPhone = normalizePhone(orderId);
