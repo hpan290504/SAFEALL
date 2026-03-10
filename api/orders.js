@@ -134,7 +134,8 @@ async function handleCreate(req, res) {
         const orderId = orderRes.rows[0].id;
 
         for (const item of items) {
-            await client.query('INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, title) VALUES ($1, $2, $3, $4, $5, $6)', [orderId, item.id, item.qty, item.price, item.total, item.title]);
+            const itemTotal = (item.qty || 1) * (item.price || 0);
+            await client.query('INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, title) VALUES ($1, $2, $3, $4, $5, $6)', [orderId, item.id, item.qty, item.price, itemTotal, item.title]);
         }
         await client.query('INSERT INTO order_addresses (order_id, full_name, phone, email, address_line) VALUES ($1, $2, $3, $4, $5)', [orderId, customer.name, phone, customer.email || null, customer.address]);
 
