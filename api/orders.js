@@ -24,10 +24,7 @@ async function ensureSchema() {
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT`,
         `ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expiry TIMESTAMP`,
 
-        // FORCE clean slate for order tables - drop in correct dependency order
-        `DROP TABLE IF EXISTS order_addresses CASCADE`,
-        `DROP TABLE IF EXISTS order_items CASCADE`,
-        `DROP TABLE IF EXISTS orders CASCADE`,
+        // Recreate with correct UUID schema - NO DROPS, just additive/idempotent
 
         // Recreate with correct UUID schema
         `CREATE TABLE IF NOT EXISTS orders (
@@ -79,8 +76,9 @@ async function ensureSchema() {
 export default async function handler(req, res) {
     await ensureSchema();
 
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
-    const action = pathname.split('/').pop();
+    // Robust path parsing
+    const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const action = urlObj.pathname.split('/').filter(Boolean).pop();
 
     try {
         if (action === 'create') return await handleCreate(req, res);
@@ -142,9 +140,12 @@ async function handleCreate(req, res) {
         await client.query('COMMIT');
         return res.status(201).json({ success: true, orderId: shortId });
     } catch (e) {
-        await client.query('ROLLBACK');
-        console.error('[Orders] Create failed:', e.message);
-        return res.status(e.message === 'Sai mã PIN.' ? 401 : 500).json({ message: e.message });
+        if (client) await client.query('ROLLBACK');
+        console.error('[Orders] Create failed:', e.message, e.stack);
+        return res.status(e.message === 'Sai mã PIN.' ? 401 : 500).json({
+            message: e.message,
+            debug: process.env.NODE_ENV === 'development' ? e.stack : undefined
+        });
     } finally {
         client.release();
     }

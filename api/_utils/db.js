@@ -32,7 +32,7 @@ const pool = new Pool({
         rejectUnauthorized: false
     },
     // Serverless-optimized settings
-    max: 1,               // Keep connection count low for serverless
+    max: 3,               // Slightly increased to handle concurrent tasks (migration + query)
     idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 5000,
 });
