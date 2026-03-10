@@ -153,18 +153,17 @@ const API = {
         }
     },
 
-    async trackOrderDetail(phone, accessCode) {
+    async trackOrderDetail(phone, pin) {
         try {
             const res = await this._fetch('orders/track-detail', {
                 method: 'POST',
-                body: JSON.stringify({ phone, accessCode })
+                body: JSON.stringify({ phone, pin })
             });
-            return { success: true, order: res.order };
+            return { success: true, orders: res.orders };
         } catch (e) {
             return { success: false, message: e.message };
         }
     },
-
     async updateOrderStatus(payload) {
         try {
             const res = await this._fetch('orders/status', {

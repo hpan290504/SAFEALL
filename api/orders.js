@@ -150,7 +150,7 @@ async function handleCreate(req, res) {
         await client.query('INSERT INTO order_addresses (order_id, full_name, phone, email, address_line) VALUES ($1, $2, $3, $4, $5)', [orderId, customer.name, phone, customer.email || null, customer.address]);
 
         await client.query('COMMIT');
-        return res.status(201).json({ success: true, orderId: shortId, accessCode: accessCode });
+        return res.status(201).json({ success: true, orderId: shortId });
     } catch (e) {
         if (client) await client.query('ROLLBACK');
         console.error('[Orders] Create failed:', e.message, e.stack);
@@ -229,28 +229,44 @@ async function handleTrackQuick(req, res) {
     return res.status(200).json({ success: true, orders: orders.rows });
 }
 
-// ========== TRACK DETAIL (Tier 2: Phone + Access Code) ==========
+// ========== TRACK DETAIL (Tier 2: Phone + PIN) ==========
 async function handleTrackDetail(req, res) {
-    const { phone, accessCode } = req.body;
-    if (!phone || !accessCode) return res.status(400).json({ message: 'Thiếu thông tin tra cứu.' });
+    const { phone, pin } = req.body;
+    if (!phone || !pin) return res.status(400).json({ message: 'Thiếu số điện thoại hoặc mã PIN.' });
     const normalizedPhone = normalizePhone(phone);
 
+    // Join with users to check PIN
     const result = await db.query(`
-        SELECT o.*, a.full_name, a.phone, a.address_line,
+        SELECT o.*, a.full_name, a.phone, a.address_line, u.track_pin_hash,
         (SELECT json_agg(i) FROM order_items i WHERE i.order_id = o.id) as items 
         FROM orders o 
         JOIN order_addresses a ON o.id = a.order_id 
-        WHERE (a.phone = $1 OR EXISTS (SELECT 1 FROM users u WHERE u.id = o.user_id AND u.phone = $1))
-        AND o.access_code = $2
-        LIMIT 1
-    `, [normalizedPhone, accessCode.toUpperCase()]);
+        JOIN users u ON o.user_id = u.id
+        WHERE (a.phone = $1 OR u.phone = $1)
+        ORDER BY o.created_at DESC
+    `, [normalizedPhone]);
 
     if (result.rows.length === 0) {
-        return res.status(401).json({ message: 'Mã tra cứu không chính xác cho số điện thoại này.' });
+        return res.status(404).json({ message: 'Không tìm thấy đơn hàng cho số điện thoại này.' });
     }
+
+    // Since one phone can have multiple orders, we should ideally verify PIN first
+    // and then maybe return all or the specific one. Usually PIN is per user.
+    const user = result.rows[0];
+    const isPinValid = await verifyPin(user, pin);
+
+    if (!isPinValid) {
+        return res.status(401).json({ message: 'Mã PIN không chính xác.' });
+    }
+
+    // Strip sensitive hash before returning
+    const orders = result.rows.map(row => {
+        const { track_pin_hash, ...orderData } = row;
+        return orderData;
+    });
 
     return res.status(200).json({
         success: true,
-        order: result.rows[0]
+        orders: orders // Return all orders for this user since they verified their PIN
     });
 }
