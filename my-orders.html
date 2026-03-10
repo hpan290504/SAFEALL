@@ -106,27 +106,30 @@
             </button>
         </div>
 
-        <!-- Results Container -->
-        <div id="resultsContainer" class="space-y-8 min-h-[400px]">
-            <!-- Dynamic Content -->
-            <div id="loadingState" class="hidden py-40 text-center">
-                <div class="inline-block size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin">
-                </div>
-                <p class="font-black uppercase tracking-[0.2em] text-[10px] mt-6 text-slate-400">Đang truy xuất dữ liệu
-                    SAFEALL...</p>
+        <!-- Status States (Outside results container to prevent deletion) -->
+        <div id="loadingState" class="hidden py-40 text-center">
+            <div class="inline-block size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin">
             </div>
+            <p class="font-black uppercase tracking-[0.2em] text-[10px] mt-6 text-slate-400">Đang truy xuất dữ liệu
+                SAFEALL...</p>
+        </div>
 
-            <div id="emptyState"
-                class="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">
-                <div
-                    class="size-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-200 dark:text-slate-700">
-                    <i class="codicon codicon-search text-5xl"></i>
-                </div>
-                <h3 class="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tight">Cổng tra cứu bảo
-                    mật</h3>
-                <p class="text-slate-400 text-sm mt-3 max-w-xs mx-auto font-medium">Kết quả tìm kiếm sẽ hiển thị tại đây
-                    sau khi bạn xác thực thông tin.</p>
+        <div id="emptyState"
+            class="py-40 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">
+            <div
+                class="size-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-slate-200 dark:text-slate-700">
+                <i class="codicon codicon-search text-5xl"></i>
             </div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white uppercase tracking-tight">Cổng tra cứu bảo
+                mật</h3>
+            <p id="emptyStateMsg" class="text-slate-400 text-sm mt-3 max-w-xs mx-auto font-medium">Kết quả tìm kiếm sẽ
+                hiển thị tại đây
+                sau khi bạn xác thực thông tin.</p>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="hidden space-y-8 min-h-[400px]">
+            <!-- Dynamic Content -->
         </div>
     </main>
 
@@ -156,17 +159,17 @@
             const sD = document.getElementById('sectionDetail');
 
             if (tier === 'quick') {
-                tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-primary/20";
-                tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
-                sQ.classList.remove('hidden');
-                sD.classList.add('hidden');
+                if (tQ) tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-primary text-white shadow-lg shadow-primary/20";
+                if (tD) tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
+                if (sQ) sQ.classList.remove('hidden');
+                if (sD) sD.classList.add('hidden');
             } else {
-                tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-secondary text-white shadow-lg shadow-secondary/20";
-                tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
-                sD.classList.remove('hidden');
-                sQ.classList.add('hidden');
+                if (tD) tD.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all bg-secondary text-white shadow-lg shadow-secondary/20";
+                if (tQ) tQ.className = "flex-1 py-4 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600";
+                if (sD) sD.classList.remove('hidden');
+                if (sQ) sQ.classList.add('hidden');
             }
-            document.getElementById('resultsContainer').innerHTML = document.getElementById('emptyState').outerHTML;
+            showEmpty('Kết quả tìm kiếm sẽ hiển thị tại đây sau khi bạn xác thực thông tin.');
         }
 
         async function handleQuickSearch() {
@@ -209,21 +212,43 @@
         }
 
         function showLoading(show) {
-            document.getElementById('loadingState').classList.toggle('hidden', !show);
-            document.getElementById('emptyState').classList.toggle('hidden', show);
-            if (show) document.getElementById('resultsContainer').innerHTML = '';
+            const elLoading = document.getElementById('loadingState');
+            const elEmpty = document.getElementById('emptyState');
+            const elResults = document.getElementById('resultsContainer');
+
+            if (elLoading) elLoading.classList.toggle('hidden', !show);
+            if (show) {
+                if (elEmpty) elEmpty.classList.add('hidden');
+                if (elResults) {
+                    elResults.classList.add('hidden');
+                    elResults.innerHTML = '';
+                }
+            }
         }
 
         function showEmpty(msg) {
-            document.getElementById('resultsContainer').innerHTML = `
-                <div class="py-20 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-red-50 dark:border-red-900/10">
-                    <p class="text-slate-500 font-bold px-10">${msg}</p>
-                </div>
-            `;
+            const elEmpty = document.getElementById('emptyState');
+            const elMsg = document.getElementById('emptyStateMsg');
+            const elResults = document.getElementById('resultsContainer');
+            const elLoading = document.getElementById('loadingState');
+
+            if (elLoading) elLoading.classList.add('hidden');
+            if (elResults) elResults.classList.add('hidden');
+
+            if (elEmpty) {
+                elEmpty.classList.remove('hidden');
+                if (elMsg) elMsg.innerText = msg;
+            }
         }
 
         function renderQuickResults(orders) {
             const container = document.getElementById('resultsContainer');
+            const elEmpty = document.getElementById('emptyState');
+
+            if (elEmpty) elEmpty.classList.add('hidden');
+            if (!container) return;
+
+            container.classList.remove('hidden');
             container.innerHTML = `
                 <div class="space-y-4">
                     <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-6 px-4">Kết nối thành công: ${orders.length} đơn hàng</h4>
@@ -259,6 +284,12 @@
 
         function renderDetailResults(orders) {
             const container = document.getElementById('resultsContainer');
+            const elEmpty = document.getElementById('emptyState');
+
+            if (elEmpty) elEmpty.classList.add('hidden');
+            if (!container) return;
+
+            container.classList.remove('hidden');
             container.innerHTML = `
                 <div class="space-y-12">
                     <div class="flex items-center gap-2 mb-2 px-4">
