@@ -49,7 +49,7 @@ async function ensureSchema() {
         `CREATE TABLE IF NOT EXISTS order_items (
             id SERIAL PRIMARY KEY,
             order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-            product_id INTEGER, quantity INTEGER NOT NULL,
+            product_id TEXT, quantity INTEGER NOT NULL,
             unit_price DECIMAL(12,2) NOT NULL,
             total_price DECIMAL(12,2) NOT NULL,
             title TEXT
